@@ -1,11 +1,12 @@
 package zzc.discord.evabot.events;
 
 
+import java.util.*;
+
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zzc.discord.evabot.Bot;
 
 /**
  * 
@@ -26,14 +27,20 @@ public class EventERHelpCommand extends EventER {
 	 */
 	@Override
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
-		Bot.deserializeScrims();
-
+		final List<String> messages = new ArrayList<String>();
         final StringBuilder builder = new StringBuilder();
-        EventERManager.commands.forEach(command -> builder.append(command.helpCommand()));
-        
+        EventERManager.commands.forEach(command -> {
+        	if (builder.length() > 0 && builder.length() + command.helpCommand().length() >= 2000) {
+        		messages.add(builder.toString());
+                builder.delete(0, builder.length());
+        	}
+        	builder.append(command.helpCommand());
+        });
+
+		messages.add(builder.toString());
         event.getAuthor().openPrivateChannel().queue((channel) ->
         {
-            channel.sendMessage(builder).queue();
+        	messages.forEach(m -> channel.sendMessage(m).queue());
         });
 			
 		event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();

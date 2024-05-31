@@ -11,7 +11,7 @@
         <id>jitpack.io</id>
         <url>https://jitpack.io</url>
     </repository>
-</repositories>
+  </repositories>
 
   <dependencies>
   	<dependency>
@@ -23,12 +23,31 @@
      <groupId>com.mashape.unirest</groupId>
      <artifactId>unirest-java</artifactId>
      <version>1.4.9</version>
-</dependency>
+	</dependency>
   </dependencies>
   <properties>
-  	<maven.compiler.source>16</maven.compiler.source>
-  	<maven.compiler.target>16</maven.compiler.target>
-  	
+  	<maven.compiler.source>22</maven.compiler.source>
+  	<maven.compiler.target>22</maven.compiler.target>
   </properties>
   
+  <build>
+    <plugins>
+      <plugin>
+      <!-- Build an executable JAR -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.1</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>zzc.discord.evabot.Bot</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

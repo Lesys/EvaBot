@@ -46,8 +46,8 @@ public class EventERManager extends ListenerAdapter {
 
 			if (command != null) {
 				command.exeuteCommand(event);
-			} else if (event.getMessage().getContentRaw().startsWith("!")) {
-				event.getChannel().sendMessage("The command **" + event.getMessage().getContentRaw().split(" ")[0] + "** is not recognized. Please use the correct spelling or use **!help** to see the commands.").queue();
+			} else if (event.getMessage().getContentRaw().startsWith(EventER.commandPrefix)) {
+				event.getChannel().sendMessage("The command **" + event.getMessage().getContentRaw().split(" ")[0] + "** is not recognized. Please use the correct spelling or use **" + EventER.commandPrefix + "help** to see the commands.").queue();
 			}
 		}
 	}

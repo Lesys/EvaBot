@@ -68,6 +68,8 @@ public class GetPlayerStats {
 	 */
 	public static JSONObject getPlayerStats(String name) {
 	    try {
+	    	GetPlayerStats.getSeason();
+	    	
 			HttpResponse<JsonNode> jsonResponse 
 			  = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
 			

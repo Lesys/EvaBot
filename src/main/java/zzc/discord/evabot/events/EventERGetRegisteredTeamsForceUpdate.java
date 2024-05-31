@@ -3,6 +3,7 @@ package zzc.discord.evabot.events;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +24,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 	 * Constructor of EventGuildMessageGetRegisteredTeams
 	 */
 	public EventERGetRegisteredTeamsForceUpdate() {
-		this.commandName += "registeredTeamsForce";
+		this.commandName = EventER.commandPrefix + "registeredTeamsForce";
 	}
 	
 	/**
@@ -39,13 +40,18 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 
 		List<Team> teams = Bot.getScrim(event);
 		if (teams != null) {
+			AtomicInteger placement = new AtomicInteger(1);
 			if (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR)) {
 				teams.stream().forEach(team -> {
 					team.updateMmrForce();
 				});
 				
 				teams.stream().sorted(Comparator.reverseOrder()).forEach(team -> {
-					EventERGetRegisteredTeamsForceUpdate.teamStringBuilder(builder, team);
+			    	if (builder.length() > 0 && builder.length() >= 1800) {
+			    		this.messages.add(builder.toString());
+			            builder.delete(0, builder.length());
+			    	}
+					EventERGetRegisteredTeamsForceUpdate.teamStringBuilder(builder, team, placement);
 				});
 		
 				Bot.serializeScrims();

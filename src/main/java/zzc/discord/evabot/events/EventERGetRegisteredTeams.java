@@ -2,7 +2,7 @@ package zzc.discord.evabot.events;
 
 
 import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,11 +20,13 @@ import zzc.discord.evabot.Team;
  * Class of EventER when the user wants to get the registered teams for a scrim 
  */
 public class EventERGetRegisteredTeams extends EventER {
+	protected List<String> messages;
 	/**
 	 * Constructor of EventGuildMessageGetRegisteredTeams
 	 */
 	public EventERGetRegisteredTeams() {
 		this.commandName += "registeredTeams";
+		this.messages = new ArrayList<String>();
 	}
 	
 	/**
@@ -43,16 +45,25 @@ public class EventERGetRegisteredTeams extends EventER {
 
 		List<Team> teams = Bot.getScrim(event);
 		if (teams != null) {
+			AtomicInteger placement = new AtomicInteger(1);
 			teams.stream().forEach(team -> {
 				team.updateMmr();
 				if (!byMmr) {
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team);
+			    	if (builder.length() > 0 && builder.length() >= 1800) {
+			    		this.messages.add(builder.toString());
+			            builder.delete(0, builder.length());
+			    	}
+					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement);
 				}
 			});
 			
 			if (byMmr)
 				teams.stream().sorted(Comparator.reverseOrder()).forEach(team -> {
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team);
+			    	if (builder.length() > 0 && builder.length() >= 1800) {
+			    		this.messages.add(builder.toString());
+			            builder.delete(0, builder.length());
+			    	}
+					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement);
 				});
 	
 			Bot.serializeScrims();
@@ -75,8 +86,7 @@ public class EventERGetRegisteredTeams extends EventER {
 	 * @param builder	The string builder that is going to be displayed in the message
 	 * @param team		The Team for which you want to create the string
 	 */
-	protected static void teamStringBuilder(final StringBuilder builder, Team team) {
-		AtomicInteger placement = new AtomicInteger(1);
+	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
 		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getName()) ? "__" : "") + player.getName() + (team.getCaptain().equalsIgnoreCase(player.getName()) ? "__" : "") + " (" + player.getDak().split("/")[player.getDak().split("/").length - 1] + " - " + player.getMmr() + "); "));
 		ERPlayer sub = team.getSub();

@@ -57,7 +57,10 @@ public class ERPlayer implements Serializable {
 		
 		if (Bot.allPlayers.stream().anyMatch(p -> p.getName().equalsIgnoreCase(dakName))) {
 			System.err.println("Player already exists; getting back the properties...");
-			return Bot.allPlayers.stream().filter(p -> p.getName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
+			ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
+			if (player != null)
+				player.updateMmr();
+			return player;
 			//System.err.println("LocalTime: " + this.lastUpdateTime.toString());
 		} else {
 			return new ERPlayer(dakName, dakName);
@@ -168,7 +171,7 @@ public class ERPlayer implements Serializable {
 	 * @param name	The new DAK link for this player
 	 */
 	public void setDak(String dak) {
-		if (this.dak.equalsIgnoreCase(dak)) {
+		if (!this.dak.equalsIgnoreCase(dak)) {
 			this.dak = dak;
 			this.lastUpdateTime = null;
 			this.updateMmr();
@@ -200,10 +203,15 @@ public class ERPlayer implements Serializable {
 	public void updateMmrForce() {
 		this.lastUpdateTime = LocalDateTime.now();
 		JSONObject userRank = GetPlayerStats.getPlayerStats(this.getDakName());
-		this.setMmr(userRank.getInt("mmr"));
-		this.rank = userRank.getInt("rank");
+		if (userRank != null) {
+			this.setMmr(userRank.getInt("mmr"));
+			this.rank = userRank.getInt("rank");
+		} else {
+			this.setMmr(0);
+			this.rank = 0;
+		}
 		
-		System.err.println("Serializiont players...");
+		System.err.println("Serialization players...");
 		Bot.serializePlayers();
 	}
 

@@ -14,7 +14,7 @@ public abstract class EventER {
 	/**
 	 * Prefix of all the commands extending this class
 	 */
-	public static String commandPrefix = "/";
+	public static String commandPrefix = "!";
 	
 	/**
 	 * The command name of the EventER. Makes it easier to compare if an event has to be executed based on the command name sent by the user.

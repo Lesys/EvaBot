@@ -46,11 +46,12 @@ public class EventERChangePlayerName extends EventER {
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
 			ERPlayer player = team.getPlayers().stream().filter(p -> p.getName().equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null);
+			player = player == null ? (team.getSub().getName().equalsIgnoreCase(finalPlayerName) ? team.getSub() : null) : player;
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, teamName)) {
-					team.getPlayers().stream().filter(p -> p.getName().equalsIgnoreCase(finalPlayerName)).findFirst().get().setName(newPlayerName);
-		
+					player.setName(newPlayerName);
+					
 					Bot.serializeScrims();
 					
 					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();

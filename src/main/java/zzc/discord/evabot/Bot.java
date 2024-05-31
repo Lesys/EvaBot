@@ -2,6 +2,7 @@ package zzc.discord.evabot;
 
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import javax.security.auth.login.LoginException;
@@ -24,21 +25,36 @@ import zzc.discord.evabot.events.EventERManager;
  */
 public class Bot {
 	public static GatewayIntent[] INTENTS = {GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES};
-	//public static Map<User, String> answers = new HashMap<User, String>(); //<UserID, Answer>
+
 	public static Map<String, List<Team>> scrims = new HashMap<String, List<Team>>();
 	public static List<ERPlayer> allPlayers = new ArrayList<ERPlayer>();
-	//public static List<Team> teams = new ArrayList<Team>();
 
 	public static void main(String[] args) throws LoginException {
-
-		String jdaToken = Token.jdaToken;
-		@SuppressWarnings("unused")
-		JDA jda = JDABuilder.create(jdaToken, Arrays.asList(INTENTS))
-				.enableCache(CacheFlag.VOICE_STATE)
-				.setStatus(OnlineStatus.ONLINE)
-				.setActivity(Activity.customStatus("Use \"" + EventER.commandPrefix + "help\" to receive all usable commands."))
-				.addEventListeners(new EventERManager())
-				.build();
+		if (args.length == 2) {
+			Token.jdaToken = args[0];
+			Token.erApiKey = args[1];
+	
+			String jdaToken = Token.jdaToken;
+			@SuppressWarnings("unused")
+			JDA jda = JDABuilder.create(jdaToken, Arrays.asList(INTENTS))
+					.enableCache(CacheFlag.VOICE_STATE)
+					.setStatus(OnlineStatus.ONLINE)
+					.setActivity(Activity.customStatus("Use \"" + EventER.commandPrefix + "help\" to receive all usable commands."))
+					.addEventListeners(new EventERManager())
+					.build();
+		} else {
+			try {
+				String path = Bot.class.getProtectionDomain()
+						.getCodeSource()
+						.getLocation()
+						.toURI()
+						.getPath();
+				System.out.println("Please put 2 arguments on the command line as displayed:\n" + path.substring(path.lastIndexOf("/") + 1) + " \"discordBotToken\" \"eternalReturnApiKey\"");
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
@@ -46,6 +62,7 @@ public class Bot {
 	 */
 	public static void serializeScrims() {
 		try {
+			Bot.serializePlayers();
 			FileOutputStream fileOut = new FileOutputStream("ERCS_EU_teams.ser");
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 //			Map<String, Integer> test = new HashMap<String, Integer>();
