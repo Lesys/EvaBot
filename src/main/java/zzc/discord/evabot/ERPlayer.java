@@ -209,6 +209,7 @@ public class ERPlayer implements Serializable {
 		} else {
 			this.setMmr(0);
 			this.rank = 0;
+			this.lastUpdateTime = null;
 		}
 		
 		System.err.println("Serialization players...");
