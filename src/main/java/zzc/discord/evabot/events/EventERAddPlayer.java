@@ -34,6 +34,7 @@ public class EventERAddPlayer extends EventER {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
 		String channelName = event.getChannel().getName();
+		String discordServerName = event.getGuild().getName();
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
 		String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
 
@@ -54,7 +55,7 @@ public class EventERAddPlayer extends EventER {
 					String ign = dak.split("/")[dak.split("/").length - 1];
 					System.err.println("Player: " + playerName + "; dak: " + dak + "; IGN: " + ign);
 					ERPlayer player = new ERPlayer(playerName, dak);
-					return !ERPlayer.alreadyRegistered(playerName, channelName) ?
+					return !ERPlayer.alreadyRegistered(playerName, discordServerName, channelName) ?
 							(team.addPlayer(player) ? true :
 								(team.getSub() == null ? team.setSub(player)
 								: false))

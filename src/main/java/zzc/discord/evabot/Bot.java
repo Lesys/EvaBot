@@ -63,7 +63,7 @@ public class Bot {
 	public static void serializeScrims() {
 		try {
 			Bot.serializePlayers();
-			FileOutputStream fileOut = new FileOutputStream("ERCS_EU_teams.ser");
+			FileOutputStream fileOut = new FileOutputStream("ERCS_teams.ser");
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 //			Map<String, Integer> test = new HashMap<String, Integer>();
 //			Bot.scrims.forEach((k, v) -> test.put(k, v.size()));
@@ -71,7 +71,7 @@ public class Bot {
 //			out.writeObject(Bot.teams);
 			out.close();
 			fileOut.close();
-			System.out.println("Serialized data is saved in ERCS_EU_teams.ser");
+			System.out.println("Serialized data is saved in ERCS_teams.ser");
 		} catch (NotSerializableException nse) {
 			nse.printStackTrace();
 			//Bot.scrims = new HashMap<String, List<Team>>();
@@ -87,7 +87,7 @@ public class Bot {
 	@SuppressWarnings("unchecked")
 	public static void deserializeScrims() {
 		try {
-			FileInputStream fileIn = new FileInputStream("ERCS_EU_teams.ser"); //TODO Faire en sorte que les ERPlayer soient pris depuis allPlayer
+			FileInputStream fileIn = new FileInputStream("ERCS_teams.ser"); //TODO Faire en sorte que les ERPlayer soient pris depuis allPlayer
 			ObjectInputStream in = new ObjectInputStream(fileIn);
 			Bot.scrims = (List<Scrim>) in.readObject();
 //			Bot.teams = (List<Team>) in.readObject();
@@ -110,7 +110,7 @@ public class Bot {
 	 */
 	public static void serializePlayers() {
 		try {
-			FileOutputStream fileOut = new FileOutputStream("ERCS_EU_players.ser");
+			FileOutputStream fileOut = new FileOutputStream("ERCS_players.ser");
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 //			Map<String, Integer> test = new HashMap<String, Integer>();
 //			Bot.scrims.forEach((k, v) -> test.put(k, v.size()));
@@ -118,7 +118,7 @@ public class Bot {
 //			out.writeObject(Bot.teams);
 			out.close();
 			fileOut.close();
-			System.out.println("Serialized data is saved in ERCS_EU_players.ser");
+			System.out.println("Serialized data is saved in ERCS_players.ser");
 		} catch (NotSerializableException nse) {
 			nse.printStackTrace();
 			//Bot.scrims = new HashMap<String, List<Team>>();
@@ -134,7 +134,7 @@ public class Bot {
 	@SuppressWarnings("unchecked")
 	public static void deserializePlayers() {
 		try {
-			FileInputStream fileIn = new FileInputStream("ERCS_EU_players.ser");
+			FileInputStream fileIn = new FileInputStream("ERCS_players.ser");
 			ObjectInputStream in = new ObjectInputStream(fileIn);
 			Bot.allPlayers = (List<ERPlayer>) in.readObject();
 //			Bot.teams = (List<Team>) in.readObject();
@@ -169,7 +169,7 @@ public class Bot {
 	 * @return			The scrim (can be null)
 	 */
 	public static Scrim getScrim(@NotNull MessageReceivedEvent event) {
-		return Bot.scrims.stream().filter(s -> s.getName().equalsIgnoreCase(event.getChannel().getName())).findFirst().orElse(null);
+		return Bot.scrims.stream().filter(s -> s.getDiscordServerName().equalsIgnoreCase(event.getGuild().getName()) && s.getName().equalsIgnoreCase(event.getChannel().getName())).findFirst().orElse(null);
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class Bot {
 	 * @param event		The event retrieved from Discord (to get the channel name)
 	 * @return			The scrim (can be null)
 	 */
-	public static Scrim getScrim(String channelName) {
-		return Bot.scrims.stream().filter(s -> s.getName().equalsIgnoreCase(channelName)).findFirst().orElse(null);
+	public static Scrim getScrim(String discordServerName, String channelName) {
+		return Bot.scrims.stream().filter(s -> s.getDiscordServerName().equalsIgnoreCase(discordServerName) && s.getName().equalsIgnoreCase(channelName)).findFirst().orElse(null);
 	}
 }

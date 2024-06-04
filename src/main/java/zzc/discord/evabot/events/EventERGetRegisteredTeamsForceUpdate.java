@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
 
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -43,7 +42,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 		Scrim scrim = Bot.getScrim(event);
 		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
-			if (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR)) {
+			if (EventERManager.hasPermission(event)) {
 				scrim.getTeams().stream().forEach(team -> {
 					team.updateMmrForce();
 				});

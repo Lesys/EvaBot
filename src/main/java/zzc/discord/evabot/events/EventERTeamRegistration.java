@@ -34,6 +34,7 @@ public class EventERTeamRegistration extends EventER {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
 		String channelName = event.getChannel().getName();
+		String discordServerName = event.getGuild().getName();
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
 		if (names.get(0).length() > 1) {
 			String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
@@ -57,7 +58,7 @@ public class EventERTeamRegistration extends EventER {
 					String dak = row.split(" ")[1];
 					System.err.println("Player: " + playerName + "; dak: " + dak + "; Captain name: " + event.getMessage().getAuthor().getName());
 					ERPlayer player = new ERPlayer(playerName, dak);
-					return !ERPlayer.alreadyRegistered(playerName, channelName) ?
+					return !ERPlayer.alreadyRegistered(playerName, discordServerName, channelName) ?
 							(team.addPlayer(player) ? true :
 								(team.getSub() == null ? team.setSub(player)
 								: false))
@@ -66,7 +67,7 @@ public class EventERTeamRegistration extends EventER {
 	
 				if (registered) {
 					if (scrim == null) {
-						scrim = new Scrim(channelName);
+						scrim = new Scrim(event.getGuild().getName(), channelName);
 						Bot.scrims.add(scrim);
 					}
 					scrim.addTeam(team);

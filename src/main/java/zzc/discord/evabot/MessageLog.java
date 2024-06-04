@@ -34,9 +34,9 @@ public class MessageLog implements Serializable {
 	protected OffsetDateTime creationTime;
 	
 	/**
-	 * Constructor of a GameLog
+	 * Constructor of a MessageLog
 	 * 
-	 * @param o		The JSONObject representing a GameLog after retrieving it from the ERAPI
+	 * @param m		The Message sent on Discord, supposed a command
 	 */
 	public MessageLog(Message m) {
 		this.message = m.getContentRaw();
