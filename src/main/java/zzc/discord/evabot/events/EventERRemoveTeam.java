@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
+import zzc.discord.evabot.MessageLog;
 import zzc.discord.evabot.Team;
 
 /**
@@ -36,7 +37,8 @@ public class EventERRemoveTeam extends EventER {
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
 			if (EventERManager.hasPermission(event, teamName)) {
-				if (Bot.getScrim(event).remove(team)) {
+				if (Bot.getScrim(event).getTeams().remove(team)) {
+					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
 					Bot.serializeScrims();
 					
 					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();

@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
+import zzc.discord.evabot.MessageLog;
+import zzc.discord.evabot.Scrim;
 import zzc.discord.evabot.Team;
 
 /**
@@ -36,7 +38,7 @@ public class EventERTeamRegistration extends EventER {
 		if (names.get(0).length() > 1) {
 			String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
 			
-			List<Team> teams = Bot.getScrim(event);
+			Scrim scrim = Bot.getScrim(event);
 			
 			if (Bot.getTeam(event, teamName) == null) {
 				List<String> playerNames = new ArrayList<String>();
@@ -63,13 +65,13 @@ public class EventERTeamRegistration extends EventER {
 				});
 	
 				if (registered) {
-					if (teams == null) {
-						teams = new ArrayList<Team>();
-						Bot.scrims.put(channelName, teams);
+					if (scrim == null) {
+						scrim = new Scrim(channelName);
+						Bot.scrims.add(scrim);
 					}
-					teams.add(team);
-					//Bot.teams.add(team);
-					
+					scrim.addTeam(team);
+
+					scrim.addLogs(new MessageLog(event.getMessage()));
 					Bot.serializeScrims();
 					
 					event.getChannel().sendMessage("**" + teamName + "** has been registered for the " + channelName + " scrim.").queue();

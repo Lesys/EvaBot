@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
+import zzc.discord.evabot.MessageLog;
 import zzc.discord.evabot.Team;
 
 /**
@@ -54,6 +55,7 @@ public class EventERChangeDak extends EventER {
 				if (EventERManager.hasPermission(event, teamName)) {
 					player.setDak(dak);
 
+					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
 					Bot.serializeScrims();
 					
 					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();

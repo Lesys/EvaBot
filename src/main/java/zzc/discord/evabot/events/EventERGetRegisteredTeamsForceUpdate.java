@@ -1,6 +1,7 @@
 package zzc.discord.evabot.events;
 
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,7 +12,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
-import zzc.discord.evabot.Team;
+import zzc.discord.evabot.Scrim;
 
 /**
  * 
@@ -32,31 +33,36 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 	 */
 	@Override
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+		final List<String> messages = new ArrayList<String>();
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
 
         final StringBuilder builder = new StringBuilder();
         builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\":\n");
 
-		List<Team> teams = Bot.getScrim(event);
-		if (teams != null) {
+		Scrim scrim = Bot.getScrim(event);
+		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
 			if (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR)) {
-				teams.stream().forEach(team -> {
+				scrim.getTeams().stream().forEach(team -> {
 					team.updateMmrForce();
 				});
 				
-				teams.stream().sorted(Comparator.reverseOrder()).forEach(team -> {
+				scrim.getTeams().stream().sorted(Comparator.reverseOrder()).forEach(team -> {
 			    	if (builder.length() > 0 && builder.length() >= 1800) {
-			    		this.messages.add(builder.toString());
+			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
 					EventERGetRegisteredTeamsForceUpdate.teamStringBuilder(builder, team, placement);
 				});
-		
+
+				messages.add(builder.toString());
+		        event.getAuthor().openPrivateChannel().queue((channel) ->
+		        {
+		        	messages.forEach(m -> channel.sendMessage(m).queue());
+		        });
+		        
 				Bot.serializeScrims();
-				
-				event.getChannel().sendMessage(builder).queue();
 			} else {
 				event.getChannel().sendMessage("Only an Administrator can use this command.").queue();				
 			}

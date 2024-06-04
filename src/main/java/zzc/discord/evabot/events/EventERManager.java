@@ -27,6 +27,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERChangeDak(),
 			new EventERChangePlayerName(),
 			new EventERGetRank(),
+			new EventERGetLogs(),
 			new EventERGetRegisteredTeams(),
 			new EventERGetRegisteredTeamsForceUpdate(),
 			new EventERGetServerDistribution(),
@@ -68,10 +69,19 @@ public class EventERManager extends ListenerAdapter {
 	 * Check if the sender of the event has the permissions to change something about the Team registered
 	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
 	 * @param team		The Team on which the changes will occur
-	 * @return			true if the Author of the event has the rights (either the captain of an Administrator), false if not
+	 * @return			true if the Author of the event has the rights (either the captain or an Administrator), false if not
 	 */
 	public static boolean hasPermission(@NotNull MessageReceivedEvent event, Team team) {
 		return (team != null && team.getCaptain() != null && team.getCaptain().equals(event.getAuthor().getName()))
 			|| (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR));
+	}
+
+	/**
+	 * Check if the sender of the event has the permissions to change something about the command
+	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
+	 * @return			true if the Author of the event has the rights (== Administrator), false if not
+	 */
+	public static boolean hasPermission(MessageReceivedEvent event) {
+		return event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR);
 	}
 }

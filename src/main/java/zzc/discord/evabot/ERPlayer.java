@@ -223,9 +223,9 @@ public class ERPlayer implements Serializable {
 	 * @return				true if the player already is registered for this scrim, false if not
 	 */
 	public static boolean alreadyRegistered(String name, String channelName) {
-		List<Team> teams = Bot.scrims.get(channelName);
-		if (teams != null)
-			return teams.stream().anyMatch(team -> team.getPlayers().stream().anyMatch(player -> player.getName().equalsIgnoreCase(name)));
+		Scrim scrim = Bot.getScrim(channelName);
+		if (scrim != null)
+			return scrim.getTeams().stream().anyMatch(team -> team.getPlayers().stream().anyMatch(player -> player.getName().equalsIgnoreCase(name)));
 		return false;
 	}
 

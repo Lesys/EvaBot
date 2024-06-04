@@ -1,7 +1,6 @@
 package zzc.discord.evabot.events;
 
 
-import java.util.Comparator;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,6 +10,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
+import zzc.discord.evabot.Scrim;
 import zzc.discord.evabot.Team;
 
 /**
@@ -20,13 +20,11 @@ import zzc.discord.evabot.Team;
  * Class of EventER when the user wants to get the registered teams for a scrim 
  */
 public class EventERGetRegisteredTeams extends EventER {
-	protected List<String> messages;
 	/**
 	 * Constructor of EventGuildMessageGetRegisteredTeams
 	 */
 	public EventERGetRegisteredTeams() {
 		this.commandName += "registeredTeams";
-		this.messages = new ArrayList<String>();
 	}
 	
 	/**
@@ -34,6 +32,7 @@ public class EventERGetRegisteredTeams extends EventER {
 	 */
 	@Override
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+		final List<String> messages = new ArrayList<String>();
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
 
@@ -43,14 +42,14 @@ public class EventERGetRegisteredTeams extends EventER {
         boolean byMmr = event.getMessage().getContentRaw().split(" ").length > 1 && event.getMessage().getContentRaw().split(" ")[1].equalsIgnoreCase("byMmr");
         System.err.println("ByMmr ? " + byMmr);
 
-		List<Team> teams = Bot.getScrim(event);
-		if (teams != null) {
+		Scrim scrim = Bot.getScrim(event);
+		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
-			teams.stream().forEach(team -> {
+			scrim.getTeams().stream().forEach(team -> {
 				team.updateMmr();
 				if (!byMmr) {
 			    	if (builder.length() > 0 && builder.length() >= 1800) {
-			    		this.messages.add(builder.toString());
+			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
 					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement);
@@ -58,17 +57,21 @@ public class EventERGetRegisteredTeams extends EventER {
 			});
 			
 			if (byMmr)
-				teams.stream().sorted(Comparator.reverseOrder()).forEach(team -> {
+				scrim.getTeams().stream().sorted(Comparator.reverseOrder()).forEach(team -> {
 			    	if (builder.length() > 0 && builder.length() >= 1800) {
-			    		this.messages.add(builder.toString());
+			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
 					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement);
 				});
-	
+
+			messages.add(builder.toString());
+	        event.getAuthor().openPrivateChannel().queue((channel) ->
+	        {
+	        	messages.forEach(m -> channel.sendMessage(m).queue());
+	        });
+	        
 			Bot.serializeScrims();
-			
-			event.getChannel().sendMessage(builder).queue();
 		} else {			
 			event.getChannel().sendMessage("No teams has yet to be registered for the scrim \"" + event.getChannel().getName() + "\".").queue();
 		}

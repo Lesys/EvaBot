@@ -26,7 +26,7 @@ import zzc.discord.evabot.events.EventERManager;
 public class Bot {
 	public static GatewayIntent[] INTENTS = {GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES};
 
-	public static Map<String, List<Team>> scrims = new HashMap<String, List<Team>>();
+	public static List<Scrim> scrims = new ArrayList<Scrim>();
 	public static List<ERPlayer> allPlayers = new ArrayList<ERPlayer>();
 
 	public static void main(String[] args) throws LoginException {
@@ -89,7 +89,7 @@ public class Bot {
 		try {
 			FileInputStream fileIn = new FileInputStream("ERCS_EU_teams.ser"); //TODO Faire en sorte que les ERPlayer soient pris depuis allPlayer
 			ObjectInputStream in = new ObjectInputStream(fileIn);
-			Bot.scrims = (HashMap<String, List<Team>>) in.readObject();
+			Bot.scrims = (List<Scrim>) in.readObject();
 //			Bot.teams = (List<Team>) in.readObject();
 			in.close();
 			fileIn.close();
@@ -98,7 +98,7 @@ public class Bot {
 			return;
 		} catch (ClassNotFoundException c) {
 			System.out.println("Map string list-teams class not found");
-			Bot.scrims = new HashMap<String, List<Team>>();
+			Bot.scrims = new ArrayList<Scrim>();
 //			Bot.teams = new ArrayList<Team>();
 			c.printStackTrace();
 			return;
@@ -159,16 +159,25 @@ public class Bot {
 	 * @return			The team registered in the scrim (null if no team found)
 	 */
 	public static Team getTeam(@NotNull MessageReceivedEvent event, String teamName) {
-		List<Team> teams = Bot.getScrim(event);
-		return teams != null ? teams.stream().filter(t -> t.getName().equalsIgnoreCase(teamName)).findFirst().orElse(null) : null;
+		Scrim scrim = Bot.getScrim(event);
+		return scrim != null ? scrim.getTeams().stream().filter(t -> t.getName().equalsIgnoreCase(teamName)).findFirst().orElse(null) : null;
 	}
-	
+
 	/**
 	 * Gets the scrim related to the event
 	 * @param event		The event retrieved from Discord (to get the channel name)
-	 * @return			The list of teams registered for the scrim (can be null)
+	 * @return			The scrim (can be null)
 	 */
-	public static List<Team> getScrim(@NotNull MessageReceivedEvent event) {
-		return Bot.scrims.get(event.getChannel().getName());
+	public static Scrim getScrim(@NotNull MessageReceivedEvent event) {
+		return Bot.scrims.stream().filter(s -> s.getName().equalsIgnoreCase(event.getChannel().getName())).findFirst().orElse(null);
+	}
+
+	/**
+	 * Gets the scrim related to the event
+	 * @param event		The event retrieved from Discord (to get the channel name)
+	 * @return			The scrim (can be null)
+	 */
+	public static Scrim getScrim(String channelName) {
+		return Bot.scrims.stream().filter(s -> s.getName().equalsIgnoreCase(channelName)).findFirst().orElse(null);
 	}
 }
