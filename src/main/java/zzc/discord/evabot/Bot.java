@@ -63,7 +63,7 @@ public class Bot {
 	public static void serializeScrims() {
 		try {
 			Bot.serializePlayers();
-			FileOutputStream fileOut = new FileOutputStream("ERCS_teams.ser");
+			FileOutputStream fileOut = new FileOutputStream("ERCS_scrims.ser");
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 //			Map<String, Integer> test = new HashMap<String, Integer>();
 //			Bot.scrims.forEach((k, v) -> test.put(k, v.size()));
@@ -71,7 +71,7 @@ public class Bot {
 //			out.writeObject(Bot.teams);
 			out.close();
 			fileOut.close();
-			System.out.println("Serialized data is saved in ERCS_teams.ser");
+			System.out.println("Serialized data is saved in ERCS_scrims.ser");
 		} catch (NotSerializableException nse) {
 			nse.printStackTrace();
 			//Bot.scrims = new HashMap<String, List<Team>>();
@@ -87,7 +87,7 @@ public class Bot {
 	@SuppressWarnings("unchecked")
 	public static void deserializeScrims() {
 		try {
-			FileInputStream fileIn = new FileInputStream("ERCS_teams.ser"); //TODO Faire en sorte que les ERPlayer soient pris depuis allPlayer
+			FileInputStream fileIn = new FileInputStream("ERCS_scrims.ser");
 			ObjectInputStream in = new ObjectInputStream(fileIn);
 			Bot.scrims = (List<Scrim>) in.readObject();
 //			Bot.teams = (List<Team>) in.readObject();
@@ -97,7 +97,7 @@ public class Bot {
 			//i.printStackTrace();
 			return;
 		} catch (ClassNotFoundException c) {
-			System.out.println("Map string list-teams class not found");
+			System.out.println("List Scrim class not found");
 			Bot.scrims = new ArrayList<Scrim>();
 //			Bot.teams = new ArrayList<Team>();
 			c.printStackTrace();
