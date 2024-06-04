@@ -66,10 +66,7 @@ public class EventERGetRegisteredTeams extends EventER {
 				});
 
 			messages.add(builder.toString());
-	        event.getAuthor().openPrivateChannel().queue((channel) ->
-	        {
-	        	messages.forEach(m -> channel.sendMessage(m).queue());
-	        });
+	        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
 	        
 			Bot.serializeScrims();
 		} else {			
