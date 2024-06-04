@@ -6,9 +6,11 @@ import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import zzc.discord.evabot.Bot;
+import zzc.discord.evabot.Scrim;
 import zzc.discord.evabot.Team;
 
 /**
@@ -34,6 +36,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERHelpCommand(),
 			new EventERPutToSub(),
 			new EventERRemovePlayer(),
+			new EventERRemoveScrim(),
 			new EventERRemoveTeam(),
 			new EventERTeamRegistration()
 		);
@@ -50,6 +53,21 @@ public class EventERManager extends ListenerAdapter {
 			} else if (event.getMessage().getContentRaw().startsWith(EventER.commandPrefix)) {
 				event.getChannel().sendMessage("The command **" + event.getMessage().getContentRaw().split(" ")[0] + "** is not recognized. Please use the correct spelling or use **" + EventER.commandPrefix + "help** to see the commands.").queue();
 			}
+		}
+	}
+	
+	/**
+	 * If a channel is deleted and it's a scrim channel, removes the scrim from the list in case the Administrator forgot to do so manually
+	 */
+	@Override
+	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
+		if (!event.isFromType(ChannelType.TEXT) || !event.getChannel().getName().contains("scrim")) {
+			return;
+		} else {
+			Bot.deserializeScrims();
+			
+			Scrim scrim = Bot.getScrim(event.getGuild().getName(), event.getChannel().getName());
+			Bot.scrims.remove(scrim);
 		}
 	}
 
