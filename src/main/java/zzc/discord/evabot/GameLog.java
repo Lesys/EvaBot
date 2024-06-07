@@ -2,6 +2,8 @@ package zzc.discord.evabot;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import org.json.JSONObject;
 
@@ -17,6 +19,8 @@ public class GameLog implements Serializable {
 	 */
 	private static final long serialVersionUID = -6767589585609547345L;
 
+	protected String nickname;
+	
 	/**
 	 * The server where the game was played
 	 */
@@ -38,15 +42,40 @@ public class GameLog implements Serializable {
 	protected int seasonId;
 	
 	/**
+	 * The team mates of the player for the game
+	 */
+	protected List<String> teammates;
+	
+	/**
+	 * The final placement of the player for the game
+	 */
+	protected int placement;
+	
+	/**
+	 * The team number of the player for the game
+	 */
+	protected int teamNumber;
+	
+	/**
+	 * The total number of kills the player's team did for the game
+	 */
+	protected int teamKill;
+	
+	/**
 	 * Constructor of a GameLog
 	 * 
 	 * @param o		The JSONObject representing a GameLog after retrieving it from the ERAPI
 	 */
 	public GameLog(JSONObject o) {
+		this.nickname = o.getString("nickname");
 		this.server = o.getString("serverName");
 		this.gameId = o.getLong("gameId");
 		this.startTime = o.getString("startDtm");
 		this.seasonId = o.getInt("seasonId");
+		this.placement = o.getInt("gameRank");
+		this.teamNumber = o.getInt("teamNumber");
+		this.teamKill = o.getInt("teamKill");
+		this.teammates = new ArrayList<String>();
 	}
 	
 	/**
@@ -55,6 +84,18 @@ public class GameLog implements Serializable {
 	 */
 	public LocalDateTime getDateTime() {
 		return GetPlayerStats.getLocalDateTime(this.startTime);
+	}
+
+	/**
+	 * Getter of creationTime but formatted
+	 * @return		creationTime with a specified format
+	 */
+	public String getDateTimeString() {
+		return this.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MMMM-dd HH:mm:ss"));
+	}
+	
+	public String getNickname() {
+		return this.nickname;
 	}
 	
 	/**
@@ -79,5 +120,45 @@ public class GameLog implements Serializable {
 	 */
 	public int getSeasonId() {
 		return this.seasonId;
+	}
+	
+	/**
+	 * Getter of teammates
+	 * @return		The List of the team mates name
+	 */
+	public List<String> getTeammates() {
+		return this.teammates;
+	}
+	
+	/**
+	 * Getter of placement
+	 * @return		The final placement of the player for the game
+	 */
+	public int getPlacement() {
+		return this.placement;
+	}
+	
+	/**
+	 * Getter of teamNumber
+	 * @return		The team number of the player for the game
+	 */
+	public int getTeamnumber() {
+		return this.teamNumber;
+	}
+	
+	/**
+	 * Getter of teamKill
+	 * @return		The total number of kills the player's team did for the game
+	 */
+	public int getTeamKill() {
+		return this.teamKill;
+	}
+	
+	/**
+	 * Adds a team mate name to the list for this game
+	 * @param teammates		The name of the team mate to add
+	 */
+	public void addTeammantes(String teammates) {
+		this.teammates.add(teammates);
 	}
 }

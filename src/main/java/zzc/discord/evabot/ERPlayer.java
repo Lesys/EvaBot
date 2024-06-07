@@ -41,11 +41,6 @@ public class ERPlayer implements Serializable {
 	 * The last time the MMR was updated
 	 */
 	protected LocalDateTime lastUpdateTime;
-	
-	/**
-	 * The ranked games registered of the player
-	 */
-	protected List<GameLog> games;
 
 	/**
 	 * Constructor of an ERPlayer
@@ -61,7 +56,6 @@ public class ERPlayer implements Serializable {
 			if (player != null)
 				player.updateMmr();
 			return player;
-			//System.err.println("LocalTime: " + this.lastUpdateTime.toString());
 		} else {
 			return new ERPlayer(dakName, dakName);
 		}
@@ -75,15 +69,11 @@ public class ERPlayer implements Serializable {
 	 */
 	public ERPlayer(String name, String dak) {
 		this.name = name;
-		//this.mmr = mmr;
 		this.dak = dak;
-		
-		this.games = new ArrayList<GameLog>();
 		
 		Bot.allPlayers.add(this);
 		
 		this.updateMmr();
-		//this.lastUpdateTime = LocalDateTime.now();
 	}
 	
 	/**
@@ -123,10 +113,9 @@ public class ERPlayer implements Serializable {
 	 * @return	The last game registered of this player
 	 */
 	public GameLog getLastGame() {
-		if (this.games.size() > 0) {
-//			LocalDateTime date = LocalDateTime.parse(this.games.get(0).getString("startDtm"));
-//			return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
-			return this.games.get(0);
+		List<GameLog> games = this.getAllGames();
+		if (games.size() > 0) {
+			return games.get(0);
 		} else
 			return null;
 	}
@@ -136,7 +125,8 @@ public class ERPlayer implements Serializable {
 	 * @return	The list of all the games registered of this player
 	 */
 	public List<GameLog> getAllGames() {
-		return this.games;
+		Bot.deserializeGameLog();
+		return Bot.games.stream().filter(gl -> gl.nickname.equalsIgnoreCase(this.getDakName())).toList();
 	}
 	
 	/**
@@ -145,18 +135,9 @@ public class ERPlayer implements Serializable {
 	 */
 	public void setName(String name) {
 		this.name = name;
-		
 		Bot.serializePlayers();
 	}
-
-	public void addGame(GameLog game) {
-		this.games.add(0, game);
-	}
-
-	public void addGames(List<GameLog> game) {
-		this.games.addAll(0, game);
-	}
-
+	
 	/**
 	 * Setter of MMR
 	 * @param name	The new MMR for this player

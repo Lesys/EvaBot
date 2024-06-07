@@ -26,8 +26,9 @@ import zzc.discord.evabot.events.EventERManager;
 public class Bot {
 	public static GatewayIntent[] INTENTS = {GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES};
 
-	public static List<Scrim> scrims = new ArrayList<Scrim>();
-	public static List<ERPlayer> allPlayers = new ArrayList<ERPlayer>();
+	public static List<Scrim> scrims = new ArrayList<Scrim>(); // Static variable for the scrims
+	public static List<ERPlayer> allPlayers = new ArrayList<ERPlayer>(); // Static variable for all the players
+	public static List<GameLog> games = new ArrayList<GameLog>(); // Static variable for all the games retrieved
 
 	public static void main(String[] args) throws LoginException {
 		if (args.length == 2) {
@@ -146,6 +147,54 @@ public class Bot {
 		} catch (ClassNotFoundException c) {
 			System.out.println("List ERPlayers class not found");
 			Bot.allPlayers = new ArrayList<ERPlayer>();
+//			Bot.teams = new ArrayList<Team>();
+			c.printStackTrace();
+			return;
+		}
+	}
+
+
+	/**
+	 * Serializes GameLogs to a local file so we keep them even when the bot stops
+	 */
+	public static void serializeGameLog() {
+		try {
+			FileOutputStream fileOut = new FileOutputStream("ERCS_games.ser");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+//			Map<String, Integer> test = new HashMap<String, Integer>();
+//			Bot.scrims.forEach((k, v) -> test.put(k, v.size()));
+			out.writeObject(Bot.games);
+//			out.writeObject(Bot.teams);
+			out.close();
+			fileOut.close();
+			System.out.println("Serialized data is saved in ERCS_games.ser");
+		} catch (NotSerializableException nse) {
+			nse.printStackTrace();
+			//Bot.scrims = new HashMap<String, List<Team>>();
+			return;
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
+
+	/**
+	 * Retrieves the saved GaameLog from the file
+	 */
+	@SuppressWarnings("unchecked")
+	public static void deserializeGameLog() {
+		try {
+			FileInputStream fileIn = new FileInputStream("ERCS_games.ser");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			Bot.games = (List<GameLog>) in.readObject();
+//			Bot.teams = (List<Team>) in.readObject();
+			in.close();
+			fileIn.close();
+		} catch (IOException i) {
+			//i.printStackTrace();
+			return;
+		} catch (ClassNotFoundException c) {
+			System.out.println("List GameLog class not found");
+			Bot.games = new ArrayList<GameLog>();
 //			Bot.teams = new ArrayList<Team>();
 			c.printStackTrace();
 			return;

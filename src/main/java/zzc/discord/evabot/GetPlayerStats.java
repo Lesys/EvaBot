@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.StreamSupport;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,6 +114,55 @@ public class GetPlayerStats {
 	 */
 	public static Map<String, Integer> serverDistribution(String name) {
 		try {
+			GetPlayerStats.retrieveGames(name);
+			ERPlayer player = ERPlayer.getERPlayer(name);
+			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
+			
+			Map<String, Integer> servers = new HashMap<String, Integer>();
+			filteredList.stream().map(gl -> gl.getServer()).distinct().forEach(server -> servers.put(server, 0));
+			servers.keySet().forEach(server -> servers.put(server, (int)filteredList.stream().filter(gl -> server.equalsIgnoreCase(gl.getServer())).count()));
+			
+			System.out.println("Number of games: " + servers.keySet().stream().map(key -> servers.get(key)).reduce(0, (a, b) -> a + b));
+			servers.keySet().forEach(server -> System.out.println(server + " server: " + servers.get(server) + " games"));
+			
+			return servers;
+		} catch (UnirestException e) {
+			e.printStackTrace();
+			return new HashMap<String, Integer>();
+		}
+	}
+
+	/**
+	 * Gets all the games 2 players played together in the current season
+	 * @param name1		The player name we want the games from
+	 * @param name2		The 2nd player name with which the 1st player played
+	 * @return			List of all the games both players played together
+	 */
+	public static List<GameLog> commonGames(String name1, String name2) {
+		try {
+			GetPlayerStats.retrieveGames(name1);
+			ERPlayer player = ERPlayer.getERPlayer(name1);
+			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
+			List<GameLog> commonGames = filteredList.stream().filter(gl -> gl.getTeammates().contains(name2)).toList();
+	
+			System.out.println("Number of games: " + commonGames.size());
+			
+	//((JSONObject)gamesResponse.getBody().getObject().getJSONArray("userGames").get(0)).getLong("gameId")
+	
+			//?nickname==name1 ==> get teamNumber nicknames, nickname contains name2, get gameRank
+			return commonGames;
+		} catch (UnirestException e) {
+			e.printStackTrace();
+			return new ArrayList<GameLog>();
+		}
+	}
+	
+	/**
+	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it 
+	 * @param name		The player name we want the games from 
+	 * @throws UnirestException
+	 */
+	public static void retrieveGames(String name) throws UnirestException {
 			GetPlayerStats.getSeason();
 			
 			HttpResponse<JsonNode> jsonResponse;
@@ -124,7 +174,8 @@ public class GetPlayerStats {
 			JSONObject obj = jsonResponse.getBody().getObject();
 			
 			String userNum = obj.getJSONObject("user").get("userNum").toString();
-			
+
+			Bot.deserializeGameLog();
 			ERPlayer player = ERPlayer.getERPlayer(name);
 			LocalDateTime date = player.getLastGame() != null ? player.getLastGame().getDateTime() : null;
 			
@@ -132,12 +183,13 @@ public class GetPlayerStats {
 			HttpResponse<JsonNode> gamesResponse;
 			List<GameLog> gameList = new ArrayList<GameLog>();
 			boolean keepGoing = true;
+			
 			do {
 				gamesResponse
 				  = apiRequest("https://open-api.bser.io/v1/user/games/" + userNum + (next != 0 ? "?next=" + next : ""));
 	
 				System.out.println("Status: " + gamesResponse.getStatus());
-				//System.out.println("Body: " + gamesResponse.getBody());
+				System.out.println("Body: " + gamesResponse.getBody());
 				//System.out.println("Number of games: " + gamesResponse.getBody().getObject().getJSONArray("userGames").length());
 				try {
 					next = gamesResponse.getBody().getObject().getLong("next");
@@ -157,26 +209,30 @@ public class GetPlayerStats {
 				}
 			} while (keepGoing && gameList.stream().noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)) && next != 0);
 			
-			player.addGames(gameList);
+			Bot.games.addAll(gameList);
+
+			Bot.serializeGameLog();
 			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
 			
-			Map<String, Integer> servers = new HashMap<String, Integer>();
-			filteredList.stream().map(gl -> gl.getServer()).distinct().forEach(server -> servers.put(server, 0));
-			servers.keySet().forEach(server -> servers.put(server, (int)filteredList.stream().filter(gl -> server.equalsIgnoreCase(gl.getServer())).count()));
+			filteredList.stream().filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date) && gl.teammates.size() <= 0))).forEach(gl -> {
+				HttpResponse<JsonNode> game;
+				try {
+					game = apiRequest("https://open-api.bser.io/v1/games/" + gl.getGameId());
+				} catch (UnirestException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					game = null;
+				}
+				if (game != null) {
+					StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getInt("teamNumber") == gl.getTeamnumber()).forEach(o -> gl.addTeammantes(((JSONObject)o).getString("nickname")));
+					//TODO TEST
+					System.out.println("Status game: " + game.getStatus());
+				}
+			});
 			
-			System.out.println("Number of games: " + servers.keySet().stream().map(key -> servers.get(key)).reduce(0, (a, b) -> a + b));
-			servers.keySet().forEach(server -> System.out.println(server + " server: " + servers.get(server) + " games"));
-			
-			Bot.serializePlayers();
-			
-			return servers;
-		} catch (UnirestException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return new HashMap<String, Integer>();
-		}
+			Bot.serializeGameLog();
 	}
-	
+
 	/**
 	 * API request with a delay of 1 second because APIKey can't provide more than 1 request per second
 	 * @param url	The URL of the API request
