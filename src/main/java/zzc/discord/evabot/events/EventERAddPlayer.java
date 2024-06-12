@@ -82,6 +82,6 @@ public class EventERAddPlayer extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {Player1Name} {Player1DAK}... - Adds players to a team registered for the scrim. Please return to line after TeamName argument and write only 1 player per row.\nCommand use example: " + super.helpCommand() + " TeamName\nPlayer1Name https.../Player1Name\nPlayer2Name https.../Player2Name\n";
+		return super.helpCommand() + " {TeamName} {Player1Name} {Player1DAKLink}... - Adds players to a team registered for the scrim. Please return to line after TeamName argument and write only 1 player per row.\nCommand use example: " + super.helpCommand() + " TeamName\nPlayer1Name https.../Player1Name\nPlayer2Name https.../Player2Name\n";
 	}
 }

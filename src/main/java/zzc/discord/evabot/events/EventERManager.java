@@ -25,21 +25,22 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	public static List<EventER> commands = Arrays.asList(
 			new EventERAddPlayer(),
-			new EventERChangeCaptain(),
 			new EventERChangeDak(),
 			new EventERChangePlayerName(),
 			new EventERGetCommonGames(),
-			new EventERGetRank(),
+			new EventERGetBestTeammate(),
 			new EventERGetLogs(),
-			new EventERGetRegisteredTeams(),
-			new EventERGetRegisteredTeamsForceUpdate(),
+			new EventERGetRank(),
 			new EventERGetServerDistribution(),
+			new EventERChangeCaptain(),
 			new EventERHelpCommand(),
 			new EventERPutToSub(),
+			new EventERTeamRegistration(),
+			new EventERGetRegisteredTeams(),
+			new EventERGetRegisteredTeamsForceUpdate(),
 			new EventERRemovePlayer(),
 			new EventERRemoveScrim(),
-			new EventERRemoveTeam(),
-			new EventERTeamRegistration()
+			new EventERRemoveTeam()
 		);
 
 	@Override
@@ -62,13 +63,18 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	@Override
 	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
+		System.out.println("Deleted channel name: " + event.getChannel().getName());
 		if (!event.isFromType(ChannelType.TEXT) || !event.getChannel().getName().contains("scrim")) {
 			return;
 		} else {
 			Bot.deserializeScrims();
 			
 			Scrim scrim = Bot.getScrim(event.getGuild().getName(), event.getChannel().getName());
-			Bot.scrims.remove(scrim);
+			if (scrim != null) {
+				Bot.scrims.remove(scrim);
+				Bot.serializeScrims();
+				System.err.println("Scrim " + scrim.getName() + " has been removed after the closure of the channel.");
+			}
 		}
 	}
 

@@ -30,7 +30,7 @@ public class GetPlayerStats {
 	 * Gets the current season (previous season if current is preseason) and put it in the static variable.
 	 */
 	protected static void getSeason() {
-		System.err.println("Getting player stats: ");
+		System.err.println("Getting season: ");
 		
 	    try {
 	    	// If season not initialized yet
@@ -143,7 +143,7 @@ public class GetPlayerStats {
 			GetPlayerStats.retrieveGames(name1);
 			ERPlayer player = ERPlayer.getERPlayer(name1);
 			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
-			List<GameLog> commonGames = filteredList.stream().filter(gl -> gl.getTeammates().contains(name2)).toList();
+			List<GameLog> commonGames = filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(nickname -> nickname.equalsIgnoreCase(name2))).toList();
 	
 			System.out.println("Number of games: " + commonGames.size());
 			
@@ -163,6 +163,7 @@ public class GetPlayerStats {
 	 * @throws UnirestException
 	 */
 	public static void retrieveGames(String name) throws UnirestException {
+		try {
 			GetPlayerStats.getSeason();
 			
 			HttpResponse<JsonNode> jsonResponse;
@@ -189,7 +190,7 @@ public class GetPlayerStats {
 				  = apiRequest("https://open-api.bser.io/v1/user/games/" + userNum + (next != 0 ? "?next=" + next : ""));
 	
 				System.out.println("Status: " + gamesResponse.getStatus());
-				System.out.println("Body: " + gamesResponse.getBody());
+				//System.out.println("Body: " + gamesResponse.getBody());
 				//System.out.println("Number of games: " + gamesResponse.getBody().getObject().getJSONArray("userGames").length());
 				try {
 					next = gamesResponse.getBody().getObject().getLong("next");
@@ -224,13 +225,19 @@ public class GetPlayerStats {
 					game = null;
 				}
 				if (game != null) {
-					StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getInt("teamNumber") == gl.getTeamnumber()).forEach(o -> gl.addTeammantes(((JSONObject)o).getString("nickname")));
+					StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getInt("teamNumber") == gl.getTeamnumber()).forEach(o -> {
+						if (!gl.getNickname().equalsIgnoreCase(((JSONObject)o).getString("nickname")))
+							gl.addTeammantes(((JSONObject)o).getString("nickname"));
+					});
 					//TODO TEST
 					System.out.println("Status game: " + game.getStatus());
 				}
 			});
 			
 			Bot.serializeGameLog();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

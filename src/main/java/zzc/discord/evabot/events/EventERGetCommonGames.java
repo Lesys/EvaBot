@@ -18,7 +18,7 @@ import zzc.discord.evabot.GetPlayerStats;
  */
 public class EventERGetCommonGames extends EventER {
 	/**
-	 * Constructor of EventERGetRank
+	 * Constructor of EventERGetCommonGames
 	 */
 	public EventERGetCommonGames() {
 		this.commandName += "getCommonGames";
@@ -53,7 +53,7 @@ public class EventERGetCommonGames extends EventER {
 			}
 			event.getChannel().sendMessage(buffer).queue();
 		} else {			
-			event.getChannel().sendMessage("Please enter the name of the player and only their name.").queue();
+			event.getChannel().sendMessage("Please enter the name of both the players you want to have the incommon games and only their names.").queue();
 		}
 		
 		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();

@@ -26,7 +26,7 @@ import zzc.discord.evabot.events.EventERManager;
 public class Bot {
 	public static GatewayIntent[] INTENTS = {GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES};
 
-	public static List<Scrim> scrims = new ArrayList<Scrim>(); // Static variable for the scrims
+	public static List<Scrim> scrims = new ArrayList<Scrim>(); // Static variable for the scrims created
 	public static List<ERPlayer> allPlayers = new ArrayList<ERPlayer>(); // Static variable for all the players
 	public static List<GameLog> games = new ArrayList<GameLog>(); // Static variable for all the games retrieved
 

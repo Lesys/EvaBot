@@ -97,6 +97,6 @@ public class EventERTeamRegistration extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {Player1Name} {Player1DAK}... - Registers a team with the players for the scrim. Please return to line after TeamName argument and write only 1 player per row.\nCommand use example: !register TeamName\nPlayer1Name https.../Player1Name\nPlayer2Name https.../Player2Name\nPlayer2Name https.../Player2Name\n";
+		return super.helpCommand() + " {TeamName} {Player1Name} {Player1DAKLink}... - Registers a team with the players for the scrim. Please return to line after TeamName argument and write only 1 player per row.\nCommand use example: " + super.helpCommand() + " TeamName\nPlayer1Name https.../Player1Name\nPlayer2Name https.../Player2Name\nPlayer2Name https.../Player2Name\n";
 	}
 }

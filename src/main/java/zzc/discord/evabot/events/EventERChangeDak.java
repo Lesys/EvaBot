@@ -72,6 +72,6 @@ public class EventERChangeDak extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {PlayerName} {NewPlayerDak} - Changes the DAK of a player registered.\n";
+		return super.helpCommand() + " {TeamName} {PlayerName} {NewPlayerDakLink} - Changes the DAK of a player registered.\n";
 	}
 }
