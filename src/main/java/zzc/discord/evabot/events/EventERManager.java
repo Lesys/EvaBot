@@ -27,6 +27,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERAddPlayer(),
 			new EventERChangeDak(),
 			new EventERChangePlayerName(),
+			new EventERClearPlayer(),
 			new EventERGetCommonGames(),
 			new EventERGetBestTeammate(),
 			new EventERGetLogs(),

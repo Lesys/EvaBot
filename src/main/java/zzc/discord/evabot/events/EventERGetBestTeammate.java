@@ -39,11 +39,13 @@ public class EventERGetBestTeammate extends EventER {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		this.options.putAll(Map.of("win", EventERGetBestTeammate::getMostWins,
 			"TK", EventERGetBestTeammate::getMostTk,
-			"placement", EventERGetBestTeammate::getBestPlacement));
+			"placement", EventERGetBestTeammate::getBestPlacement,
+			"games", EventERGetBestTeammate::getGames));
 
 		this.stringReturn.putAll(Map.of("win", EventERGetBestTeammate::getStringWins,
 			"TK", EventERGetBestTeammate::getStringTk,
-			"placement", EventERGetBestTeammate::getStringPlacement));
+			"placement", EventERGetBestTeammate::getStringPlacement,
+			"games", EventERGetBestTeammate::getStringGames));
 		
 		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
 
@@ -113,6 +115,13 @@ public class EventERGetBestTeammate extends EventER {
 		return bestTeammate.stream().filter(tm -> tm.getTotalGames() > 1).sorted(Comparator.comparing(TeamMate::averagePlacement)).toList();		
 	}
 	
+	protected static List<TeamMate> getGames(List<TeamMate> bestTeammate, List<GameLog> filteredList) {
+		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(name -> {TeamMate teammate = null; teammate = bestTeammate.stream().filter(tm -> tm.getNickname().equals(name)).findFirst().orElse(null); if (teammate == null) {teammate = new TeamMate(name); bestTeammate.add(teammate);} teammate.addMmrGainInGame(gl.getMmrGainInGame()); teammate.addPlacement(gl.getPlacement());}));
+		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().contains(tm.getNickname())).count()).intValue()));
+		
+		return bestTeammate.stream().filter(tm -> tm.getTotalGames() > 1).sorted(Comparator.comparing(TeamMate::getTotalGames).thenComparing(TeamMate::getMmrGainInGame).reversed()).toList();		
+	}
+	
 	protected static String getStringWins(TeamMate tm) {
 		return tm.getNickname() + " - " + tm.getTotalWins() + " wins (" + tm.ratioWinGames() * 100 + "%)\n";
 	}
@@ -123,5 +132,9 @@ public class EventERGetBestTeammate extends EventER {
 	
 	protected static String getStringPlacement(TeamMate tm) {
 		return tm.getNickname() + " - " + tm.averagePlacement() + " average placement (" + tm.getTotalGames() + " total games)\n";
+	}
+	
+	protected static String getStringGames(TeamMate tm) {
+		return tm.getNickname() + " - " + tm.getTotalGames() + " games (" + tm.averageRpGains() + " average RP gain / " + tm.averagePlacement() + " average placement)\n";
 	}
 }

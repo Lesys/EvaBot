@@ -19,6 +19,9 @@ public class GameLog implements Serializable {
 	 */
 	private static final long serialVersionUID = -6767589585609547345L;
 
+	/**
+	 * The nickname of the owner of the replay
+	 */
 	protected String nickname;
 	
 	/**
@@ -62,6 +65,11 @@ public class GameLog implements Serializable {
 	protected int teamKill;
 	
 	/**
+	 * The MMR gained by the player (does not take entry cost in the total)
+	 */
+	protected int mmrGainInGame;
+	
+	/**
 	 * Constructor of a GameLog
 	 * 
 	 * @param o		The JSONObject representing a GameLog after retrieving it from the ERAPI
@@ -75,6 +83,7 @@ public class GameLog implements Serializable {
 		this.placement = o.getInt("gameRank");
 		this.teamNumber = o.getInt("teamNumber");
 		this.teamKill = o.getInt("teamKill");
+		this.mmrGainInGame = o.getInt("mmrGainInGame");
 		this.teammates = new ArrayList<String>();
 	}
 	
@@ -94,6 +103,10 @@ public class GameLog implements Serializable {
 		return this.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MMMM-dd HH:mm:ss"));
 	}
 	
+	/**
+	 * Getter of nickname
+	 * @return		The nickname of the owner of the replay
+	 */
 	public String getNickname() {
 		return this.nickname;
 	}
@@ -152,6 +165,14 @@ public class GameLog implements Serializable {
 	 */
 	public int getTeamKill() {
 		return this.teamKill;
+	}
+	
+	/**
+	 * Getter of mmrGainInGame
+	 * @return		The MMR gained by the player for this game (without entry cost calculation)
+	 */
+	public int getMmrGainInGame() {
+		return this.mmrGainInGame;
 	}
 	
 	/**

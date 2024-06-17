@@ -52,7 +52,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
-					EventERGetRegisteredTeamsForceUpdate.teamStringBuilder(builder, team, placement);
+					EventERGetRegisteredTeamsForceUpdate.teamStringBuilder(builder, team, placement, event);
 				});
 
 				messages.add(builder.toString());

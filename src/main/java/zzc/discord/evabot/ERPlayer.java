@@ -24,6 +24,11 @@ public class ERPlayer implements Serializable {
 	protected String name;
 	
 	/**
+	 * The discord name of the player
+	 */
+	protected String discordName;
+	
+	/**
 	 * The MMR of the player, the most uptodate
 	 */
 	protected int mmr;
@@ -57,7 +62,7 @@ public class ERPlayer implements Serializable {
 				player.updateMmr();
 			return player;
 		} else {
-			return new ERPlayer(dakName, dakName);
+			return new ERPlayer(dakName, dakName, "");
 		}
 	}
 	
@@ -67,9 +72,10 @@ public class ERPlayer implements Serializable {
 	 * @param name	The name of the player
 	 * @param dak	The DAK link of the player
 	 */
-	public ERPlayer(String name, String dak) {
+	public ERPlayer(String name, String dak, String discordName) {
 		this.name = name;
 		this.dak = dak;
+		this.discordName = discordName;
 		
 		Bot.allPlayers.add(this);
 		
@@ -82,6 +88,14 @@ public class ERPlayer implements Serializable {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+	/**
+	 * Getter of discordName
+	 * @return	The discord name of this player
+	 */
+	public String getDiscordName() {
+		return this.discordName;
 	}
 
 	/**
@@ -135,6 +149,15 @@ public class ERPlayer implements Serializable {
 	 */
 	public void setName(String name) {
 		this.name = name;
+		Bot.serializePlayers();
+	}
+	
+	/**
+	 * Setter of discordName
+	 * @param discordName	The new discord name for this player
+	 */
+	public void setDiscordName(String discordName) {
+		this.discordName = discordName;
 		Bot.serializePlayers();
 	}
 	

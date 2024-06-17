@@ -31,6 +31,11 @@ public class TeamMate implements Comparable<TeamMate> {
 	 * Total kills overall with the other team mate
 	 */
 	protected int teamKill;
+
+	/**
+	 * Total of MMR gained with the other team mate
+	 */
+	protected int mmrGainInGame;
 	
 	/**
 	 * Constructor of TeamMate
@@ -42,6 +47,7 @@ public class TeamMate implements Comparable<TeamMate> {
 		this.totalGames = 0;;
 		this.placement = 0;
 		this.teamKill = 0;
+		this.mmrGainInGame = 0;
 	}
 	
 	/**
@@ -83,6 +89,14 @@ public class TeamMate implements Comparable<TeamMate> {
 	public int getTeamKill() {
 		return this.teamKill;
 	}
+	
+	/**
+	 * Getter of mmrGainInGame
+	 * @return		The total of MMR gained with the other team mate
+	 */
+	public int getMmrGainInGame() {
+		return this.mmrGainInGame;
+	}
 
 	/**
 	 * Adds the wins to the total amount of wins
@@ -117,11 +131,19 @@ public class TeamMate implements Comparable<TeamMate> {
 	}
 	
 	/**
+	 * Adds the RP gained to the total MMR
+	 * @param mmrGainInGame		The mmrGainInGame to add
+	 */
+	public void addMmrGainInGame(int mmrGainInGame) {
+		this.mmrGainInGame += mmrGainInGame;
+	}
+	
+	/**
 	 * Calculates the ratio of won games
 	 * @return		The ratio of won games
 	 */
 	public Double ratioWinGames() {
-		return Double.valueOf(this.totalWins) / Double.valueOf(this.totalGames);
+		return Math.floor(Double.valueOf(this.totalWins) / Double.valueOf(this.totalGames) * 100) / 100;
 	}
 
 	/**
@@ -129,7 +151,7 @@ public class TeamMate implements Comparable<TeamMate> {
 	 * @return		The average of team kills
 	 */
 	public Double averageTK() {
-		return Double.valueOf(this.teamKill) / Double.valueOf(this.totalGames);
+		return Math.floor(Double.valueOf(this.teamKill) / Double.valueOf(this.totalGames) * 100) / 100;
 	}
 
 	/**
@@ -137,7 +159,15 @@ public class TeamMate implements Comparable<TeamMate> {
 	 * @return		The average of placement
 	 */
 	public Double averagePlacement() {
-		return Double.valueOf(this.placement) / Double.valueOf(this.totalGames);
+		return Math.floor(Double.valueOf(this.placement) / Double.valueOf(this.totalGames) * 100) / 100;
+	}
+	
+	/**
+	 * Calculates the average RP gained
+	 * @return		The average RP gained
+	 */
+	public Double averageRpGains() {
+		return Math.floor(Double.valueOf(this.mmrGainInGame) / Double.valueOf(this.totalGames) * 100) / 100;
 	}
 	
 	@Override

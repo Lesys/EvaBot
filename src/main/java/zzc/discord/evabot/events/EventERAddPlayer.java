@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -36,6 +37,7 @@ public class EventERAddPlayer extends EventER {
 		String channelName = event.getChannel().getName();
 		String discordServerName = event.getGuild().getName();
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
+		List<User> members = event.getMessage().getMentions().getUsers();
 		String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
 
 		Team team = Bot.getTeam(event, teamName);//Bot.teams.stream().filter(t -> t.getName().equalsIgnoreCase(teamName)).findFirst().orElse(null);
@@ -54,7 +56,11 @@ public class EventERAddPlayer extends EventER {
 					String dak = row.split(" ")[1];
 					String ign = dak.split("/")[dak.split("/").length - 1];
 					System.err.println("Player: " + playerName + "; dak: " + dak + "; IGN: " + ign);
-					ERPlayer player = new ERPlayer(playerName, dak);
+					ERPlayer player = ERPlayer.getERPlayer(dak);
+					if (player.getDiscordName().isEmpty()) {
+						player.setName(playerName);
+						player.setDiscordName(members.remove(0).getName());
+					}
 					return !ERPlayer.alreadyRegistered(playerName, discordServerName, channelName) ?
 							(team.addPlayer(player) ? true :
 								(team.getSub() == null ? team.setSub(player)

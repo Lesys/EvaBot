@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -52,7 +53,7 @@ public class EventERGetRegisteredTeams extends EventER {
 			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement);
+					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event);
 				}
 			});
 			
@@ -62,7 +63,7 @@ public class EventERGetRegisteredTeams extends EventER {
 			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement);
+					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event);
 				});
 
 			messages.add(builder.toString());
@@ -85,13 +86,24 @@ public class EventERGetRegisteredTeams extends EventER {
 	 * Protected method to construct the string to send
 	 * @param builder	The string builder that is going to be displayed in the message
 	 * @param team		The Team for which you want to create the string
+	 * @param placement	The integer corresponding to the place of the team
+	 * @param event		The event sent to be able to mention people
 	 */
-	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement) {
+	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
-		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getName()) ? "__" : "") + player.getName() + (team.getCaptain().equalsIgnoreCase(player.getName()) ? "__" : "") + " (" + player.getDak().split("/")[player.getDak().split("/").length - 1] + " - " + player.getMmr() + "); "));
+		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getName()) ? "__" : "") + EventERGetRegisteredTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), false).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(player.getName()) ? "__" : "") + " (" + player.getDak().split("/")[player.getDak().split("/").length - 1] + " - " + player.getMmr() + "); "));
 		ERPlayer sub = team.getSub();
 		if (sub != null) {
-			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getName()) ? "__" : "") + sub.getName() + (team.getCaptain().equalsIgnoreCase(sub.getName()) ? "__" : "") + " (" + sub.getDak().split("/")[sub.getDak().split("/").length - 1] + " - " + sub.getMmr() + ")]");
+			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getName()) ? "__" : "") + sub.getName() + "(" + EventERGetRegisteredTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), false).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(sub.getName()) ? "__" : "") + " (" + sub.getDak().split("/")[sub.getDak().split("/").length - 1] + " - " + sub.getMmr() + ")]");
 		}
+	}
+	
+	/**
+	 * Returns the string corresponding to the mention of the member
+	 * @param member	The member to mention
+	 * @return			The mention (or a String if member is null)
+	 */
+	protected static String getMention(Member member) {
+		return member != null ? member.getAsMention() : "N/A";
 	}
 }

@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -36,6 +37,8 @@ public class EventERTeamRegistration extends EventER {
 		String channelName = event.getChannel().getName();
 		String discordServerName = event.getGuild().getName();
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
+		List<User> members = new ArrayList<User>();
+		members.addAll(event.getMessage().getMentions().getUsers());
 		if (names.size() > 1) {
 			String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
 			
@@ -53,12 +56,20 @@ public class EventERTeamRegistration extends EventER {
 				boolean registered = false;
 				System.err.println("Players: " + playerNames.size() + "; " + names.get(1));
 				playerNames.stream().forEach(p -> System.err.println(p + "; "));
+				members.forEach(m -> event.getMessage().getMentions().getRoles().forEach(r -> event.getGuild().addRoleToMember(m, r)));
 				try {
 					registered = playerNames.stream().allMatch(row -> {
-						String playerName = row.split(" ")[0];
+						User u = members.remove(0);
+						String playerName = u.getEffectiveName();
+						String discordName = u.getName();
 						String dak = row.split(" ")[1];
 						System.err.println("Player: " + playerName + "; dak: " + dak + "; Captain name: " + event.getMessage().getAuthor().getName());
-						ERPlayer player = new ERPlayer(playerName, dak);
+						ERPlayer player = ERPlayer.getERPlayer(dak);
+						if (player.getDiscordName().isEmpty()) {
+							player.setName(playerName);
+							player.setDiscordName(discordName);
+						}
+						//new ERPlayer(playerName, dak);
 						return !ERPlayer.alreadyRegistered(playerName, discordServerName, channelName) ?
 								(team.addPlayer(player) ? true :
 									(team.getSub() == null ? team.setSub(player)

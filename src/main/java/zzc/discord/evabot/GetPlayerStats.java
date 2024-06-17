@@ -215,7 +215,7 @@ public class GetPlayerStats {
 			Bot.serializeGameLog();
 			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
 			
-			filteredList.stream().filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date) && gl.teammates.size() <= 0))).forEach(gl -> {
+			filteredList.stream().filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date) && (gl.teammates.size() <= 0 || gl.getMmrGainInGame() <= 0)))).forEach(gl -> {
 				HttpResponse<JsonNode> game;
 				try {
 					game = apiRequest("https://open-api.bser.io/v1/games/" + gl.getGameId());
