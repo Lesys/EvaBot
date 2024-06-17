@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import zzc.discord.evabot.Bot;
+import zzc.discord.evabot.ERPlayer;
 import zzc.discord.evabot.Scrim;
 import zzc.discord.evabot.Team;
 
@@ -39,6 +40,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERTeamRegistration(),
 			new EventERGetRegisteredTeams(),
 			new EventERGetRegisteredTeamsForceUpdate(),
+			new EventERGetSelectedTeams(),
 			new EventERRemovePlayer(),
 			new EventERRemoveScrim(),
 			new EventERRemoveTeam()
@@ -99,6 +101,17 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	public static boolean hasPermission(@NotNull MessageReceivedEvent event, Team team) {
 		return (team != null && team.getCaptain() != null && team.getCaptain().equals(event.getAuthor().getName()))
+			|| (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR));
+	}
+
+	/**
+	 * Check if the sender of the event has the permissions to change something about a ERPlayer registered
+	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
+	 * @param player	The ERPlayer on which the changes will occur
+	 * @return			true if the Author of the event has the rights (either the player himself or an Administrator), false if not
+	 */
+	public static boolean hasPermission(@NotNull MessageReceivedEvent event, ERPlayer player) {
+		return (player != null && player.getDiscordName().equals(event.getAuthor().getName()))
 			|| (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR));
 	}
 

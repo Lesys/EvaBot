@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -17,14 +18,14 @@ import zzc.discord.evabot.Team;
  * 
  * @author Lesys
  *
- * Class of EventER when the user wants to get the registered teams for a scrim 
+ * Class of EventER when the user wants to get the selected teams for a scrim 
  */
-public class EventERGetRegisteredTeams extends EventER {
+public class EventERGetSelectedTeams extends EventER {
 	/**
-	 * Constructor of EventERGetRegisteredTeams
+	 * Constructor of EventERGetSelectedTeams
 	 */
-	public EventERGetRegisteredTeams() {
-		this.commandName += "registeredTeams";
+	public EventERGetSelectedTeams() {
+		this.commandName += "selectedTeams";
 	}
 	
 	/**
@@ -45,30 +46,29 @@ public class EventERGetRegisteredTeams extends EventER {
 		Scrim scrim = Bot.getScrim(event);
 		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
-			scrim.getTeams().stream().forEach(team -> {
-				team.updateMmr();
-				if (!byMmr) {
+			if (EventERManager.hasPermission(event)) {
+				List<Team> filtered = null;
+				scrim.getTeams().stream().forEach(team -> team.updateMmr());
+				if (!byMmr)
+					filtered = scrim.getTeams().stream().limit(8).toList();
+				else
+					filtered = scrim.getTeams().stream().sorted(Comparator.reverseOrder()).limit(8).toList();
+				
+				filtered.stream().forEach(team -> {
 			    	if (builder.length() > 0 && builder.length() >= 1800) {
 			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
 			    	}
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event);
-				}
-			});
-			
-			if (byMmr)
-				scrim.getTeams().stream().sorted(Comparator.reverseOrder()).forEach(team -> {
-			    	if (builder.length() > 0 && builder.length() >= 1800) {
-			    		messages.add(builder.toString());
-			            builder.delete(0, builder.length());
-			    	}
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event);
+			    	EventERGetSelectedTeams.teamStringBuilder(builder, team, placement, event);
 				});
-
-			messages.add(builder.toString());
-	        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
-	        
-			Bot.serializeScrims();
+	
+				messages.add(builder.toString());
+		        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
+		        
+				Bot.serializeScrims();
+			} else {
+				event.getChannel().sendMessage("Only an Administrator can use this command.").queue();				
+			}
 		} else {			
 			event.getChannel().sendMessage("No teams has yet to be registered for the scrim \"" + event.getChannel().getName() + "\".").queue();
 		}
@@ -90,10 +90,19 @@ public class EventERGetRegisteredTeams extends EventER {
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
-		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + player.getName() + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDak().split("/")[player.getDak().split("/").length - 1] + " - " + player.getMmr() + "); "));
+		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), false).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDak().split("/")[player.getDak().split("/").length - 1] + " - " + player.getMmr() + "); "));
 		ERPlayer sub = team.getSub();
 		if (sub != null) {
-			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + sub.getName() + "(" + sub.getName() + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDak().split("/")[sub.getDak().split("/").length - 1] + " - " + sub.getMmr() + ")]");
+			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getName()) ? "__" : "") + sub.getDiscordName() + "(" + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), false).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDak().split("/")[sub.getDak().split("/").length - 1] + " - " + sub.getMmr() + ")]");
 		}
+	}
+	
+	/**
+	 * Returns the string corresponding to the mention of the member
+	 * @param member	The member to mention
+	 * @return			The mention (or a String if member is null)
+	 */
+	protected static String getMention(Member member) {
+		return member != null ? member.getAsMention() : "N/A";
 	}
 }

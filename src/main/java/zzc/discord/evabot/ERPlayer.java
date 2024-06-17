@@ -229,7 +229,7 @@ public class ERPlayer implements Serializable {
 	public static boolean alreadyRegistered(String name, String discordServerName, String channelName) {
 		Scrim scrim = Bot.getScrim(discordServerName, channelName);
 		if (scrim != null)
-			return scrim.getTeams().stream().anyMatch(team -> team.getPlayers().stream().anyMatch(player -> player.getName().equalsIgnoreCase(name)));
+			return scrim.getTeams().stream().anyMatch(team -> team.getPlayers().stream().anyMatch(player -> player.getDiscordName().equalsIgnoreCase(name)));
 		return false;
 	}
 
