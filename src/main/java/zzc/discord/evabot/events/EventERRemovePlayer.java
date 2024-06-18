@@ -46,23 +46,23 @@ public class EventERRemovePlayer extends EventER {
 
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
-			ERPlayer player = team.getPlayers().stream().filter(p -> p.getName().equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null);
+			ERPlayer player = team.getPlayers().stream().filter(p -> p.getDiscordName().equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null);
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, teamName)) {
-					if (team.removePlayer(playerName)) {
+					if (team.removePlayer(finalPlayerName)) {
 						Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
 						Bot.serializeScrims();
 						
 						event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
 					} else {
-						event.getChannel().sendMessage(playerName + " is not part of the " + teamName + " team registered in this scrim.").queue();
+						event.getChannel().sendMessage(finalPlayerName + " is not part of the " + teamName + " team registered in this scrim.").queue();
 					}
 				} else {
 					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only the captain of the team can use it.").queue();
 				}
 			} else {
-				event.getChannel().sendMessage(playerName + " hasn't been registered in this Team for this scrim.").queue();
+				event.getChannel().sendMessage(finalPlayerName + " hasn't been registered in this Team for this scrim.").queue();
 			}				
 		} else {
 			event.getChannel().sendMessage(teamName + " hasn't been registered in this scrim.").queue();
@@ -71,6 +71,6 @@ public class EventERRemovePlayer extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {PlayerName} - Removes a player from a team registered.\n";
+		return super.helpCommand() + " {TeamName} {PlayerDiscordName} - Removes a player from a team registered.\n";
 	}
 }

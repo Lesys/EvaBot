@@ -70,7 +70,7 @@ public class GetPlayerStats {
 	public static JSONObject getPlayerStats(String name) {
 	    try {
 	    	GetPlayerStats.getSeason();
-	    	
+	    	System.err.println("IGN: " + name);
 			HttpResponse<JsonNode> jsonResponse 
 			  = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
 			

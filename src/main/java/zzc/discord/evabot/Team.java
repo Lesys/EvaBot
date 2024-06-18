@@ -22,14 +22,15 @@ public class Team implements Serializable, Comparable<Team> {
 	protected String captain;
 	
 	/**
-	 * The list of ERPlayer in the Team
+	 * The list of the player discord names in the Team
 	 */
-	protected List<ERPlayer> players;
+	protected List<String> playerNames;
+	protected List<ERPlayer> players; // TODO remove this property
 	
 	/**
 	 * The sub of the Team, can be null
 	 */
-	protected ERPlayer sub;
+	protected String sub;
 	
 	/**
 	 * The name of the Team
@@ -42,7 +43,8 @@ public class Team implements Serializable, Comparable<Team> {
 	 */
 	public Team(String name) {
 		this.name = name;
-		this.players = new ArrayList<ERPlayer>();
+		//this.players = new ArrayList<ERPlayer>();
+		this.playerNames = new ArrayList<String>();
 		this.sub = null;
 	}
 	
@@ -59,9 +61,28 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	The list of players in this Team
 	 */
 	public List<ERPlayer> getPlayers() {
-		return this.players;
+		Bot.deserializePlayers();
+		List<ERPlayer> players = new ArrayList<ERPlayer>();
+		if (this.playerNames == null && this.players != null && !this.players.isEmpty()) {
+			this.playerNames = new ArrayList<String>();
+			this.players.forEach(p -> this.playerNames.add(p.getDiscordName()));
+		}
+		this.playerNames.forEach(discordName -> players.add(ERPlayer.getERPlayerByDiscordName(discordName)));
+		return players;
 	}
 
+	/**
+	 * Getter of playerNames
+	 * @return		The list of the names of all the main players in this Team
+	 */
+	public List<String> getPlayerNames() {
+		if (this.playerNames == null && this.players != null && !this.players.isEmpty()) {
+			this.playerNames = new ArrayList<String>();
+			this.players.forEach(p -> this.playerNames.add(p.getDiscordName()));
+		}
+		return this.playerNames;
+	}
+	
 	/**
 	 * Getter of name
 	 * @return	The name of this Team
@@ -74,7 +95,7 @@ public class Team implements Serializable, Comparable<Team> {
 	 * Getter of sub
 	 * @return	The sub player in this Team
 	 */
-	public ERPlayer getSub() {
+	public String getSub() {
 		return this.sub;
 	}
 	
@@ -101,8 +122,12 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	true if the sub has been correctly set, false if not
 	 */
 	public boolean setSub(ERPlayer sub) {
-		this.sub = sub;
-		this.players.remove(sub);
+		if (sub != null) {
+			this.sub = sub.getDiscordName();
+			this.playerNames.remove(sub.getDiscordName());
+		} else {
+			this.sub = null;
+		}
 		return true;
 	}
 
@@ -113,8 +138,8 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	true if the player has been correctly added, false if not
 	 */
 	public boolean addPlayer(ERPlayer player) {
-		if (this.players.size() < Team.MAX_NB_PLAYER)
-			return this.players.add(player);
+		if (this.playerNames.size() < Team.MAX_NB_PLAYER)
+			return this.playerNames.add(player.getDiscordName());
 		return false;
 	}
 	
@@ -125,8 +150,8 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	true if the players have been correctly added, false if not
 	 */
 	public boolean addPlayers(List<ERPlayer> players) {
-		if (this.players.size() < Team.MAX_NB_PLAYER)
-			return this.players.addAll(players);
+		if (this.playerNames.size() + players.size() <= Team.MAX_NB_PLAYER)
+			return this.playerNames.addAll(players.stream().map(player -> player.getDiscordName()).toList());
 		return false;
 	}
 	
@@ -135,25 +160,25 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	The average MMR of this Team
 	 */
 	public Float getAverage() {
-		return this.players.stream().map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).floatValue() / this.players.size();
+		return this.getPlayers().stream().map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).floatValue() / this.playerNames.size();
 	}
 
 	/**
 	 * Updates the MMR of all players in this Team
 	 */
 	public void updateMmr() {
-		this.players.forEach(p -> p.updateMmr());
+		this.getPlayers().forEach(p -> p.updateMmr());
 		if (sub != null)
-			sub.updateMmr();
+			ERPlayer.getERPlayerByDiscordName(sub).updateMmr();
 	}
 
 	/**
 	 * Force update the MMR of all players in this Team
 	 */
 	public void updateMmrForce() {
-		this.players.forEach(p -> p.updateMmrForce());
+		this.getPlayers().forEach(p -> p.updateMmrForce());
 		if (sub != null)
-			sub.updateMmrForce();
+			ERPlayer.getERPlayerByDiscordName(sub).updateMmrForce();
 	}
 	
 	/**
@@ -162,7 +187,7 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	true if the player has correctly been removed from this Team, false if no player were found
 	 */
 	public boolean removePlayer(String name) {
-		return this.players.remove(this.players.stream().filter(p -> p.getName().equalsIgnoreCase(name)).findFirst().orElse(null)) ? true : this.getSub() != null && this.getSub().getName().equalsIgnoreCase(name) ? this.setSub(null) : false;
+		return this.playerNames.remove(name) ? true : this.getSub() != null && this.getSub().equalsIgnoreCase(name) ? this.setSub(null) : false;
 	}
 
 	/**

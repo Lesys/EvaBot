@@ -40,11 +40,11 @@ public class EventERClearPlayer extends EventER {
 			//final String finalPlayerName = playerName;
 			ERPlayer player = ERPlayer.getERPlayer(playerName);
 			
-			if (Bot.games.removeIf(gl -> gl.getNickname().equalsIgnoreCase(player.getName()))) {
+			if (Bot.games.removeIf(gl -> gl.getNickname().equalsIgnoreCase(player.getDakName()))) {
 				Bot.serializeGameLog();
-				event.getChannel().sendMessage("The player " + player.getName() + " has been correctly cleared from the players. Current games in log: " + Bot.games.stream().filter(gl -> gl.getNickname().equalsIgnoreCase(player.getName())).count()).queue();
+				event.getChannel().sendMessage("The player " + player.getDakName() + " has been correctly cleared from the players. Current games in log: " + Bot.games.stream().filter(gl -> gl.getNickname().equalsIgnoreCase(player.getDakName())).count()).queue();
 			} else {
-				event.getChannel().sendMessage("The games of player " + player.getName() + " couldn't be removed. Current games in log: " + Bot.games.stream().filter(gl -> gl.getNickname().equalsIgnoreCase(player.getName())).count()).queue();
+				event.getChannel().sendMessage("The games of player " + player.getDakName() + " couldn't be removed. Current games in log: " + Bot.games.stream().filter(gl -> gl.getNickname().equalsIgnoreCase(player.getDakName())).count()).queue();
 			}
 		} else {			
 			event.getChannel().sendMessage("Please enter the name of the player you want to clear the games.").queue();
@@ -55,6 +55,6 @@ public class EventERClearPlayer extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {PlayerName} - Clears the games of the player from the logs.\n";
+		return super.helpCommand() + " {PlayerDakName} - Clears the games of the player from the logs.\n";
 	}
 }

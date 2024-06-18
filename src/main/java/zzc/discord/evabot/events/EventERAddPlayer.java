@@ -52,16 +52,20 @@ public class EventERAddPlayer extends EventER {
 				System.err.println("Players: " + playerNames.size() + "; " + names.get(1));
 				playerNames.stream().forEach(p -> System.err.println(p + "; "));
 				registered = playerNames.stream().allMatch(row -> {
-					String playerName = row.split(" ")[0];
+					String discordName = "";
+					try {
+						User u = members.remove(0);
+						discordName = u.getName();
+					} catch (IndexOutOfBoundsException e) {
+						discordName = row.split(" ")[0];
+					}
 					String dak = row.split(" ")[1];
 					String ign = dak.split("/")[dak.split("/").length - 1];
-					System.err.println("Player: " + playerName + "; dak: " + dak + "; IGN: " + ign);
-					ERPlayer player = ERPlayer.getERPlayer(dak);
-					if (player.getDiscordName().isEmpty()) {
-						player.setName(playerName);
-						player.setDiscordName(members.remove(0).getName());
-					}
-					return !ERPlayer.alreadyRegistered(playerName, discordServerName, channelName) ?
+					System.err.println("Player: " + discordName + "; dak: " + dak + "; IGN: " + ign);
+					
+					ERPlayer player = ERPlayer.getERPlayer(ign);
+					player.setDiscordName(discordName);
+					return !ERPlayer.alreadyRegistered(discordName, discordServerName, channelName) ?
 							(team.addPlayer(player) ? true :
 								(team.getSub() == null ? team.setSub(player)
 								: false))
@@ -84,6 +88,8 @@ public class EventERAddPlayer extends EventER {
 		} else {
 			event.getChannel().sendMessage(teamName + " hasn't been registered in this scrim.").queue();
 		}
+		
+		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
 	}
 
 	@Override

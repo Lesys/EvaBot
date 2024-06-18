@@ -45,12 +45,12 @@ public class EventERPutToSub extends EventER {
 
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
-			ERPlayer player = team.getPlayers().stream().filter(p -> p.getName().equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null);
+			ERPlayer player = team.getPlayers().stream().filter(p -> p.getDiscordName().equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null);
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, teamName)) {
 					if (team.getSub() != null) {
-						ERPlayer sub = team.getSub();
+						ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
 						team.setSub(player);
 						team.addPlayer(sub);
 					} else {
@@ -74,6 +74,6 @@ public class EventERPutToSub extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {PlayerNameToSub} - Changes a player from the main Team to sub. If there is a sub player registered, puts the sub to the main Team.\n";
+		return super.helpCommand() + " {TeamName} {PlayerDiscordNameToSub} - Changes a player from the main Team to sub. If there is a sub player registered, puts the sub to the main Team.\n";
 	}
 }

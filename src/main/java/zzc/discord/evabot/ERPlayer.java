@@ -19,11 +19,6 @@ public class ERPlayer implements Serializable {
 	private static final long serialVersionUID = -1884928778100498144L;
 	
 	/**
-	 * The name of the player
-	 */
-	protected String name;
-	
-	/**
 	 * The discord name of the player
 	 */
 	protected String discordName;
@@ -55,39 +50,48 @@ public class ERPlayer implements Serializable {
 	public static ERPlayer getERPlayer(String dakName) {
 		Bot.deserializePlayers();
 		
-		if (Bot.allPlayers.stream().anyMatch(p -> p.getName().equalsIgnoreCase(dakName))) {
+		Bot.allPlayers.stream().forEach(p -> System.err.println("player dakName: " + p.getDakName()));
+		if (Bot.allPlayers.stream().anyMatch(p -> p.getDakName().equalsIgnoreCase(dakName))) {
 			System.err.println("Player already exists; getting back the properties...");
-			ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
+			ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDakName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
 			if (player != null)
 				player.updateMmr();
 			return player;
 		} else {
-			return new ERPlayer(dakName, dakName, "");
+			return new ERPlayer(dakName, "");
 		}
+	}
+	
+	public static ERPlayer getERPlayerByDiscordName(String discordName) {
+		if (discordName != null) {
+			Bot.deserializePlayers();
+			
+			if (Bot.allPlayers.stream().anyMatch(p -> p.getDiscordName().equalsIgnoreCase(discordName))) {
+				System.err.println("Player already exists; getting back the properties...");
+				ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDiscordName().equalsIgnoreCase(discordName)).findFirst().orElse(null);
+				if (player != null)
+					player.updateMmr();
+				return player;
+			} else {
+				return new ERPlayer(discordName, discordName);
+			}
+		} else
+			return null;
 	}
 	
 	/**
 	 * Constructor of an ERPlayer
 	 * 
-	 * @param name	The name of the player
-	 * @param dak	The DAK link of the player
+	 * @param dak			The DAK link of the player
+	 * @param discordName	The discordName of the player
 	 */
-	public ERPlayer(String name, String dak, String discordName) {
-		this.name = name;
+	public ERPlayer(String dak, String discordName) {
 		this.dak = dak;
 		this.discordName = discordName;
 		
 		Bot.allPlayers.add(this);
 		
 		this.updateMmr();
-	}
-	
-	/**
-	 * Getter of name
-	 * @return	The name of this player
-	 */
-	public String getName() {
-		return this.name;
 	}
 
 	/**
@@ -144,15 +148,6 @@ public class ERPlayer implements Serializable {
 	}
 	
 	/**
-	 * Setter of name
-	 * @param name	The new name for this player
-	 */
-	public void setName(String name) {
-		this.name = name;
-		Bot.serializePlayers();
-	}
-	
-	/**
 	 * Setter of discordName
 	 * @param discordName	The new discord name for this player
 	 */
@@ -183,10 +178,10 @@ public class ERPlayer implements Serializable {
 	}
 	
 	/**
-	 * Private function to get the dak name out of the dak link
+	 * Function to get the dak name out of the dak link
 	 * @return	The name at the end of the dak link. Used with the ER API calls.
 	 */
-	private String getDakName() {
+	public String getDakName() {
 		return this.dak.split("/")[this.dak.split("/").length - 1];
 	}
 	
@@ -241,7 +236,7 @@ public class ERPlayer implements Serializable {
 		if (o != null && o.getClass().isAssignableFrom(ERPlayer.class)) {
 			ERPlayer p = (ERPlayer)o;
 			
-			return this.getName().equalsIgnoreCase(p.getName());
+			return this.getDiscordName().equalsIgnoreCase(p.getDiscordName());
 		}
 		
 		return false;
@@ -252,7 +247,7 @@ public class ERPlayer implements Serializable {
 	 * @param player	The player to copy
 	 */
 	protected void copy(ERPlayer player) {
-		this.name = player.name;
+		this.discordName = player.discordName;
 		this.dak = player.dak;
 		this.mmr = player.mmr;
 		this.lastUpdateTime = player.lastUpdateTime;

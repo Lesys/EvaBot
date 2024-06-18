@@ -90,10 +90,10 @@ public class EventERGetSelectedTeams extends EventER {
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
-		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), false).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDak().split("/")[player.getDak().split("/").length - 1] + " - " + player.getMmr() + "); "));
-		ERPlayer sub = team.getSub();
+		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDakName() + " - " + player.getMmr() + "); "));
+		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
 		if (sub != null) {
-			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getName()) ? "__" : "") + sub.getDiscordName() + "(" + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), false).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDak().split("/")[sub.getDak().split("/").length - 1] + " - " + sub.getMmr() + ")]");
+			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDakName() + " - " + sub.getMmr() + ")]");
 		}
 	}
 	

@@ -37,7 +37,7 @@ public class EventERGetRank extends EventER {
 			//final String finalPlayerName = playerName;
 			ERPlayer player = ERPlayer.getERPlayer(playerName);
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(player.getName() + ": " + player.getMmr() + " RP - #" + player.getRankGlobal() + " Global\n");
+			buffer.append(player.getDakName() + ": " + player.getMmr() + " RP - #" + player.getRankGlobal() + " Global\n");
 
 			event.getChannel().sendMessage(buffer).queue();
 		} else {			

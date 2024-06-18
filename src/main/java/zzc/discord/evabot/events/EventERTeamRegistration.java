@@ -59,18 +59,21 @@ public class EventERTeamRegistration extends EventER {
 				members.forEach(m -> event.getMessage().getMentions().getRoles().forEach(r -> event.getGuild().addRoleToMember(m, r)));
 				try {
 					registered = playerNames.stream().allMatch(row -> {
-						User u = members.remove(0);
-						String playerName = u.getEffectiveName();
-						String discordName = u.getName();
-						String dak = row.split(" ")[1];
-						System.err.println("Player: " + playerName + "; dak: " + dak + "; Captain name: " + event.getMessage().getAuthor().getName());
-						ERPlayer player = ERPlayer.getERPlayer(dak);
-						if (player.getDiscordName().isEmpty()) {
-							player.setName(playerName);
-							player.setDiscordName(discordName);
+						String discordName = "";
+						try {
+							User u = members.remove(0);
+							discordName = u.getName();
+						} catch (IndexOutOfBoundsException e) {
+							discordName = row.split(" ")[0];
 						}
+						String dak = row.split(" ")[1];
+						String ign = dak.split("/")[dak.split("/").length - 1];
+						System.err.println("Player: " + discordName + "; dak: " + dak + "; Captain name: " + event.getMessage().getAuthor().getName());
+						ERPlayer player = ERPlayer.getERPlayer(ign);
+
+						player.setDiscordName(discordName);
 						//new ERPlayer(playerName, dak);
-						return !ERPlayer.alreadyRegistered(playerName, discordServerName, channelName) ?
+						return !ERPlayer.alreadyRegistered(discordName, discordServerName, channelName) ?
 								(team.addPlayer(player) ? true :
 									(team.getSub() == null ? team.setSub(player)
 									: false))
@@ -112,6 +115,6 @@ public class EventERTeamRegistration extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {Player1Name} {Player1DAKLink}... - Registers a team with the players for the scrim. Please return to line after TeamName argument and write only 1 player per row.\nCommand use example: " + super.helpCommand() + " TeamName\nPlayer1Name https.../Player1Name\nPlayer2Name https.../Player2Name\nPlayer2Name https.../Player2Name\n";
+		return super.helpCommand() + " {TeamName} {Player1DiscordTag} {Player1DAKLink}... - Registers a team with the players for the scrim. Please return to line after TeamName argument and write only 1 player per row. Tag can be the Discord unique name only if the player is not in the current server.\nCommand use example: " + super.helpCommand() + " TeamName\nPlayer1DiscordTag https.../Player1AccountName\nPlayer2DiscordTag https.../Player2AccountName\nPlayer3DiscordTag https.../Player3AccountName\n";
 	}
 }

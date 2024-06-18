@@ -32,6 +32,8 @@ public class EventERChangeCaptain extends EventER {
 	@Override
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
+
+		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		
 		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
 
@@ -67,6 +69,8 @@ public class EventERChangeCaptain extends EventER {
 		} else {
 			event.getChannel().sendMessage("Please put the mentionned user at the end of the command (see " + this.commandName.substring(0, 1) + "help command for more informations).").queue();
 		}
+
+		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
 	}
 
 	@Override

@@ -73,7 +73,7 @@ public class EventERGetBestTeammate extends EventER {
 				//bestTeammate.stream().sorted(Comparator.comparing(TeamMate::averageTK));
 				
 				if (filteredList.size() > 0) {
-					buffer.append("Here are the 10 players with which " + player.getName() + " had the most success with " + option + "s:\n");
+					buffer.append("Here are the 10 players with which " + player.getDakName() + " had the most success with " + option + "s:\n");
 					result.stream().limit(10).forEach(tm -> buffer.append(this.stringReturn.get(option).apply(tm)));
 				} else {
 					buffer.append("You haven't yet to play this ranked season or the player \"" + playerName + "\" doesn't exist.");
