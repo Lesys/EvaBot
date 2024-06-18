@@ -1,8 +1,6 @@
 package zzc.discord.evabot.events;
 
 
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -32,7 +30,7 @@ public class EventERRemoveTeam extends EventER {
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 		
-		String teamName = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
+		String teamName = this.getMessage(event);
 
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {

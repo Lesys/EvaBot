@@ -40,7 +40,7 @@ public class EventERTeamRegistration extends EventER {
 		List<User> members = new ArrayList<User>();
 		members.addAll(event.getMessage().getMentions().getUsers());
 		if (names.size() > 1) {
-			String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
+			String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim();
 			
 			Scrim scrim = Bot.getScrim(event);
 			
@@ -48,7 +48,7 @@ public class EventERTeamRegistration extends EventER {
 				List<String> playerNames = new ArrayList<String>();
 				
 				for (int i = 1; i < names.size(); i++)
-					playerNames.add(names.get(i));
+					playerNames.add(names.get(i).replaceAll(" +", " "));
 				
 	
 				Team team = new Team(teamName);
@@ -56,7 +56,7 @@ public class EventERTeamRegistration extends EventER {
 				boolean registered = false;
 				System.err.println("Players: " + playerNames.size() + "; " + names.get(1));
 				playerNames.stream().forEach(p -> System.err.println(p + "; "));
-				members.forEach(m -> event.getMessage().getMentions().getRoles().forEach(r -> event.getGuild().addRoleToMember(m, r)));
+				//members.forEach(m -> event.getMessage().getMentions().getRoles().forEach(r -> event.getGuild().addRoleToMember(m, r)));
 				try {
 					registered = playerNames.stream().allMatch(row -> {
 						String discordName = "";

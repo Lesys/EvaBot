@@ -1,7 +1,5 @@
 package zzc.discord.evabot.events;
 
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -29,8 +27,8 @@ public class EventERGetRank extends EventER {
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 
-		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
-
+		String[] message = this.getMessageArray(event);
+		
 		if (message.length == 1) {
 			String playerName = message[message.length - 1];
 			

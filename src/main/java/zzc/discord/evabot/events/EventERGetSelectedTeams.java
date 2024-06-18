@@ -40,7 +40,7 @@ public class EventERGetSelectedTeams extends EventER {
         final StringBuilder builder = new StringBuilder();
         builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\":\n");
 		
-        boolean byMmr = event.getMessage().getContentRaw().split(" ").length > 1 && event.getMessage().getContentRaw().split(" ")[1].equalsIgnoreCase("byMmr");
+        boolean byMmr = event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ").length > 1 && event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ")[1].equalsIgnoreCase("byMmr");
         System.err.println("ByMmr ? " + byMmr);
 
 		Scrim scrim = Bot.getScrim(event);
@@ -90,10 +90,10 @@ public class EventERGetSelectedTeams extends EventER {
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
-		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDakName() + " - " + player.getMmr() + "); "));
+		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDakName().replaceAll("_", "\\_") + " - " + player.getMmr() + "); "));
 		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
 		if (sub != null) {
-			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDakName() + " - " + sub.getMmr() + ")]");
+			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null)) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDakName().replaceAll("_", "\\_") + " - " + sub.getMmr() + ")]");
 		}
 	}
 	

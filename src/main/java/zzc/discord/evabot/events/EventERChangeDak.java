@@ -1,8 +1,6 @@
 package zzc.discord.evabot.events;
 
 
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -34,10 +32,10 @@ public class EventERChangeDak extends EventER {
 
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		
-		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
+		String[] message = this.getMessageArray(event);
 
 		if (message.length == 2) {
-			String discordName = message[message.length - 2];
+			String discordName = event.getMessage().getMentions().getMembers().size() == 1 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : message[message.length - 2];
 			
 			String newDak = message[message.length - 1];
 			
@@ -51,7 +49,7 @@ public class EventERChangeDak extends EventER {
 					
 					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
 				} else {
-					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only the captain of the team can use it.").queue();
+					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
 				}
 			} else {
 				event.getChannel().sendMessage(discordName + " hasn't been registered in this Team.").queue();

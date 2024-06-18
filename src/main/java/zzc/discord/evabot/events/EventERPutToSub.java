@@ -1,8 +1,6 @@
 package zzc.discord.evabot.events;
 
 
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -33,8 +31,8 @@ public class EventERPutToSub extends EventER {
 	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 		
-		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
-
+		String[] message = this.getMessageArray(event);
+		
 		String teamName = "";
 		for (int i = 0; i < message.length - 1; i++)
 			teamName += message[i] + (i < message.length - 2 ? " " : "");

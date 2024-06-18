@@ -1,5 +1,7 @@
 package zzc.discord.evabot.events;
 
+import java.util.Arrays;
+
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -44,4 +46,22 @@ public abstract class EventER {
 	 * @param event		The event received when the user sent a message
 	 */
 	public abstract void exeuteCommand(@NotNull MessageReceivedEvent event);
+
+	/**
+	 * Splits the command call from the rest of the message
+	 * @param event		The event received when the user sent a message
+	 * @return			The message content without the command call
+	 */
+	public String[] getMessageArray(@NotNull MessageReceivedEvent event) {
+		return this.getMessage(event).split(" ");
+	}
+
+	/**
+	 * Splits the command call from the rest of the message
+	 * @param event		The event received when the user sent a message
+	 * @return			The message content without the command call
+	 */
+	public String getMessage(@NotNull MessageReceivedEvent event) {
+		return event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim().replaceAll(" +",  " ");
+	}
 }

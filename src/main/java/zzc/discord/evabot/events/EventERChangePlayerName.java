@@ -1,8 +1,6 @@
 package zzc.discord.evabot.events;
 
 
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -35,36 +33,34 @@ public class EventERChangePlayerName extends EventER {
 
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		
-		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
-
+		String[] message = this.getMessageArray(event);
+		
 		if (message.length == 2) {
-			String playerDiscordName = message[message.length - 2];
+			String discordName = event.getMessage().getMentions().getMembers().size() == 2 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : message[message.length - 2];
 			
-			final String finalPlayerName = playerDiscordName;
-			String newPlayerDiscordName = message[message.length - 1];
-			
-			ERPlayer player = ERPlayer.getERPlayerByDiscordName(playerDiscordName);
+			final String finalPlayerName = discordName;
+			String newPlayerDiscordName = event.getMessage().getMentions().getMembers().size() == 2 ? event.getMessage().getMentions().getMembers().get(1).getUser().getName() : message[message.length - 1];
+			ERPlayer player = ERPlayer.getERPlayerByDiscordName(discordName);
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, player)) {
 					player.setDiscordName(newPlayerDiscordName);
 					
-					Bot.scrims.stream().flatMap(scrim -> scrim.getTeams().stream()).filter(team -> team.getPlayerNames().stream().anyMatch(p -> p.equalsIgnoreCase(playerDiscordName)) || (team.getSub() != null && team.getSub().equalsIgnoreCase(playerDiscordName)))
+					Bot.scrims.stream().flatMap(scrim -> scrim.getTeams().stream()).filter(team -> team.getPlayerNames().stream().anyMatch(p -> p.equalsIgnoreCase(discordName)) || (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName)))
 						.forEach(team -> {
-							if (team.getSub() != null && team.getSub().equalsIgnoreCase(playerDiscordName))
+							if (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName))
 								team.setSub(player);
 							else {
-								team.removePlayer(playerDiscordName);
+								team.removePlayer(discordName);
 								team.addPlayer(player);
 							}
 						});
 					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
 					Bot.serializeScrims();
-					Bot.serializePlayers();
 					
 					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
 				} else {
-					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only the captain of the team can use it.").queue();
+					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
 				}
 			} else {
 				event.getChannel().sendMessage(finalPlayerName + " hasn't been registered in this Team.").queue();

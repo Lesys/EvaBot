@@ -1,8 +1,6 @@
 package zzc.discord.evabot.events;
 
 
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -32,8 +30,8 @@ public class EventERClearPlayer extends EventER {
 		Bot.deserializePlayers();
 		Bot.deserializeGameLog();
 		
-		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
-	
+		String[] message = this.getMessageArray(event);
+		
 		if (message.length == 1) {
 			String playerName = message[message.length - 1];
 			
@@ -55,6 +53,6 @@ public class EventERClearPlayer extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {PlayerDakName} - Clears the games of the player from the logs.\n";
+		return super.helpCommand() + " {PlayerAccountName} - Clears the games of the player from the logs.\n";
 	}
 }

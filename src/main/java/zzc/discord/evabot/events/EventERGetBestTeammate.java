@@ -47,8 +47,8 @@ public class EventERGetBestTeammate extends EventER {
 			"placement", EventERGetBestTeammate::getStringPlacement,
 			"games", EventERGetBestTeammate::getStringGames));
 		
-		String[] message = event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].split(" ");
-
+		String[] message = this.getMessageArray(event);
+		
 		if (message.length >= 1 && message.length <= 2) {
 			final String option = message.length == 2 ? message[message.length - 1] : "win";
 			

@@ -39,31 +39,26 @@ public class EventERGetRegisteredTeams extends EventER {
         final StringBuilder builder = new StringBuilder();
         builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\":\n");
 		
-        boolean byMmr = event.getMessage().getContentRaw().split(" ").length > 1 && event.getMessage().getContentRaw().split(" ")[1].equalsIgnoreCase("byMmr");
+        boolean byMmr = event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ").length > 1 && event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ")[1].equalsIgnoreCase("byMmr");
         System.err.println("ByMmr ? " + byMmr);
 
 		Scrim scrim = Bot.getScrim(event);
 		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
-			scrim.getTeams().stream().forEach(team -> {
-				team.updateMmr();
-				if (!byMmr) {
-			    	if (builder.length() > 0 && builder.length() >= 1800) {
-			    		messages.add(builder.toString());
-			            builder.delete(0, builder.length());
-			    	}
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event);
-				}
-			});
+			List<Team> filtered = null;
+			scrim.getTeams().stream().forEach(team -> team.updateMmr());
+			if (!byMmr)
+				filtered = scrim.getTeams().stream().toList();
+			else
+				filtered = scrim.getTeams().stream().sorted(Comparator.reverseOrder()).toList();
 			
-			if (byMmr)
-				scrim.getTeams().stream().sorted(Comparator.reverseOrder()).forEach(team -> {
-			    	if (builder.length() > 0 && builder.length() >= 1800) {
-			    		messages.add(builder.toString());
-			            builder.delete(0, builder.length());
-			    	}
-					EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event);
-				});
+			filtered.stream().forEach(team -> {
+		    	if (builder.length() > 0 && builder.length() >= 1800) {
+		    		messages.add(builder.toString());
+		            builder.delete(0, builder.length());
+		    	}
+		    	EventERGetRegisteredTeams.teamStringBuilder(builder, team, placement, event, byMmr);
+			});
 
 			messages.add(builder.toString());
 	        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
@@ -88,12 +83,12 @@ public class EventERGetRegisteredTeams extends EventER {
 	 * @param placement	The integer corresponding to the place of the team
 	 * @param event		The event sent to be able to mention people
 	 */
-	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event) {
-		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
-		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + player.getDiscordName() + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDakName() + " - " + player.getMmr() + "); "));
+	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event, boolean showMmr) {
+		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__**"  + (showMmr ? "(" + team.getAverage() + ")" : "") + " :\n");
+		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + player.getDakName().replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (showMmr ? " (" + player.getMmr() + ")" : "") + " "));
 		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
 		if (sub != null) {
-			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + sub.getDiscordName() + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDakName() + " - " + sub.getMmr() + ")]");
+			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + sub.getDakName().replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (showMmr ?  " (" + sub.getMmr() + ")" : "") + "]");
 		}
 	}
 }

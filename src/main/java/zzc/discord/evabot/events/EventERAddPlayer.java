@@ -38,7 +38,7 @@ public class EventERAddPlayer extends EventER {
 		String discordServerName = event.getGuild().getName();
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
 		List<User> members = event.getMessage().getMentions().getUsers();
-		String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1];
+		String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim();
 
 		Team team = Bot.getTeam(event, teamName);//Bot.teams.stream().filter(t -> t.getName().equalsIgnoreCase(teamName)).findFirst().orElse(null);
 		if (team != null) {
@@ -46,7 +46,7 @@ public class EventERAddPlayer extends EventER {
 				List<String> playerNames = new ArrayList<String>();
 				
 				for (int i = 1; i < names.size(); i++)
-					playerNames.add(names.get(i));
+					playerNames.add(names.get(i).replaceAll(" +", " "));
 				
 				boolean registered = false;
 				System.err.println("Players: " + playerNames.size() + "; " + names.get(1));
@@ -56,7 +56,7 @@ public class EventERAddPlayer extends EventER {
 					try {
 						User u = members.remove(0);
 						discordName = u.getName();
-					} catch (IndexOutOfBoundsException e) {
+					} catch (IndexOutOfBoundsException | UnsupportedOperationException e) {
 						discordName = row.split(" ")[0];
 					}
 					String dak = row.split(" ")[1];

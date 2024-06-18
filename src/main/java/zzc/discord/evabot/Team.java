@@ -25,7 +25,6 @@ public class Team implements Serializable, Comparable<Team> {
 	 * The list of the player discord names in the Team
 	 */
 	protected List<String> playerNames;
-	protected List<ERPlayer> players; // TODO remove this property
 	
 	/**
 	 * The sub of the Team, can be null
@@ -43,7 +42,6 @@ public class Team implements Serializable, Comparable<Team> {
 	 */
 	public Team(String name) {
 		this.name = name;
-		//this.players = new ArrayList<ERPlayer>();
 		this.playerNames = new ArrayList<String>();
 		this.sub = null;
 	}
@@ -63,10 +61,6 @@ public class Team implements Serializable, Comparable<Team> {
 	public List<ERPlayer> getPlayers() {
 		Bot.deserializePlayers();
 		List<ERPlayer> players = new ArrayList<ERPlayer>();
-		if (this.playerNames == null && this.players != null && !this.players.isEmpty()) {
-			this.playerNames = new ArrayList<String>();
-			this.players.forEach(p -> this.playerNames.add(p.getDiscordName()));
-		}
 		this.playerNames.forEach(discordName -> players.add(ERPlayer.getERPlayerByDiscordName(discordName)));
 		return players;
 	}
@@ -76,10 +70,6 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return		The list of the names of all the main players in this Team
 	 */
 	public List<String> getPlayerNames() {
-		if (this.playerNames == null && this.players != null && !this.players.isEmpty()) {
-			this.playerNames = new ArrayList<String>();
-			this.players.forEach(p -> this.playerNames.add(p.getDiscordName()));
-		}
 		return this.playerNames;
 	}
 	
@@ -159,8 +149,8 @@ public class Team implements Serializable, Comparable<Team> {
 	 * Function to get the average MMR of the Team, based on the MMR of each players (without sub) in this Team
 	 * @return	The average MMR of this Team
 	 */
-	public Float getAverage() {
-		return this.getPlayers().stream().map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).floatValue() / this.playerNames.size();
+	public Double getAverage() {
+		return Math.floor((this.getPlayers().stream().map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).doubleValue() / this.playerNames.size()) * 100) / 100;
 	}
 
 	/**
@@ -187,7 +177,7 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	true if the player has correctly been removed from this Team, false if no player were found
 	 */
 	public boolean removePlayer(String name) {
-		return this.playerNames.remove(name) ? true : this.getSub() != null && this.getSub().equalsIgnoreCase(name) ? this.setSub(null) : false;
+		return this.playerNames.removeIf(p -> p.equalsIgnoreCase(name)) ? true : this.getSub() != null && this.getSub().equalsIgnoreCase(name) ? this.setSub(null) : false;
 	}
 
 	/**
