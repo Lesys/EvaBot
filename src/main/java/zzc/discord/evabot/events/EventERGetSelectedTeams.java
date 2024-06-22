@@ -109,7 +109,7 @@ public class EventERGetSelectedTeams extends EventER {
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " [byMmr] - Returns all the teams registered with their average MMR and players registered in the team with their own MMR. Using the option \"byMmr\" orders teams by MMR average, else returns by registration order.\n";
+		return super.helpCommand() + " [byMmr] [RolesMention] - Returns all the teams registered with their average MMR and players registered in the team with their own MMR. Using the option \"byMmr\" orders teams by MMR average, else returns by registration order. If a role is mentioned, removes the roles to everyone not in the selected teams and add it to them instead (won't return the selected teams).\n";
 	}
 	
 	/**
