@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.Message;
  * 
  * Class representing a Message sent on Discord
  */
-public class MessageLog implements Serializable {
+public class MessageLog implements Serializable, Comparable<MessageLog> {
 	/**
 	 * 
 	 */
@@ -66,5 +66,18 @@ public class MessageLog implements Serializable {
 	 */
 	public String getAuthor() {
 		return this.authorName;
+	}
+	
+	/**
+	 * Adds something to the message content
+	 * @param string	The String to add to the message
+	 */
+	public void addToMessage(String string) {
+		this.message += string;
+	}
+
+	@Override
+	public int compareTo(MessageLog o) {
+		return this.creationTime.compareTo(o.creationTime);
 	}
 }

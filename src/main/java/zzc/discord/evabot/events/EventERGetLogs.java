@@ -48,7 +48,9 @@ public class EventERGetLogs extends EventER {
 		if (scrim != null) {
 			if (EventERManager.hasPermission(event)) {
 				List<MessageLog> logs = scrim.getLogs();
-				
+				Collections.sort(logs);
+				Collections.reverse(logs);
+
 				for (int i = 0; i < logNumber && i < logs.size(); i++) {
 			    	if (builder.length() >= 1800) {
 			    		messages.add(builder.toString());

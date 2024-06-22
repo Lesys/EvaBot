@@ -37,6 +37,7 @@ public class EventERGetServerDistribution extends EventER {
 			
 			//final String finalPlayerName = playerName;
 			ERPlayer player = ERPlayer.getERPlayer(playerName);
+			player.updateMmr();
 			Map<String, Integer> servs = GetPlayerStats.serverDistribution(playerName);
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(player.getDiscordName() + ": " + player.getMmr() + " RP - #" + player.getRankGlobal() + " Global\n");

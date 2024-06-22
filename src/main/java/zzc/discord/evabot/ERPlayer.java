@@ -54,8 +54,8 @@ public class ERPlayer implements Serializable {
 		if (Bot.allPlayers.stream().anyMatch(p -> p.getDakName().equalsIgnoreCase(dakName))) {
 			System.err.println("Player already exists; getting back the properties...");
 			ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDakName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
-			if (player != null)
-				player.updateMmr();
+			/*if (player != null)
+				player.updateMmr();*/
 			return player;
 		} else {
 			return new ERPlayer(dakName, "");
@@ -69,8 +69,8 @@ public class ERPlayer implements Serializable {
 			if (Bot.allPlayers.stream().anyMatch(p -> p.getDiscordName().equalsIgnoreCase(discordName))) {
 				System.err.println("Player already exists; getting back the properties...");
 				ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDiscordName().equalsIgnoreCase(discordName)).findFirst().orElse(null);
-				if (player != null)
-					player.updateMmr();
+				/*if (player != null)
+					player.updateMmr();*/
 				return player;
 			} else {
 				return new ERPlayer(discordName, discordName);
@@ -91,7 +91,9 @@ public class ERPlayer implements Serializable {
 		
 		Bot.allPlayers.add(this);
 		
-		this.updateMmr();
+		Bot.serializePlayers();
+		
+		//this.updateMmr();
 	}
 
 	/**
