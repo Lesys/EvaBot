@@ -48,8 +48,8 @@ public class EventERGetSelectedTeams extends EventER {
         System.err.println("ByMmr ? " + byMmr);
 
 		Scrim scrim = Bot.getScrim(event);
-		System.err.println("Members: ");
-		event.getGuild().getMembers().forEach(t-> System.err.println(t.getUser().getName()));
+		/*System.err.println("Members: ");
+		event.getGuild().getMembers().forEach(t-> System.err.println(t.getUser().getName()));*/
 		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
 			if (EventERManager.hasPermission(event)) {
@@ -64,7 +64,7 @@ public class EventERGetSelectedTeams extends EventER {
 				if (event.getMessage().getMentions().getRoles().size() > 0) {
 					List<Role> roles = event.getMessage().getMentions().getRoles();
 					List<Member> toAdd = new ArrayList<Member>();
-					toAdd.addAll(filtered.stream().flatMap(team -> team.getSub() != null ? Stream.concat(team.getPlayers().stream(), Arrays.asList(ERPlayer.getERPlayerByDiscordName(team.getSub())).stream()) : team.getPlayers().stream()).map(player -> event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
+					toAdd.addAll(filtered.stream().flatMap(team -> team.getSub() != null ? Stream.concat(team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)), Arrays.asList(ERPlayer.getERPlayerByDiscordName(team.getSub())).stream()) : team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p))).map(player -> event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
 					List<Member> toRemove = new ArrayList<Member>();
 					toRemove.addAll(event.getGuild().getMembersWithRoles(roles));
 					List<Member> mutual = toAdd.stream().filter(m -> toRemove.contains(m)).collect(Collectors.toList());
@@ -121,7 +121,7 @@ public class EventERGetSelectedTeams extends EventER {
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage() + "):\n");
-		team.getPlayers().stream().forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null), player.getDiscordName()) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDakName().replaceAll("_", "\\_") + " - " + player.getMmr() + "); "));
+		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)).forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null), player.getDiscordName()) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + " (" + player.getDakName().replaceAll("_", "\\_") + " - " + player.getMmr() + "); "));
 		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
 		if (sub != null) {
 			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null), sub.getDiscordName()) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " (" + sub.getDakName().replaceAll("_", "\\_") + " - " + sub.getMmr() + ")]");

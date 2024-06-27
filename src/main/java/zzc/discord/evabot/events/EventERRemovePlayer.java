@@ -1,6 +1,9 @@
 package zzc.discord.evabot.events;
 
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import org.jetbrains.annotations.NotNull;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -43,7 +46,7 @@ public class EventERRemovePlayer extends EventER {
 
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
-			ERPlayer player = team.getPlayers().stream().filter(p -> p.getDiscordName().equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null);
+			ERPlayer player = ERPlayer.getERPlayerByDiscordName((team.getSub() != null ? Stream.concat(team.getPlayerNames().stream(), Arrays.asList(team.getSub()).stream()) : team.getPlayerNames().stream()).filter(p -> p.equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null));
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, teamName)) {

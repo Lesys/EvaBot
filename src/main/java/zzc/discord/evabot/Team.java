@@ -58,12 +58,10 @@ public class Team implements Serializable, Comparable<Team> {
 	 * Getter of players
 	 * @return	The list of players in this Team
 	 */
+	/* NOT FUNCTIONAL ANYMORE
 	public List<ERPlayer> getPlayers() {
-		Bot.deserializePlayers();
-		List<ERPlayer> players = new ArrayList<ERPlayer>();
-		this.playerNames.forEach(discordName -> players.add(ERPlayer.getERPlayerByDiscordName(discordName)));
-		return players;
-	}
+		return this.playerNames.stream().map(discordName -> ERPlayer.getERPlayerByDiscordName(discordName)).toList();
+	}*/
 
 	/**
 	 * Getter of playerNames
@@ -150,14 +148,14 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	The average MMR of this Team
 	 */
 	public Double getAverage() {
-		return Math.floor((this.getPlayers().stream().map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).doubleValue() / this.playerNames.size()) * 100) / 100;
+		return Math.floor((this.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)).map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).doubleValue() / this.playerNames.size()) * 100) / 100;
 	}
 
 	/**
 	 * Updates the MMR of all players in this Team
 	 */
 	public void updateMmr() {
-		this.getPlayers().forEach(p -> p.updateMmr());
+		this.getPlayerNames().forEach(p -> ERPlayer.getERPlayerByDiscordName(p).updateMmr());
 		if (sub != null)
 			ERPlayer.getERPlayerByDiscordName(sub).updateMmr();
 	}
@@ -166,7 +164,7 @@ public class Team implements Serializable, Comparable<Team> {
 	 * Force update the MMR of all players in this Team
 	 */
 	public void updateMmrForce() {
-		this.getPlayers().forEach(p -> p.updateMmrForce());
+		this.getPlayerNames().forEach(p -> ERPlayer.getERPlayerByDiscordName(p).updateMmrForce());
 		if (sub != null)
 			ERPlayer.getERPlayerByDiscordName(sub).updateMmrForce();
 	}

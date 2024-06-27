@@ -27,6 +27,7 @@ public class EventERManager extends ListenerAdapter {
 	public static List<EventER> commands = Arrays.asList(
 			new EventERAddPlayer(),
 			new EventERChangeDak(),
+			new EventERChangeDisplayName(),
 			new EventERChangePlayerName(),
 			new EventERClearPlayer(),
 			new EventERGetCommonGames(),
@@ -66,10 +67,10 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	@Override
 	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
-		System.out.println("Deleted channel name: " + event.getChannel().getName());
 		if (!event.isFromType(ChannelType.TEXT) || !event.getChannel().getName().contains("scrim")) {
 			return;
 		} else {
+			System.out.println("Deleting scrim channel; name: " + event.getChannel().getName());
 			Bot.deserializeScrims();
 			
 			Scrim scrim = Bot.getScrim(event.getGuild().getName(), event.getChannel().getName());

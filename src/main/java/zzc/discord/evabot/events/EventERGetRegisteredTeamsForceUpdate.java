@@ -37,15 +37,13 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 		Bot.deserializeScrims();
 
         final StringBuilder builder = new StringBuilder();
-        builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\":\n");
+        builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\" by Team average MMR order:\n");
 
 		Scrim scrim = Bot.getScrim(event);
 		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
 			if (EventERManager.hasPermission(event)) {
-				scrim.getTeams().stream().forEach(team -> {
-					team.updateMmrForce();
-				});
+				scrim.getTeams().forEach(team -> team.updateMmrForce());
 				
 				scrim.getTeams().stream().sorted(Comparator.reverseOrder()).forEach(team -> {
 			    	if (builder.length() > 0 && builder.length() >= 1800) {
@@ -57,8 +55,6 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 
 				messages.add(builder.toString());
 		        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
-		        
-				Bot.serializeScrims();
 			} else {
 				event.getChannel().sendMessage("Only an Administrator can use this command.").queue();				
 			}

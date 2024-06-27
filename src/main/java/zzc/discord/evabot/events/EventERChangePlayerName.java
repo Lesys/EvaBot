@@ -43,24 +43,28 @@ public class EventERChangePlayerName extends EventER {
 			ERPlayer player = ERPlayer.getERPlayerByDiscordName(discordName);
 			
 			if (player != null) {
-				if (EventERManager.hasPermission(event, player)) {
-					player.setDiscordName(newPlayerDiscordName);
-					
-					Bot.scrims.stream().flatMap(scrim -> scrim.getTeams().stream()).filter(team -> team.getPlayerNames().stream().anyMatch(p -> p.equalsIgnoreCase(discordName)) || (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName)))
-						.forEach(team -> {
-							if (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName))
-								team.setSub(player);
-							else {
-								team.removePlayer(discordName);
-								team.addPlayer(player);
-							}
-						});
-					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
-					Bot.serializeScrims();
-					
-					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+				if (!ERPlayer.alreadyRegistered(newPlayerDiscordName, event.getGuild().getName(), event.getChannel().getName())) {
+					if (EventERManager.hasPermission(event, player)) {
+						player.setDiscordName(newPlayerDiscordName);
+						
+						Bot.scrims.stream().flatMap(scrim -> scrim.getTeams().stream()).filter(team -> team.getPlayerNames().stream().anyMatch(p -> p.equalsIgnoreCase(discordName)) || (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName)))
+							.forEach(team -> {
+								if (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName))
+									team.setSub(player);
+								else {
+									team.removePlayer(discordName);
+									team.addPlayer(player);
+								}
+							});
+						Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
+						Bot.serializeScrims();
+						
+						event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+					} else {
+						event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
+					}
 				} else {
-					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
+					event.getChannel().sendMessage(newPlayerDiscordName + " has already been registered for this scrim.").queue();
 				}
 			} else {
 				event.getChannel().sendMessage(finalPlayerName + " hasn't been registered in this Team.").queue();

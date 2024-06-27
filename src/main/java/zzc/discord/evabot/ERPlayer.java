@@ -23,6 +23,8 @@ public class ERPlayer implements Serializable {
 	 */
 	protected String discordName;
 	
+	protected String displayName = "";
+	
 	/**
 	 * The MMR of the player, the most uptodate
 	 */
@@ -50,9 +52,9 @@ public class ERPlayer implements Serializable {
 	public static ERPlayer getERPlayer(String dakName) {
 		Bot.deserializePlayers();
 		
-		Bot.allPlayers.stream().forEach(p -> System.err.println("player dakName: " + p.getDakName()));
+		//Bot.allPlayers.stream().forEach(p -> System.err.println("player dakName: " + p.getDakName()));
 		if (Bot.allPlayers.stream().anyMatch(p -> p.getDakName().equalsIgnoreCase(dakName))) {
-			System.err.println("Player already exists; getting back the properties...");
+			//System.err.println("Player already exists; getting back the properties...");
 			ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDakName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
 			/*if (player != null)
 				player.updateMmr();*/
@@ -67,7 +69,7 @@ public class ERPlayer implements Serializable {
 			Bot.deserializePlayers();
 			
 			if (Bot.allPlayers.stream().anyMatch(p -> p.getDiscordName().equalsIgnoreCase(discordName))) {
-				System.err.println("Player already exists; getting back the properties...");
+				//System.err.println("Player already exists; getting back the properties...");
 				ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDiscordName().equalsIgnoreCase(discordName)).findFirst().orElse(null);
 				/*if (player != null)
 					player.updateMmr();*/
@@ -86,8 +88,14 @@ public class ERPlayer implements Serializable {
 	 * @param discordName	The discordName of the player
 	 */
 	public ERPlayer(String dak, String discordName) {
+		System.err.println("New player ! ");
 		this.dak = dak;
 		this.discordName = discordName;
+		this.displayName = "";
+
+		this.mmr = 0;
+		this.rank = 0;
+		this.lastUpdateTime = null;
 		
 		Bot.allPlayers.add(this);
 		
@@ -104,6 +112,12 @@ public class ERPlayer implements Serializable {
 		return this.discordName;
 	}
 
+	public String getDisplayName() {
+		if (this.displayName == null)
+			this.displayName = "";
+		return this.displayName;
+	}
+	
 	/**
 	 * Getter of MMR
 	 * @return	The MMR of this player
@@ -155,6 +169,11 @@ public class ERPlayer implements Serializable {
 	 */
 	public void setDiscordName(String discordName) {
 		this.discordName = discordName;
+		Bot.serializePlayers();
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 		Bot.serializePlayers();
 	}
 	
@@ -226,7 +245,7 @@ public class ERPlayer implements Serializable {
 	public static boolean alreadyRegistered(String name, String discordServerName, String channelName) {
 		Scrim scrim = Bot.getScrim(discordServerName, channelName);
 		if (scrim != null)
-			return scrim.getTeams().stream().anyMatch(team -> team.getPlayers().stream().anyMatch(player -> player.getDiscordName().equalsIgnoreCase(name)));
+			return scrim.getTeams().stream().anyMatch(team -> team.getPlayerNames().stream().anyMatch(pName -> pName.equalsIgnoreCase(name)) || (team.getSub() != null && team.getSub().equalsIgnoreCase(name)));
 		return false;
 	}
 
@@ -250,6 +269,7 @@ public class ERPlayer implements Serializable {
 	 */
 	protected void copy(ERPlayer player) {
 		this.discordName = player.discordName;
+		this.displayName = player.displayName;
 		this.dak = player.dak;
 		this.mmr = player.mmr;
 		this.lastUpdateTime = player.lastUpdateTime;

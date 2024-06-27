@@ -38,7 +38,6 @@ public class EventERTeamRegistration extends EventER {
 		String discordServerName = event.getGuild().getName();
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
 		List<User> members = new ArrayList<User>();
-		members.addAll(event.getMessage().getMentions().getUsers());
 		if (names.size() > 1) {
 			String teamName = names.get(0).split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim();
 			
@@ -48,9 +47,12 @@ public class EventERTeamRegistration extends EventER {
 				List<String> playerNames = new ArrayList<String>();
 				
 				for (int i = 1; i < names.size(); i++)
-					playerNames.add(names.get(i).replaceAll(" +", " "));
+					if (!names.get(i).trim().isEmpty() && names.get(i).replaceAll(" +", " ").split(" ").length == 2)
+						playerNames.add(names.get(i).replaceAll(" +", " "));
 				
-	
+				if (event.getMessage().getMentions().getUsers().size() == playerNames.size())
+					members.addAll(event.getMessage().getMentions().getUsers());
+				
 				Team team = new Team(teamName);
 				team.setCaptain(event.getMessage().getAuthor().getName());
 				boolean registered = false;
@@ -58,7 +60,7 @@ public class EventERTeamRegistration extends EventER {
 				playerNames.stream().forEach(p -> System.err.println(p + "; "));
 				//members.forEach(m -> event.getMessage().getMentions().getRoles().forEach(r -> event.getGuild().addRoleToMember(m, r)));
 				try {
-					registered = playerNames.stream().allMatch(row -> {
+					registered = !playerNames.isEmpty() && playerNames.stream().allMatch(row -> {
 						String discordName = "";
 						try {
 							User u = members.remove(0);
