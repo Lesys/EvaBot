@@ -48,11 +48,15 @@ public class GameLog implements Serializable {
 	 * The team mates of the player for the game
 	 */
 	protected List<String> teammates;
+
+	protected List<String> teammateCharacters;
 	
 	/**
 	 * The final placement of the player for the game
 	 */
 	protected int placement;
+	
+	protected String characterPlayed;
 	
 	/**
 	 * The team number of the player for the game
@@ -84,6 +88,7 @@ public class GameLog implements Serializable {
 		this.teamNumber = o.getInt("teamNumber");
 		this.teamKill = o.getInt("teamKill");
 		this.mmrGainInGame = o.getInt("mmrGainInGame");
+		this.characterPlayed = GetPlayerStats.characters.get(o.getInt("characterNum"));
 		this.teammates = new ArrayList<String>();
 	}
 	
@@ -151,6 +156,10 @@ public class GameLog implements Serializable {
 		return this.placement;
 	}
 	
+	public String getCharacterPlayed() {
+		return this.characterPlayed;
+	}
+	
 	/**
 	 * Getter of teamNumber
 	 * @return		The team number of the player for the game
@@ -173,6 +182,10 @@ public class GameLog implements Serializable {
 	 */
 	public int getMmrGainInGame() {
 		return this.mmrGainInGame;
+	}
+	
+	public void setCharacterPlayed(String characterPlayed) {
+		this.characterPlayed = characterPlayed;
 	}
 	
 	/**

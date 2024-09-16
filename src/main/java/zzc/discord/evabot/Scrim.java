@@ -29,6 +29,8 @@ public class Scrim implements Serializable {
 	 * Teams registered for this scrim, by order of register time
 	 */
 	private List<Team> teams;
+	
+	private List<String> spectators;
 
 	/**
 	 * List of command logs for this scrim. Every change about the scrim (mostly Teams) is registered
@@ -45,6 +47,7 @@ public class Scrim implements Serializable {
 		this.channelName = channelName;
 		this.teams = new ArrayList<Team>();
 		this.logs = new ArrayList<MessageLog>();
+		this.spectators = new ArrayList<String>();
 	}
 	
 	/**
@@ -71,6 +74,10 @@ public class Scrim implements Serializable {
 		return this.teams;
 	}
 	
+	public List<String> getSpectators() {
+		return this.spectators;
+	}
+	
 	/**
 	 * Getter of logs
 	 * @return		The list of commands done since the creation of this Scrim
@@ -87,6 +94,10 @@ public class Scrim implements Serializable {
 	 */
 	public void addTeam(Team team) {
 		this.teams.add(team);
+	}
+	
+	public void addSpectators(String spectator) {
+		this.spectators.add(spectator);
 	}
 	
 	/**

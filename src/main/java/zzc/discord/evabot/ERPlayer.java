@@ -275,4 +275,9 @@ public class ERPlayer implements Serializable {
 		this.lastUpdateTime = player.lastUpdateTime;
 		this.rank = player.rank;
 	}
+	
+	@Override
+	public String toString() {
+		return this.discordName;
+	}
 }

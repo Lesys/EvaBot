@@ -56,7 +56,8 @@ public class EventERTeamRegistration extends EventER {
 				Team team = new Team(teamName);
 				team.setCaptain(event.getMessage().getAuthor().getName());
 				boolean registered = false;
-				System.err.println("Players: " + playerNames.size() + "; " + names.get(1));
+				//System.err.println("Author: " + event.getMessage().getAuthor().getName());
+				//System.err.println("Players: " + playerNames.size() + "; " + playerNames.get(0));
 				playerNames.stream().forEach(p -> System.err.println(p + "; "));
 				//members.forEach(m -> event.getMessage().getMentions().getRoles().forEach(r -> event.getGuild().addRoleToMember(m, r)));
 				try {
@@ -67,6 +68,9 @@ public class EventERTeamRegistration extends EventER {
 							discordName = u.getName();
 						} catch (IndexOutOfBoundsException e) {
 							discordName = row.split(" ")[0];
+							if (discordName.startsWith("<@")) { // Check if the name is a Discord tag because one of the others wasn't a Discord tag
+								discordName = event.getGuild().getMemberById(discordName.subSequence(2, discordName.length() - 1).toString()).getUser().getName(); // Get the name of the unique user tagged
+							}
 						}
 						String dak = row.split(" ")[1];
 						String ign = dak.split("/")[dak.split("/").length - 1];

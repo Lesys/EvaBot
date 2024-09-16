@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
 import zzc.discord.evabot.MessageLog;
+import zzc.discord.evabot.Team;
 
 /**
  * 
@@ -41,8 +42,12 @@ public class EventERChangeDak extends EventER {
 			
 			ERPlayer player = ERPlayer.getERPlayerByDiscordName(discordName);
 			
+			Bot.getScrim(event);
+			Team team = Bot.getScrim(event).getTeams().stream().filter(t -> t.getPlayerNames().stream().anyMatch(pn -> pn.equalsIgnoreCase(player.getDiscordName())) ||
+					t.getSub().equalsIgnoreCase(player.getDiscordName())).findFirst().orElse(null); // Retrieve team to check if the player is on a team and the captain is the one doing the request
+			
 			if (player != null) {
-				if (EventERManager.hasPermission(event, player)) {
+				if (EventERManager.hasPermission(event, player) || EventERManager.hasPermission(event, team)) {
 					player.setDak(newDak);
 
 					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));

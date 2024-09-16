@@ -26,12 +26,16 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	public static List<EventER> commands = Arrays.asList(
 			new EventERAddPlayer(),
+			new EventERAddSpectator(),
 			new EventERChangeDak(),
 			new EventERChangeDisplayName(),
 			new EventERChangePlayerName(),
 			new EventERClearPlayer(),
+			new EventERExportScrim(),
 			new EventERGetCommonGames(),
+			new EventERGetBestCharacter(),
 			new EventERGetBestTeammate(),
+			new EventERGetGameInfo(),
 			new EventERGetLogs(),
 			new EventERGetRank(),
 			new EventERGetServerDistribution(),

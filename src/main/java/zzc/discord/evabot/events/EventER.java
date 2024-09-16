@@ -1,9 +1,11 @@
 package zzc.discord.evabot.events;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
@@ -63,5 +65,9 @@ public abstract class EventER {
 	 */
 	public String getMessage(@NotNull MessageReceivedEvent event) {
 		return event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim().replaceAll(" +",  " ");
+	}
+	
+	protected void removeReaction(MessageReceivedEvent event, String emoji) {
+		event.getMessage().removeReaction(Emoji.fromUnicode(emoji)).queueAfter(2, TimeUnit.SECONDS);
 	}
 }

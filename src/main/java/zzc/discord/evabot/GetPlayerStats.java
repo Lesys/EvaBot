@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.StreamSupport;
 
 import org.json.JSONException;
@@ -21,6 +22,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  *
  */
 public class GetPlayerStats {
+	public static Map<Integer, String> characters = new HashMap<Integer, String>();
 	/**
 	 * String for the current season, starts empty and is filled at the first use of the "https://open-api.bser.io/v2/data/Season" APi request
 	 */
@@ -37,6 +39,10 @@ public class GetPlayerStats {
 	    	if (GetPlayerStats.season.equalsIgnoreCase("")) {
 				HttpResponse<JsonNode> seasonResponse
 				  = apiRequest("https://open-api.bser.io/v2/data/Season");
+
+				HttpResponse<JsonNode> characters;
+					characters = apiRequest("https://open-api.bser.io/v2/data/Character");
+					System.out.println("Body characters: " + characters.getBody());
 		
 				System.out.println("Status: " + seasonResponse.getStatus());
 				System.out.println("Body: " + seasonResponse.getBody());
@@ -51,6 +57,30 @@ public class GetPlayerStats {
 				if (Integer.valueOf(GetPlayerStats.season) % 2 == 0) {
 					GetPlayerStats.season = String.valueOf(Integer.valueOf(GetPlayerStats.season) - 1);
 				}
+	    	}
+		} catch (UnirestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected static void getCharacters() {
+		System.err.println("Getting season: ");
+		
+	    try {
+	    	// If season not initialized yet
+	    	if (GetPlayerStats.characters.size() <= 0) {
+				HttpResponse<JsonNode> characters;
+					characters = apiRequest("https://open-api.bser.io/v2/data/Character");
+
+				System.out.println("Status: " + characters.getStatus());
+				System.out.println("Body characters: " + characters.getBody());
+		
+				characters.getBody().getObject().getJSONArray("data").forEach(c -> GetPlayerStats.characters.put(((JSONObject)c).getInt("code"), ((JSONObject)c).get("name").toString()));
 	    	}
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
@@ -165,6 +195,7 @@ public class GetPlayerStats {
 	public static void retrieveGames(String name) throws UnirestException {
 		try {
 			GetPlayerStats.getSeason();
+			GetPlayerStats.getCharacters();
 			
 			HttpResponse<JsonNode> jsonResponse;
 				jsonResponse = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
@@ -184,7 +215,8 @@ public class GetPlayerStats {
 			HttpResponse<JsonNode> gamesResponse;
 			List<GameLog> gameList = new ArrayList<GameLog>();
 			boolean keepGoing = true;
-			
+			//System.err.println("Last game id: " + player.getLastGame().getGameId());
+			System.err.println("Date: " + date);
 			do {
 				gamesResponse
 				  = apiRequest("https://open-api.bser.io/v1/user/games/" + userNum + (next != 0 ? "?next=" + next : ""));
@@ -210,33 +242,54 @@ public class GetPlayerStats {
 				}
 			} while (keepGoing && gameList.stream().noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)) && next != 0);
 			
-			Bot.games.addAll(gameList);
+			Bot.games.addAll(0, gameList);
 
 			Bot.serializeGameLog();
 			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
-			
-			filteredList.stream().filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date) && (gl.teammates.size() <= 0 || gl.getMmrGainInGame() <= 0)))).forEach(gl -> {
+			AtomicInteger counter = new AtomicInteger(1);
+			filteredList.stream().filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date) &&
+					(gl.getTeammates().size() <= 0 || gl.getMmrGainInGame() <= 0 || gl.getCharacterPlayed() == null || gl.getCharacterPlayed().isEmpty())
+					))).forEach(gl -> {
 				HttpResponse<JsonNode> game;
 				try {
 					game = apiRequest("https://open-api.bser.io/v1/games/" + gl.getGameId());
+					//System.out.println("Body: " + game.getBody());
 				} catch (UnirestException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					game = null;
 				}
 				if (game != null) {
+					if (gl.getCharacterPlayed() == null || gl.getCharacterPlayed().isEmpty()) {
+						JSONObject jsonObj = (JSONObject)StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getString("nickname").equalsIgnoreCase(gl.nickname)).findFirst().get();
+						gl.setCharacterPlayed(GetPlayerStats.characters.get(jsonObj.getInt("characterNum")));
+						System.err.println("Character name: " + GetPlayerStats.characters.get(jsonObj.getInt("characterNum")));
+					}
+					
 					StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getInt("teamNumber") == gl.getTeamnumber()).forEach(o -> {
-						if (!gl.getNickname().equalsIgnoreCase(((JSONObject)o).getString("nickname")))
+						if (!gl.getNickname().equalsIgnoreCase(((JSONObject)o).getString("nickname")) && !gl.getTeammates().contains(((JSONObject)o).getString("nickname")))
 							gl.addTeammantes(((JSONObject)o).getString("nickname"));
 					});
-					//TODO TEST
-					System.out.println("Status game: " + game.getStatus());
+					//System.err.println("Teammates: " + gl.getTeammates());
+					System.err.println("Status game " + counter.getAndIncrement() + ": " + game.getStatus());
 				}
 			});
 			
 			Bot.serializeGameLog();
 		} catch (JSONException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static JSONObject retrieveGameInfo(String gameId) {
+		try {
+			HttpResponse<JsonNode> game
+			  = apiRequest("https://open-api.bser.io/v1/games/" + gameId);
+			
+			return game.getBody().getObject();
+		} catch (UnirestException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 

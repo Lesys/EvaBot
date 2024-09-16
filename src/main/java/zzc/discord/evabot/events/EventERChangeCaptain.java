@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.NotNull;
 
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -40,35 +39,33 @@ public class EventERChangeCaptain extends EventER {
 		String teamName = "";
 		for (int i = 0; i < message.length - 1; i++)
 			teamName += message[i] + (i < message.length - 2 ? " " : "");
-		
-		Member mentionnedCaptain = event.getMessage().getMentions().getMembers().get(0);
-		if (mentionnedCaptain != null) {
-			String newCaptain = mentionnedCaptain.getUser().getName();
-			
-			System.err.println("Captain name: " + newCaptain);
-	
-			Team team = Bot.getTeam(event, teamName);
-			if (team != null) {			
-				if (!team.getCaptain().equalsIgnoreCase(newCaptain)) {
-					if (EventERManager.hasPermission(event, teamName)) {
-						team.setCaptain(newCaptain);
 
-						Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
-						Bot.serializeScrims();
-						
-						event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
-					} else {
-						event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only the captain of the team can use it.").queue();
-					}
+		String newCaptain = event.getMessage().getMentions().getMembers().size() == 1 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : message[message.length - 1];
+			
+		System.err.println("Captain name: " + newCaptain);
+
+		Team team = Bot.getTeam(event, teamName);
+		if (team != null) {			
+			if (!team.getCaptain().equalsIgnoreCase(newCaptain)) {
+				if (EventERManager.hasPermission(event, teamName)) {
+					team.setCaptain(newCaptain);
+
+					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
+					Bot.serializeScrims();
+					
+					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
 				} else {
-					event.getChannel().sendMessage(newCaptain + " is already the captain of the team.").queue();
+					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only the captain of the team can use it.").queue();
 				}
 			} else {
-				event.getChannel().sendMessage(teamName + " hasn't been registered in this scrim.").queue();
+				event.getChannel().sendMessage(newCaptain + " is already the captain of the team.").queue();
 			}
 		} else {
-			event.getChannel().sendMessage("Please put the mentionned user at the end of the command (see " + this.commandName.substring(0, 1) + "help command for more informations).").queue();
-		}
+			event.getChannel().sendMessage(teamName + " hasn't been registered in this scrim.").queue();
+		}/*
+		} else {
+			event.getChannel().sendMessage("Please put the mentionned user at the end of the command (see help command for more informations).").queue();
+		}*/
 
 		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
 	}

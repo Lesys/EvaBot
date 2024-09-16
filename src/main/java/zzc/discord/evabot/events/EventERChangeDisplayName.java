@@ -12,11 +12,11 @@ import zzc.discord.evabot.ERPlayer;
  * 
  * @author Lesys
  *
- * Class of EventER that changes the name of a registered ERPlayer
+ * Class of EventER that changes the displayed name of a registered ERPlayer
  */
 public class EventERChangeDisplayName extends EventER {
 	/**
-	 * Constructor of EventERChangePlayerName
+	 * Constructor of EventERChangeDisplayName
 	 */
 	public EventERChangeDisplayName() {
 		this.commandName += "changePlayerDisplayName";
