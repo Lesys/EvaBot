@@ -46,7 +46,7 @@ public class EventERRemovePlayer extends EventER {
 
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
-			ERPlayer player = ERPlayer.getERPlayerByDiscordName((team.getSub() != null ? Stream.concat(team.getPlayerNames().stream(), Arrays.asList(team.getSub()).stream()) : team.getPlayerNames().stream()).filter(p -> p.equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null));
+			ERPlayer player = ERPlayer.getERPlayer((team.getSub() != null ? Stream.concat(team.getPlayerNames().stream(), Arrays.asList(team.getSub()).stream()) : team.getPlayerNames().stream()).filter(p -> p.equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null));
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, teamName)) {

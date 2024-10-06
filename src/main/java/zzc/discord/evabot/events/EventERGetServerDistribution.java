@@ -40,7 +40,7 @@ public class EventERGetServerDistribution extends EventER {
 			player.updateMmr();
 			Map<String, Integer> servs = GetPlayerStats.serverDistribution(playerName);
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(player.getDiscordName() + ": " + player.getMmr() + " RP - #" + player.getRankGlobal() + " Global\n");
+			buffer.append((player.getDiscordName().isEmpty() ? player.getDakName() : player.getDiscordName()) + ": " + player.getMmr() + " RP - #" + player.getRankGlobal() + " Global\n");
 
 			StringBuffer mostPlayedServ = new StringBuffer("");
 			servs.forEach((k, v) -> {

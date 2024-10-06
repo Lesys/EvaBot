@@ -111,8 +111,8 @@ public class Team implements Serializable, Comparable<Team> {
 	 */
 	public boolean setSub(ERPlayer sub) {
 		if (sub != null) {
-			this.sub = sub.getDiscordName();
-			this.playerNames.remove(sub.getDiscordName());
+			this.sub = sub.getDakName();
+			this.playerNames.remove(sub.getDakName());
 		} else {
 			this.sub = null;
 		}
@@ -127,7 +127,7 @@ public class Team implements Serializable, Comparable<Team> {
 	 */
 	public boolean addPlayer(ERPlayer player) {
 		if (this.playerNames.size() < Team.MAX_NB_PLAYER)
-			return this.playerNames.add(player.getDiscordName());
+			return this.playerNames.add(player.getDakName());
 		return false;
 	}
 	
@@ -139,7 +139,7 @@ public class Team implements Serializable, Comparable<Team> {
 	 */
 	public boolean addPlayers(List<ERPlayer> players) {
 		if (this.playerNames.size() + players.size() <= Team.MAX_NB_PLAYER)
-			return this.playerNames.addAll(players.stream().map(player -> player.getDiscordName()).toList());
+			return this.playerNames.addAll(players.stream().map(player -> player.getDakName()).toList());
 		return false;
 	}
 	
@@ -148,25 +148,25 @@ public class Team implements Serializable, Comparable<Team> {
 	 * @return	The average MMR of this Team
 	 */
 	public Double getAverage() {
-		return Math.floor((this.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)).map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).doubleValue() / this.playerNames.size()) * 100) / 100;
+		return Math.floor((this.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).doubleValue() / this.playerNames.size()) * 100) / 100;
 	}
 
 	/**
 	 * Updates the MMR of all players in this Team
 	 */
 	public void updateMmr() {
-		this.getPlayerNames().forEach(p -> ERPlayer.getERPlayerByDiscordName(p).updateMmr());
+		this.getPlayerNames().forEach(p -> ERPlayer.getERPlayer(p).updateMmr());
 		if (sub != null)
-			ERPlayer.getERPlayerByDiscordName(sub).updateMmr();
+			ERPlayer.getERPlayer(sub).updateMmr();
 	}
 
 	/**
 	 * Force update the MMR of all players in this Team
 	 */
 	public void updateMmrForce() {
-		this.getPlayerNames().forEach(p -> ERPlayer.getERPlayerByDiscordName(p).updateMmrForce());
+		this.getPlayerNames().forEach(p -> ERPlayer.getERPlayer(p).updateMmrForce());
 		if (sub != null)
-			ERPlayer.getERPlayerByDiscordName(sub).updateMmrForce();
+			ERPlayer.getERPlayer(sub).updateMmrForce();
 	}
 	
 	/**

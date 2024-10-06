@@ -39,10 +39,6 @@ public class GetPlayerStats {
 	    	if (GetPlayerStats.season.equalsIgnoreCase("")) {
 				HttpResponse<JsonNode> seasonResponse
 				  = apiRequest("https://open-api.bser.io/v2/data/Season");
-
-				HttpResponse<JsonNode> characters;
-					characters = apiRequest("https://open-api.bser.io/v2/data/Character");
-					System.out.println("Body characters: " + characters.getBody());
 		
 				System.out.println("Status: " + seasonResponse.getStatus());
 				System.out.println("Body: " + seasonResponse.getBody());
@@ -100,7 +96,7 @@ public class GetPlayerStats {
 	public static JSONObject getPlayerStats(String name) {
 	    try {
 	    	GetPlayerStats.getSeason();
-	    	System.err.println("IGN: " + name);
+	    	System.err.println("IGN retrieving MMR: " + name);
 			HttpResponse<JsonNode> jsonResponse 
 			  = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
 			

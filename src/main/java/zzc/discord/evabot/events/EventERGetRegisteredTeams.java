@@ -84,8 +84,8 @@ public class EventERGetRegisteredTeams extends EventER {
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event, boolean showMmr) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__**"  + (showMmr ? "(" + team.getAverage() + ")" : "") + " :\n");
-		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)).forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (player.getDisplayName().isEmpty() ? player.getDakName() : player.getDisplayName()).replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (showMmr ? " (" + player.getMmr() + ")" : "") + " "));
-		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
+		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (player.getDisplayName().isEmpty() ? player.getDakName() : player.getDisplayName()).replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (showMmr ? " (" + player.getMmr() + ")" : "") + " "));
+		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
 			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (sub.getDisplayName().isEmpty() ? sub.getDakName() : sub.getDisplayName()).replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (showMmr ?  " (" + sub.getMmr() + ")" : "") + "]");
 		}

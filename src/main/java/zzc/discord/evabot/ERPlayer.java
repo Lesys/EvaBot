@@ -81,6 +81,17 @@ public class ERPlayer implements Serializable {
 			return null;
 	}
 	
+
+	
+	public static String getDiscordNameByDakName(String dakName) {
+		ERPlayer player = ERPlayer.getERPlayer(dakName);
+		if (player != null) {
+			return player.getDiscordName();
+		} else {
+			return null;
+		}
+	}
+	
 	/**
 	 * Constructor of an ERPlayer
 	 * 

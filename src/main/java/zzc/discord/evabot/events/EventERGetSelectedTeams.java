@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.SequentialRestRateLimiter;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
 import zzc.discord.evabot.MessageLog;
@@ -79,8 +78,8 @@ public class EventERGetSelectedTeams extends EventER {
 					List<Member> toAdd = new ArrayList<Member>();
 					
 					List<String> names = new ArrayList<String>();
-					filtered.stream().flatMap(team -> team.getPlayerNames().stream()).forEach(p -> names.add(ERPlayer.getERPlayerByDiscordName(p).getDiscordName()));
-					toAdd.addAll(filtered.stream().flatMap(team -> team.getSub() != null ? Stream.concat(team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)), Arrays.asList(ERPlayer.getERPlayerByDiscordName(team.getSub())).stream()) : team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p))).map(player -> event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
+					filtered.stream().flatMap(team -> team.getPlayerNames().stream()).forEach(p -> names.add(ERPlayer.getERPlayer(p).getDiscordName()));
+					toAdd.addAll(filtered.stream().flatMap(team -> team.getSub() != null ? Stream.concat(team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)), Arrays.asList(ERPlayer.getERPlayer(team.getSub())).stream()) : team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p))).map(player -> event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
 					toAdd.addAll(scrim.getSpectators().stream().map(spec -> event.getGuild().getMembersByName(spec, true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
 					List<Member> toRemove = new ArrayList<Member>();
 					toRemove.addAll(event.getGuild().getMembersWithRoles(roles));
@@ -144,24 +143,18 @@ public class EventERGetSelectedTeams extends EventER {
 			MessageReceivedEvent event) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__** (" + team.getAverage()
 		+ "):\n");
-		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p))
+		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p))
 		.forEach(
-				player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
-						+ EventERGetSelectedTeams
-						.getMention(
-								event.getGuild().getMembersByName(player.getDiscordName(), true)
-								.stream().findFirst().orElse(null),
-								player.getDiscordName())
+				player -> {System.err.println("Player getselectedteams: " + player);builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
+						+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null), player.getDiscordName())
 						+ (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
-						+ " (" + player.getDakName().replaceAll("_", "\\_") + " - " + player.getMmr()
-						+ "); "));
-		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
+						+ " (" + player.getDakName().replaceAll("_", "\\_") + " - " + player.getMmr() + "); ");});
+		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
 			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "")
-					+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true)
-							.stream().findFirst().orElse(null), sub.getDiscordName())
-					+ (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + " ("
-					+ sub.getDakName().replaceAll("_", "\\_") + " - " + sub.getMmr() + ")]");
+					+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null), sub.getDiscordName())
+					+ (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "")
+					+ " (" + sub.getDakName().replaceAll("_", "\\_") + " - " + sub.getMmr() + ")]");
 		}
 	}
 	

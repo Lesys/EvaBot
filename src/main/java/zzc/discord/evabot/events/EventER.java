@@ -64,7 +64,11 @@ public abstract class EventER {
 	 * @return			The message content without the command call
 	 */
 	public String getMessage(@NotNull MessageReceivedEvent event) {
-		return event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim().replaceAll(" +",  " ");
+		try {
+			return event.getMessage().getContentRaw().split("(?i)".concat((Arrays.asList("+" , "*" , "?" , "^" , "$" , "(" , ")" , "[" , "]" , "{" , "}" , "|" , "\\").contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1].trim().replaceAll(" +",  " ");
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
 	
 	protected void removeReaction(MessageReceivedEvent event, String emoji) {

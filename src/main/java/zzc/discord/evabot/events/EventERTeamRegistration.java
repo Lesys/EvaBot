@@ -74,12 +74,12 @@ public class EventERTeamRegistration extends EventER {
 						}
 						String dak = row.split(" ")[1];
 						String ign = dak.split("/")[dak.split("/").length - 1];
-						System.err.println("Player: " + discordName + "; dak: " + dak + "; Captain name: " + event.getMessage().getAuthor().getName());
+						System.err.println("Player: " + discordName + "; dak: " + dak + "; ign: " + ign + "; Captain name: " + event.getMessage().getAuthor().getName());
 						ERPlayer player = ERPlayer.getERPlayer(ign);
 
 						player.setDiscordName(discordName);
 						//new ERPlayer(playerName, dak);
-						return !ERPlayer.alreadyRegistered(discordName, discordServerName, channelName) ?
+						return !ERPlayer.alreadyRegistered(ign, discordServerName, channelName) ?
 								(team.addPlayer(player) ? true :
 									(team.getSub() == null ? team.setSub(player)
 									: false))
@@ -90,6 +90,7 @@ public class EventERTeamRegistration extends EventER {
 				}
 	
 				if (registered) {
+					Bot.serializePlayers();
 					if (scrim == null) {
 						scrim = new Scrim(event.getGuild().getName(), channelName);
 						Bot.scrims.add(scrim);

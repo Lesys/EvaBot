@@ -2,4 +2,4 @@ tokens.txt
 *.class
 *.ser
 target/*
-*.scv
+*.csv

@@ -48,7 +48,7 @@ public class EventERGetCommonGames extends EventER {
 				buffer.append("Last game played was on " + commonGames.get(0).getDateTimeString() + " (GameID: " + commonGames.get(0).getGameId() + ") and finished " + commonGames.get(0).getPlacement() + ".\n");
 				buffer.append("Last 10 games:"); commonGames.stream().limit(10).forEach(gl -> buffer.append(" __" + gl.getGameId() + "__"));
 			} else {
-				buffer.append("You haven't yet to play with " + playerName2 + " this ranked season.");
+				buffer.append("You haven't played with " + playerName2 + " this ranked season.");
 			}
 			event.getChannel().sendMessage(buffer).queue();
 		} else {			

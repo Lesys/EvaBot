@@ -2,16 +2,13 @@ package zzc.discord.evabot.events;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
 
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -44,7 +41,7 @@ public class EventERExportScrim extends EventER {
 		final StringBuilder builder = new StringBuilder();
 		System.out.println(builder.toString());
 		builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\"\n");
-		builder.append("teamName;averageMmr;playerIGName;playerDiscordName;playerMmr\n");
+		builder.append("averageMmr;teamName;playerIGName;playerDiscordName;playerMmr\n");
 
 		boolean byMmr = event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ").length > 1
 				&& event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ")[1]
@@ -103,11 +100,11 @@ public class EventERExportScrim extends EventER {
 	 * @param event     The event sent to be able to mention people
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, MessageReceivedEvent event) {
-		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayerByDiscordName(p)).forEach(
-				player -> builder.append(team.getName() + ";" + player.getDakName() + ";" + team.getAverage() + ";" + player.getDiscordName() + ";" + player.getMmr() + "\n"));
-		ERPlayer sub = ERPlayer.getERPlayerByDiscordName(team.getSub());
+		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).forEach(
+				player -> builder.append(team.getAverage() + ";" + team.getName() + ";" + player.getDakName() + ";" + player.getDiscordName() + ";" + player.getMmr() + "\n"));
+		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
-			builder.append(team.getName() + ";" + team.getAverage() + ";" + sub.getDakName() + ";" + sub.getDiscordName() + ";" + sub.getMmr() + "\n");
+			builder.append(team.getAverage() + ";" + team.getName() + ";" + sub.getDakName() + ";" + sub.getDiscordName() + ";" + sub.getMmr() + "\n");
 		}
 	}
 }

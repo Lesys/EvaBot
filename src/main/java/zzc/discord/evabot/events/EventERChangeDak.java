@@ -36,11 +36,13 @@ public class EventERChangeDak extends EventER {
 		String[] message = this.getMessageArray(event);
 
 		if (message.length == 2) {
-			String discordName = event.getMessage().getMentions().getMembers().size() == 1 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : message[message.length - 2];
+			String discordName = event.getMessage().getMentions().getMembers().size() == 1 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : null;
+			
+			String oldDak = discordName == null ? message[message.length - 2] : null;
 			
 			String newDak = message[message.length - 1];
 			
-			ERPlayer player = ERPlayer.getERPlayerByDiscordName(discordName);
+			ERPlayer player = discordName == null ? ERPlayer.getERPlayer(oldDak) : ERPlayer.getERPlayerByDiscordName(discordName);
 			
 			Bot.getScrim(event);
 			Team team = Bot.getScrim(event).getTeams().stream().filter(t -> t.getPlayerNames().stream().anyMatch(pn -> pn.equalsIgnoreCase(player.getDiscordName())) ||
@@ -57,17 +59,17 @@ public class EventERChangeDak extends EventER {
 					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
 				}
 			} else {
-				event.getChannel().sendMessage(discordName + " hasn't been registered in this Team.").queue();
+				event.getChannel().sendMessage(discordName == null ? oldDak : discordName + " hasn't been registered in this Team.").queue();
 			}
 		} else {			
 			event.getChannel().sendMessage("Please enter the discord name of the player followed by the dak link (or at least their in game name).").queue();
 		}
 
-		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
+		this.removeReaction(event, "U+1F504");
 	}
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {PlayerDiscordName} {NewPlayerDakLink} - Changes the DAK of a player registered.\n";
+		return super.helpCommand() + " {PlayerDiscordMention | OldPlayerDakName} {NewPlayerDakLink} - Changes the DAK of a player registered.\n";
 	}
 }
