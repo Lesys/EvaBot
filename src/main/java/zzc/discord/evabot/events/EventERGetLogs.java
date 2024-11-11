@@ -29,7 +29,7 @@ public class EventERGetLogs extends EventER {
 	 * Gets the scrim and sends the logs in DM. Number of logs sent can be changed with putting argument in command line.
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		final List<String> messages = new ArrayList<String>();
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();

@@ -3,6 +3,7 @@ package zzc.discord.evabot;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 import org.json.JSONObject;
 
@@ -50,17 +51,21 @@ public class ERPlayer implements Serializable {
 	 * @param dakName	The DAK name of the player. Will also serve as the player name
 	 */
 	public static ERPlayer getERPlayer(String dakName) {
-		Bot.deserializePlayers();
-		
-		//Bot.allPlayers.stream().forEach(p -> System.err.println("player dakName: " + p.getDakName()));
-		if (Bot.allPlayers.stream().anyMatch(p -> p.getDakName().equalsIgnoreCase(dakName))) {
-			//System.err.println("Player already exists; getting back the properties...");
-			ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDakName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
-			/*if (player != null)
-				player.updateMmr();*/
-			return player;
+		if (dakName != null) {
+			Bot.deserializePlayers();
+			
+			//Bot.allPlayers.stream().forEach(p -> System.err.println("player dakName: " + p.getDakName()));
+			if (Bot.allPlayers.stream().anyMatch(p -> p.getDakName().equalsIgnoreCase(dakName))) {
+				//System.err.println("Player already exists; getting back the properties...");
+				ERPlayer player = Bot.allPlayers.stream().filter(p -> p.getDakName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
+				/*if (player != null)
+					player.updateMmr();*/
+				return player;
+			} else {
+				return new ERPlayer(dakName, "");
+			}
 		} else {
-			return new ERPlayer(dakName, "");
+			return null;
 		}
 	}
 	
@@ -126,7 +131,7 @@ public class ERPlayer implements Serializable {
 	public String getDisplayName() {
 		if (this.displayName == null)
 			this.displayName = "";
-		return this.displayName;
+		return this.displayName;//.isEmpty() ? (this.discordName == null || this.discordName.isEmpty() ? this.getDakName() : this.discordName) : this.displayName;
 	}
 	
 	/**
@@ -290,5 +295,9 @@ public class ERPlayer implements Serializable {
 	@Override
 	public String toString() {
 		return this.discordName;
+	}
+	
+	public static String getNameWithoutSpecialChar(Supplier<String> getString) {
+		return getString.get().replaceAll("[*_]", "");
 	}
 }

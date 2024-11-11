@@ -26,7 +26,7 @@ public class EventERClearPlayer extends EventER {
 	 * Check if the Team name exists in the registered teams, and removes the ERPlayer if it exists in the Team
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializePlayers();
 		Bot.deserializeGameLog();
 		

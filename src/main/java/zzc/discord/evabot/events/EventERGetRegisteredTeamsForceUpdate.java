@@ -31,7 +31,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 	 * Gets all the teams from the serialized variable, force the update of their MMR and sort them by MMR
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		final List<String> messages = new ArrayList<String>();
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
@@ -54,7 +54,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 				});
 
 				messages.add(builder.toString());
-		        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
+		        messages.forEach(m -> this.sendMessageWait(event, m));
 			} else {
 				event.getChannel().sendMessage("Only an Administrator can use this command.").queue();				
 			}

@@ -34,7 +34,7 @@ public class EventERExportScrim extends EventER {
 	 * Gets all the teams from the serialized variable and sort them by MMR if the option was added in the command line, then exports all the teams/players to CSV file.
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
 

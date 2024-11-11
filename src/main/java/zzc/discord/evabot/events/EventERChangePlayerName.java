@@ -27,7 +27,7 @@ public class EventERChangePlayerName extends EventER {
 	 * Check if the Player name exists in the registered teams, and changes the ERPlayer name if it exists in a Team
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializePlayers();
 		Bot.deserializeScrims();
 

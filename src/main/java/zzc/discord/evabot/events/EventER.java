@@ -47,7 +47,7 @@ public abstract class EventER {
 	 * The execution body of the Event to do when the command is called
 	 * @param event		The event received when the user sent a message
 	 */
-	public abstract void exeuteCommand(@NotNull MessageReceivedEvent event);
+	public abstract void executeCommand(@NotNull MessageReceivedEvent event);
 
 	/**
 	 * Splits the command call from the rest of the message
@@ -73,5 +73,15 @@ public abstract class EventER {
 	
 	protected void removeReaction(MessageReceivedEvent event, String emoji) {
 		event.getMessage().removeReaction(Emoji.fromUnicode(emoji)).queueAfter(2, TimeUnit.SECONDS);
+	}
+	
+	protected synchronized void sendMessageWait(MessageReceivedEvent event, String message) {
+		try {
+			event.getChannel().sendMessage(message).queue();
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

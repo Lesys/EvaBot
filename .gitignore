@@ -3,3 +3,4 @@ tokens.txt
 *.ser
 target/*
 *.csv
+/target/

@@ -27,7 +27,7 @@ public class EventERRemoveTeam extends EventER {
 	 * Check if the team exists in the scrim registration and removes it
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 		
 		String teamName = this.getMessage(event);

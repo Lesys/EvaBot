@@ -37,7 +37,7 @@ public class EventERGetSelectedTeams extends EventER {
 	 * Gets all the teams from the serialized variable and sort them by MMR if the option was added in the command line. Changes the roles if a role has been mentioned
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		final List<String> messages = new ArrayList<String>();
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
@@ -110,7 +110,7 @@ public class EventERGetSelectedTeams extends EventER {
 					});
 					
 					messages.add(builder.toString());
-					messages.forEach(m -> event.getChannel().sendMessage(m).queue());
+			        messages.forEach(m -> this.sendMessageWait(event, m));
 					
 					//Bot.serializeScrims();
 				}
@@ -145,16 +145,16 @@ public class EventERGetSelectedTeams extends EventER {
 		+ "):\n");
 		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p))
 		.forEach(
-				player -> {System.err.println("Player getselectedteams: " + player);builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
+				player -> {System.err.println("Player getselectedteams: " + player.getDak() + "; " + player.getDisplayName());builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
 						+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null), player.getDiscordName())
 						+ (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
-						+ " (" + player.getDakName().replaceAll("_", "\\_") + " - " + player.getMmr() + "); ");});
+						+ " (" + ERPlayer.getNameWithoutSpecialChar(player::getDakName) + " - " + player.getMmr() + "); ");});
 		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
 			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "")
 					+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null), sub.getDiscordName())
 					+ (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "")
-					+ " (" + sub.getDakName().replaceAll("_", "\\_") + " - " + sub.getMmr() + ")]");
+					+ " (" + ERPlayer.getNameWithoutSpecialChar(sub::getDakName) + " - " + sub.getMmr() + ")]");
 		}
 	}
 	
@@ -165,6 +165,6 @@ public class EventERGetSelectedTeams extends EventER {
 	 * @return The mention (or a String if member is null)
 	 */
 	protected static String getMention(Member member, String playerName) {
-		return member != null ? member.getAsMention() : playerName;
+		return member != null ? member.getAsMention() : playerName.replaceAll("[*_]", "");
 	}
 }

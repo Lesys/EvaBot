@@ -25,7 +25,7 @@ public class EventERRemoveScrim extends EventER {
 	 * Check if the Scrim exists and removes it
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 		
 		Scrim scrim = Bot.getScrim(event);

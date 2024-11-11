@@ -28,7 +28,7 @@ public class EventERPutToSub extends EventER {
 	 * Check if the Team name exists, check if the Player name exists in this Team and swap it with the sub Player if there is one, else puts it in sub with an empty place in main roster
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 		
 		String[] message = this.getMessageArray(event);

@@ -26,7 +26,7 @@ public class EventERHelpCommand extends EventER {
 	 * Sends the help string for all the EventER registered 
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		final List<String> messages = new ArrayList<String>();
         final StringBuilder builder = new StringBuilder();
         EventERManager.commands.forEach(command -> {

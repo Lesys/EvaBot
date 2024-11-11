@@ -27,7 +27,7 @@ public class EventERGetCommonGames extends EventER {
 	 * Gets the games of player 1 and player 2 in common, and displays number of games, average placement, kills and wins alongside last games ID
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 
 		String[] message = this.getMessageArray(event);

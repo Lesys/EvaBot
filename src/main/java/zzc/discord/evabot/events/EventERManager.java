@@ -59,7 +59,7 @@ public class EventERManager extends ListenerAdapter {
 			EventER command = EventERManager.commands.stream().filter(comm -> comm.matchingName(event.getMessage().getContentRaw().split(" ")[0])).findFirst().orElse(null);
 
 			if (command != null) {
-				command.exeuteCommand(event);
+				command.executeCommand(event);
 			} else if (event.getMessage().getContentRaw().startsWith(EventER.commandPrefix)) {
 				event.getChannel().sendMessage("The command **" + event.getMessage().getContentRaw().split(" ")[0] + "** is not recognized. Please use the correct spelling or use **" + EventER.commandPrefix + "help** to see the commands.").queue();
 			}

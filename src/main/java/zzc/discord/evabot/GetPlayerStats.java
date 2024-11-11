@@ -31,12 +31,11 @@ public class GetPlayerStats {
 	/**
 	 * Gets the current season (previous season if current is preseason) and put it in the static variable.
 	 */
-	protected static void getSeason() {
-		System.err.println("Getting season: ");
-		
+	protected static void getSeason() {		
 	    try {
 	    	// If season not initialized yet
 	    	if (GetPlayerStats.season.equalsIgnoreCase("")) {
+	    		System.err.println("Getting season: ");
 				HttpResponse<JsonNode> seasonResponse
 				  = apiRequest("https://open-api.bser.io/v2/data/Season");
 		

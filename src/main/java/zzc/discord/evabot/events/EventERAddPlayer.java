@@ -31,7 +31,7 @@ public class EventERAddPlayer extends EventER {
 	 * Check if the Team name exists in the registered teams, and adds the ERPlayer to the Team
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
 		String channelName = event.getChannel().getName();

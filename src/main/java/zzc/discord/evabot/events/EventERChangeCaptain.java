@@ -29,7 +29,7 @@ public class EventERChangeCaptain extends EventER {
 	 * Check if the	messages contains a mention, and put this User as a captain of the Team if it exists
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();

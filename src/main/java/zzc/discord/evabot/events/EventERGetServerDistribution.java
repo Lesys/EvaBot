@@ -27,7 +27,7 @@ public class EventERGetServerDistribution extends EventER {
 	 * Gets the rank of the player and displays his MMR with his global ranking alongside with its server distribution (high ranking players need at least 80% games in the same server to be eligible for the high ranking rewards in this servers)
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 
 		String[] message = this.getMessageArray(event);

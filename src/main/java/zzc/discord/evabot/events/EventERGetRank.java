@@ -24,7 +24,7 @@ public class EventERGetRank extends EventER {
 	 * Gets the rank of the player and displays his MMR with his global ranking
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 
 		String[] message = this.getMessageArray(event);

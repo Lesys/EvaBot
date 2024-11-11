@@ -28,7 +28,7 @@ public class EventERChangeDak extends EventER {
 	 * Check if the Player name exists in the registered teams, and changes the ERPlayer DAK if it exists in a Team
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		Bot.deserializeScrims();
 
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();

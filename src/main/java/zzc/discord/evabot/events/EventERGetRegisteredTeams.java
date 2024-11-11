@@ -31,7 +31,7 @@ public class EventERGetRegisteredTeams extends EventER {
 	 * Gets all the teams from the serialized variable, updates their MMR and sort them by MMR if the option was added in the command line
 	 */
 	@Override
-	public void exeuteCommand(@NotNull MessageReceivedEvent event) {
+	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		final List<String> messages = new ArrayList<String>();
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
@@ -62,12 +62,12 @@ public class EventERGetRegisteredTeams extends EventER {
 			});
 
 			messages.add(builder.toString());
-	        messages.forEach(m -> event.getChannel().sendMessage(m).queue());
+	        messages.forEach(m -> this.sendMessageWait(event, m));
 		} else {			
 			event.getChannel().sendMessage("No teams has yet to be registered for the scrim \"" + event.getChannel().getName() + "\".").queue();
 		}
 		
-		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
+		this.removeReaction(event, "U+1F504");
 	}
 
 	@Override
@@ -84,10 +84,10 @@ public class EventERGetRegisteredTeams extends EventER {
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event, boolean showMmr) {
 		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__**"  + (showMmr ? "(" + team.getAverage() + ")" : "") + " :\n");
-		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (player.getDisplayName().isEmpty() ? player.getDakName() : player.getDisplayName()).replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (showMmr ? " (" + player.getMmr() + ")" : "") + " "));
+		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (player.getDisplayName().isEmpty() ? ERPlayer.getNameWithoutSpecialChar(player::getDakName) : ERPlayer.getNameWithoutSpecialChar(player::getDisplayName)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (showMmr ? " (" + player.getMmr() + ")" : "") + " "));
 		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
-			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (sub.getDisplayName().isEmpty() ? sub.getDakName() : sub.getDisplayName()).replaceAll("_", "\\_") + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (showMmr ?  " (" + sub.getMmr() + ")" : "") + "]");
+			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (sub.getDisplayName().isEmpty() ? ERPlayer.getNameWithoutSpecialChar(sub::getDakName) : ERPlayer.getNameWithoutSpecialChar(sub::getDisplayName)) + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "") + (showMmr ?  " (" + sub.getMmr() + ")" : "") + "]");
 		}
 		builder.append("\n");
 	}
