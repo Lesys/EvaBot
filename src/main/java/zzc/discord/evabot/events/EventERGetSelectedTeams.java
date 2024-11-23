@@ -146,13 +146,13 @@ public class EventERGetSelectedTeams extends EventER {
 		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p))
 		.forEach(
 				player -> {System.err.println("Player getselectedteams: " + player.getDak() + "; " + player.getDisplayName());builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
-						+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null), player.getDiscordName())
+						+ EventERGetSelectedTeams.getMention(event, player)
 						+ (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "")
 						+ " (" + ERPlayer.getNameWithoutSpecialChar(player::getDakName) + " - " + player.getMmr() + "); ");});
 		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
 			builder.append("[Sub: " + (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "")
-					+ EventERGetSelectedTeams.getMention(event.getGuild().getMembersByName(sub.getDiscordName(), true).stream().findFirst().orElse(null), sub.getDiscordName())
+					+ EventERGetSelectedTeams.getMention(event, sub)
 					+ (team.getCaptain().equalsIgnoreCase(sub.getDiscordName()) ? "__" : "")
 					+ " (" + ERPlayer.getNameWithoutSpecialChar(sub::getDakName) + " - " + sub.getMmr() + ")]");
 		}
@@ -161,10 +161,23 @@ public class EventERGetSelectedTeams extends EventER {
 	/**
 	 * Returns the string corresponding to the mention of the member
 	 * 
-	 * @param member The member to mention
+	 * @param event		The event sent to be able to mention people
+	 * @param player 	The player to mention
 	 * @return The mention (or a String if member is null)
 	 */
-	protected static String getMention(Member member, String playerName) {
-		return member != null ? member.getAsMention() : playerName.replaceAll("[*_]", "");
+	protected static String getMention(MessageReceivedEvent event, ERPlayer player) {
+		String mention = "";
+		try {
+			Member m = event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null);
+			if (m != null) {
+				mention = m.getAsMention();
+			} else {
+				mention = player.getDiscordName().replaceAll("[*_]", "");
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println(e.getMessage());
+			mention = player.getDiscordName().replaceAll("[*_]", "");
+		}
+		return mention;
 	}
 }

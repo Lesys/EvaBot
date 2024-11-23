@@ -31,6 +31,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERChangeDisplayName(),
 			new EventERChangePlayerName(),
 			new EventERClearPlayer(),
+			new EventERDisplayAllPlayersInformations(),
 			new EventERExportScrim(),
 			new EventERGetCommonGames(),
 			new EventERGetBestCharacter(),
