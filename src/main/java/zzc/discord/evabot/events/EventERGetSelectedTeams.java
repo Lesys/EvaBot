@@ -79,8 +79,11 @@ public class EventERGetSelectedTeams extends EventER {
 					
 					List<String> names = new ArrayList<String>();
 					filtered.stream().flatMap(team -> team.getPlayerNames().stream()).forEach(p -> names.add(ERPlayer.getERPlayer(p).getDiscordName()));
-					toAdd.addAll(filtered.stream().flatMap(team -> team.getSub() != null ? Stream.concat(team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)), Arrays.asList(ERPlayer.getERPlayer(team.getSub())).stream()) : team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p))).map(player -> event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
-					toAdd.addAll(scrim.getSpectators().stream().map(spec -> event.getGuild().getMembersByName(spec, true).stream().findFirst().orElse(null)).filter(Objects::nonNull).distinct().toList());
+					toAdd.addAll(filtered.stream()
+							.flatMap(team -> team.getSub() != null ? Stream.concat(team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)), Arrays.asList(ERPlayer.getERPlayer(team.getSub())).stream()) : team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)))
+							.map(player -> EventERGetSelectedTeams.getMemberFromGuild(event, player))
+							.filter(Objects::nonNull).distinct().toList());
+					toAdd.addAll(scrim.getSpectators().stream().map(spec -> EventERGetSelectedTeams.getMemberFromGuild(event, spec)).filter(Objects::nonNull).distinct().toList());
 					List<Member> toRemove = new ArrayList<Member>();
 					toRemove.addAll(event.getGuild().getMembersWithRoles(roles));
 					List<Member> mutual = toAdd.stream().filter(m -> toRemove.contains(m)).collect(Collectors.toList());
@@ -179,5 +182,35 @@ public class EventERGetSelectedTeams extends EventER {
 			mention = player.getDiscordName().replaceAll("[*_]", "");
 		}
 		return mention;
+	}
+	
+	protected static Member getMemberFromGuild(MessageReceivedEvent event, ERPlayer player) {
+		Member m = null;
+		try {
+			m = event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null);
+			if (m == null) {
+				m = null;
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println("getMemberFromGuild for player " + player.getDiscordName() + ": " + e.getMessage());
+			m = null;
+		}
+		
+		return m;
+	}
+	
+	protected static Member getMemberFromGuild(MessageReceivedEvent event, String playerName) {
+		Member m = null;
+		try {
+			m = event.getGuild().getMembersByName(playerName, true).stream().findFirst().orElse(null);
+			if (m == null) {
+				m = null;
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println("getMemberFromGuild for name " + playerName + ": " + e.getMessage());
+			m = null;
+		}
+		
+		return m;
 	}
 }

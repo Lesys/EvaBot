@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
@@ -41,11 +42,17 @@ public class EventERRemovePlayer extends EventER {
 			teamName += message[i] + (i < message.length - 2 ? " " : "");
 		
 		String playerName = message[message.length - 1];
-		
-		final String finalPlayerName = playerName;
 
 		Team team = Bot.getTeam(event, teamName);
 		if (team != null) {
+			String discordName = playerName;
+			if (discordName.startsWith("<@")) { // Check if the name is a Discord tag
+				discordName = event.getGuild()
+						.getMemberById(discordName.subSequence(2, discordName.length() - 1).toString())
+						.getUser().getName(); // Get the name of the unique user tagged
+			}
+			
+			final String finalPlayerName = discordName;
 			ERPlayer player = ERPlayer.getERPlayer((team.getSub() != null ? Stream.concat(team.getPlayerNames().stream(), Arrays.asList(team.getSub()).stream()) : team.getPlayerNames().stream()).filter(p -> p.equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null));
 			
 			if (player != null) {
