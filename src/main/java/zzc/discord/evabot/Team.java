@@ -177,6 +177,15 @@ public class Team implements Serializable, Comparable<Team> {
 	public boolean removePlayer(String name) {
 		return this.playerNames.removeIf(p -> p.equalsIgnoreCase(name)) ? true : this.getSub() != null && this.getSub().equalsIgnoreCase(name) ? this.setSub(null) : false;
 	}
+	
+	public boolean removePlayer(ERPlayer player) {
+		String name = player.getDakName();
+		if (name != null) {
+			return this.playerNames.removeIf(p -> p.equalsIgnoreCase(name)) ? true : this.getSub() != null && this.getSub().equalsIgnoreCase(name) ? this.setSub(null) : false;
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Makes this Team comparable to another Team, based on the MMR average
