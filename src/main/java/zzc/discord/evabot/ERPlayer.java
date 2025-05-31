@@ -243,6 +243,7 @@ public class ERPlayer implements Serializable {
 			this.setMmr(userRank.getInt("mmr"));
 			this.rank = userRank.getInt("rank");
 		} else {
+			System.err.println("The JSONResponse is null, setting MMR to 0 for " + this.getDakName());
 			this.setMmr(0);
 			this.rank = 0;
 			this.lastUpdateTime = null;

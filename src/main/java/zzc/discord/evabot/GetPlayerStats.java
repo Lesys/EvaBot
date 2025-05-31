@@ -296,22 +296,29 @@ public class GetPlayerStats {
 	 */
 	public static HttpResponse<JsonNode> apiRequest(String url) throws UnirestException {
 		HttpResponse<JsonNode> resp = null;
-		try {
-			resp =  CompletableFuture.supplyAsync(() -> {
-				try {
-					return Unirest.get(url)
-							  .header("accept", "application/json").header("x-api-key", Token.erApiKey)
-							  .asJson();
-				} catch (UnirestException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					return null;
-				}
-			}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)).get();
-		} catch (InterruptedException | ExecutionException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		boolean redo;
+		do {
+			redo = false;
+			try {
+				resp = CompletableFuture.supplyAsync(() -> {
+					try {
+						return Unirest.get(url)
+								  .header("accept", "application/json").header("x-api-key", Token.erApiKey)
+								  .asJson();
+					} catch (UnirestException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						return null;
+					}
+				}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)).get();
+			} catch (InterruptedException | ExecutionException e1) {
+				// TODO Auto-generated catch block
+	//			e1.printStackTrace();
+				// In case it got interrupted, the request will be done one more time
+				System.err.println("Missed 2 heartbeats, will redo the command for " + url);
+				redo = true;
+			}
+		} while (redo);
 		
 		return resp;
 	}
