@@ -60,7 +60,7 @@ public class EventERExportScrim extends EventER {
 				if (!byMmr)
 					filtered = scrim.getTeams().stream().toList();
 				else
-					filtered = scrim.getTeams().stream().sorted(Comparator.reverseOrder()).toList();
+					filtered = scrim.getTeams().stream().sorted().toList();
 
 				filtered.stream().forEach(t -> EventERExportScrim.teamStringBuilder(builder, t, event));
 

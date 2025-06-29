@@ -45,7 +45,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 			if (EventERManager.hasPermission(event)) {
 				scrim.getTeams().forEach(team -> team.updateMmrForce());
 				
-				scrim.getTeams().stream().sorted(Comparator.reverseOrder()).forEach(team -> {
+				scrim.getTeams().stream().sorted().forEach(team -> {
 			    	if (builder.length() > 0 && builder.length() >= 1800) {
 			    		messages.add(builder.toString());
 			            builder.delete(0, builder.length());
@@ -54,7 +54,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 				});
 
 				messages.add(builder.toString());
-		        messages.forEach(m -> this.sendMessageWait(event, m));
+		        messages.forEach(m -> sendMessageWait(event, m));
 			} else {
 				event.getChannel().sendMessage("Only an Administrator can use this command.").queue();				
 			}

@@ -30,6 +30,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERChangeDak(),
 			new EventERChangeDisplayName(),
 			new EventERChangePlayerName(),
+			new EventERChangePriority(),
 			new EventERClearPlayer(),
 			new EventERDisplayAllPlayersInformations(),
 			new EventERExportScrim(),
@@ -42,6 +43,8 @@ public class EventERManager extends ListenerAdapter {
 			new EventERHelpCommand(),
 			new EventERPutToSub(),
 			new EventERTeamRegistration(),
+			new EventERTeamRegistrationPriorityHigh(),
+			new EventERTeamRegistrationPriorityLow(),
 			new EventERGetRegisteredTeams(),
 			new EventERGetRegisteredTeamsForceUpdate(),
 			new EventERGetSelectedTeams(),
@@ -92,9 +95,7 @@ public class EventERManager extends ListenerAdapter {
 	 * @return			true if the Author of the event has the rights (either the captain of an Administrator), false if not
 	 */
 	public static boolean hasPermission(@NotNull MessageReceivedEvent event, String teamName) {
-		Team team = Bot.getTeam(event, teamName);
-		return (team != null && team.getCaptain() != null && team.getCaptain().equals(event.getAuthor().getName()))
-			|| (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR));
+		return EventERManager.hasPermission(event, Bot.getTeam(event, teamName));
 	}
 
 	/**

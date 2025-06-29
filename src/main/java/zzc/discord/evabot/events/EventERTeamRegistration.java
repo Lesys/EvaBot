@@ -20,6 +20,7 @@ import zzc.discord.evabot.Team;
  *         Class of EventER that registers a Team for a scrim
  */
 public class EventERTeamRegistration extends EventER {
+	protected Team team;
 	/**
 	 * Constructor of EventGuildMessageTeamRegistration
 	 */
@@ -58,8 +59,8 @@ public class EventERTeamRegistration extends EventER {
 				if (event.getMessage().getMentions().getUsers().size() == playerNames.size())
 					members.addAll(event.getMessage().getMentions().getUsers());
 				
-				Team team = new Team(teamName);
-				team.setCaptain(event.getMessage().getAuthor().getName());
+				this.team = new Team(teamName);
+				this.team.setCaptain(event.getMessage().getAuthor().getName());
 				boolean registered = false;
 				// System.err.println("Author: " + event.getMessage().getAuthor().getName());
 				// System.err.println("Players: " + playerNames.size() + "; " +
@@ -91,8 +92,8 @@ public class EventERTeamRegistration extends EventER {
 						player.setDiscordName(discordName);
 						// new ERPlayer(playerName, dak);
 						return !ERPlayer.alreadyRegistered(ign, discordServerName, channelName)
-								? (team.addPlayer(player) ? true
-										: (team.getSub() == null ? team.setSub(player) : false))
+								? (this.team.addPlayer(player) ? true
+										: (this.team.getSub() == null ? this.team.setSub(player) : false))
 								: false;
 					});
 				} catch (ArrayIndexOutOfBoundsException e) {
@@ -100,15 +101,17 @@ public class EventERTeamRegistration extends EventER {
 				}
 				
 				if (registered) {
+					this.preExecuteCommand(event);
 					Bot.serializePlayers();
 					if (scrim == null) {
 						scrim = new Scrim(event.getGuild().getName(), channelName);
 						Bot.scrims.add(scrim);
 					}
-					scrim.addTeam(team);
+					scrim.addTeam(this.team);
 					
 					scrim.addLogs(new MessageLog(event.getMessage()));
 					Bot.serializeScrims();
+					this.postExecuteCommand(event);
 					
 					event.getChannel()
 							.sendMessage("**" + teamName + "** has been registered for the " + channelName + " scrim.")

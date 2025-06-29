@@ -37,6 +37,11 @@ public class Team implements Serializable, Comparable<Team> {
 	protected String name;
 	
 	/**
+	 * Priority of the team. Negative is low, 0 is neutral, positive is high
+	 */
+	protected Priority priority;
+	
+	/**
 	 * Constructor of Team
 	 * @param name	The name of the Team
 	 */
@@ -44,6 +49,7 @@ public class Team implements Serializable, Comparable<Team> {
 		this.name = name;
 		this.playerNames = new ArrayList<String>();
 		this.sub = null;
+		this.priority = Priority.NEUTRAL;
 	}
 	
 	/**
@@ -87,6 +93,10 @@ public class Team implements Serializable, Comparable<Team> {
 		return this.sub;
 	}
 	
+	public Priority getPriority() {
+		return this.priority;
+	}
+	
 	/**
 	 * Setter of captain
 	 * @param captain	The new User captain of this Team
@@ -117,6 +127,10 @@ public class Team implements Serializable, Comparable<Team> {
 			this.sub = null;
 		}
 		return true;
+	}
+	
+	public void setPriority(Priority priority) {
+		this.priority = priority;
 	}
 
 	/**
@@ -188,11 +202,12 @@ public class Team implements Serializable, Comparable<Team> {
 	}
 
 	/**
-	 * Makes this Team comparable to another Team, based on the MMR average
+	 * Makes this Team comparable to another Team, based on the priority and then MMR average
 	 */
 	@Override
 	public int compareTo(Team o) {
-		return this.getAverage().compareTo(o.getAverage());
+		return this.getPriority().equals(o.getPriority()) ?
+				-this.getAverage().compareTo(o.getAverage()) : this.getPriority().compareTo(o.getPriority());
 	}
 	
 	/**

@@ -59,7 +59,7 @@ public class EventERDisplayAllPlayersInformations extends EventER {
 			});
 			
 			messages.add(builder.toString());
-	        messages.forEach(m -> this.sendMessageWait(event, m));
+	        messages.forEach(m -> sendMessageWait(event, m));
 		} else {			
 			event.getChannel().sendMessage("There are currently no player in the database.").queue();
 		}

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
+import zzc.discord.evabot.Priority;
 import zzc.discord.evabot.Scrim;
 import zzc.discord.evabot.Team;
 
@@ -51,7 +52,7 @@ public class EventERGetRegisteredTeams extends EventER {
 			if (!byMmr)
 				filtered = scrim.getTeams().stream().toList();
 			else
-				filtered = scrim.getTeams().stream().sorted(Comparator.reverseOrder()).toList();
+				filtered = scrim.getTeams().stream().sorted().toList();
 			
 			filtered.stream().forEach(team -> {
 		    	if (builder.length() > 0 && builder.length() >= 1800) {
@@ -62,7 +63,7 @@ public class EventERGetRegisteredTeams extends EventER {
 			});
 
 			messages.add(builder.toString());
-	        messages.forEach(m -> this.sendMessageWait(event, m));
+	        messages.forEach(m -> sendMessageWait(event, m));
 		} else {			
 			event.getChannel().sendMessage("No teams has yet to be registered for the scrim \"" + event.getChannel().getName() + "\".").queue();
 		}
@@ -83,7 +84,8 @@ public class EventERGetRegisteredTeams extends EventER {
 	 * @param event		The event sent to be able to mention people
 	 */
 	protected static void teamStringBuilder(final StringBuilder builder, Team team, AtomicInteger placement, MessageReceivedEvent event, boolean showMmr) {
-		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__**"  + (showMmr ? "(" + team.getAverage() + ")" : "") + " :\n");
+		builder.append("\n" + placement.getAndIncrement() + "°) **__" + team.getName() + "__**"  + (showMmr ? " (" + team.getAverage()
+				+ ")" + (!Priority.NEUTRAL.equals(team.getPriority()) ? " **" + team.getPriority().toString() + " priority** " : ""): "") + " :\n");
 		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).forEach(player -> builder.append((team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (player.getDisplayName().isEmpty() ? ERPlayer.getNameWithoutSpecialChar(player::getDakName) : ERPlayer.getNameWithoutSpecialChar(player::getDisplayName)) + (team.getCaptain().equalsIgnoreCase(player.getDiscordName()) ? "__" : "") + (showMmr ? " (" + player.getMmr() + ")" : "") + " "));
 		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
 		if (sub != null) {
