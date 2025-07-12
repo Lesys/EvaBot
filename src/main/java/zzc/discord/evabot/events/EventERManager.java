@@ -21,6 +21,8 @@ import zzc.discord.evabot.Team;
  * Class manager for all the other EventER classes. It chooses which event has to be triggered and checks permissions of changes.
  */
 public class EventERManager extends ListenerAdapter {
+	protected List<String> keywords = Arrays.asList("scrim", "tournament");
+	
 	/**
 	 * The static variable with every EventER we want to be active
 	 */
@@ -48,6 +50,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERGetRegisteredTeams(),
 			new EventERGetRegisteredTeamsForceUpdate(),
 			new EventERGetSelectedTeams(),
+			new EventERGetSelectedTeamsSnake(),
 			new EventERRemovePlayer(),
 			new EventERRemoveScrim(),
 			new EventERRemoveTeam()
@@ -55,7 +58,7 @@ public class EventERManager extends ListenerAdapter {
 
 	@Override
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-		if (!event.isFromType(ChannelType.TEXT) || !event.getChannel().getName().contains("scrim")) {
+		if (!event.isFromType(ChannelType.TEXT) || !this.keywords.stream().anyMatch(event.getChannel().getName()::contains)) {
 			return;
 		} else {
 			EventER command = EventERManager.commands.stream().filter(comm -> comm.matchingName(event.getMessage().getContentRaw().split(" ")[0])).findFirst().orElse(null);
@@ -73,7 +76,7 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	@Override
 	public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
-		if (!event.isFromType(ChannelType.TEXT) || !event.getChannel().getName().contains("scrim")) {
+		if (!event.isFromType(ChannelType.TEXT) || !this.keywords.stream().anyMatch(event.getChannel().getName()::contains)) {
 			return;
 		} else {
 			System.out.println("Deleting scrim channel; name: " + event.getChannel().getName());
