@@ -36,6 +36,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERClearPlayer(),
 			new EventERDisplayAllPlayersInformations(),
 			new EventERExportScrim(),
+			new EventERExportScrimSnake(),
 			new EventERGetCommonGames(),
 			new EventERGetBestTeammate(),
 			new EventERGetLogs(),

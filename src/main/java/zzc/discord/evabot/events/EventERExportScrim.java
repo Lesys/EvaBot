@@ -15,6 +15,7 @@ import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
 import zzc.discord.evabot.Scrim;
 import zzc.discord.evabot.Team;
+import zzc.discord.evabot.util.ExcelExport;
 
 /**
  * 
@@ -22,7 +23,7 @@ import zzc.discord.evabot.Team;
  *
  * Class of EventER that exports a Scrim into CSV format
  */
-public class EventERExportScrim extends EventER {
+public class EventERExportScrim extends EventER implements ExcelExport {
 	/**
 	 * Constructor of EventERGetSelectedTeams
 	 */
@@ -37,11 +38,7 @@ public class EventERExportScrim extends EventER {
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		Bot.deserializeScrims();
-
-		final StringBuilder builder = new StringBuilder();
-		System.out.println(builder.toString());
-		builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\"\n");
-		builder.append("averageMmr;teamName;playerIGName;playerDiscordName;playerMmr\n");
+//		builder.append("Registered teams for the scrim \"" + event.getChannel().getName() + "\"\n");
 
 		boolean byMmr = event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ").length > 1
 				&& event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ")[1]
@@ -62,16 +59,8 @@ public class EventERExportScrim extends EventER {
 				else
 					filtered = scrim.getTeams().stream().sorted().toList();
 
-				filtered.stream().forEach(t -> EventERExportScrim.teamStringBuilder(builder, t, event));
-
 				try {
-					String fileName = event.getChannel().getName() + OffsetDateTime.now().format(DateTimeFormatter.ofPattern("_yyyy-MM-dd_HH-mm-ss")).toString() + ".csv";
-					FileOutputStream fileOut = new FileOutputStream(fileName);
-					OutputStreamWriter out = new OutputStreamWriter(fileOut);
-					out.write(builder.toString());
-					out.close();
-					fileOut.close();
-					System.out.println("Serialized data is saved in " + fileName);
+					ExcelExport.exportLobby(null, filtered, event);
 
 					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
 				} catch (IOException i) {
@@ -90,21 +79,5 @@ public class EventERExportScrim extends EventER {
 	@Override
 	public String helpCommand() {
 		return super.helpCommand() + " [byMmr] - Exports all the teams registered for the scrim to a CSV file with the name of the channel. Using the option \"byMmr\" orders teams by MMR average, else returns by registration order..\n";
-	}
-
-	/**
-	 * Protected method to construct the string to send
-	 * 
-	 * @param builder   The string builder that is going to be displayed in the message
-	 * @param team      The Team for which you want to create the string
-	 * @param event     The event sent to be able to mention people
-	 */
-	protected static void teamStringBuilder(final StringBuilder builder, Team team, MessageReceivedEvent event) {
-		team.getPlayerNames().stream().map(p -> ERPlayer.getERPlayer(p)).forEach(
-				player -> builder.append(team.getAverage() + ";" + team.getName() + ";" + player.getDakName() + ";" + player.getDiscordName() + ";" + player.getMmr() + "\n"));
-		ERPlayer sub = ERPlayer.getERPlayer(team.getSub());
-		if (sub != null) {
-			builder.append(team.getAverage() + ";" + team.getName() + ";" + sub.getDakName() + ";" + sub.getDiscordName() + ";" + sub.getMmr() + "\n");
-		}
 	}
 }
