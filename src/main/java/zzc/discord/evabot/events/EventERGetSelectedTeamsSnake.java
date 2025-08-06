@@ -48,8 +48,8 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 		String[] message = event.getMessage().getContentRaw().trim().replaceAll(" +", " ").split(" ");
 		
 		try {
-			Integer numberOfLobby = message.length > 1 ? Integer.valueOf(message[1]) : null;			
-			Integer minimumTeamPerLobby = message.length > 2 ? Integer.valueOf(message[2]) : null;
+			Integer numberOfLobby = message.length > 1 ? Integer.valueOf(message[1]) : 1;			
+			Integer minimumTeamPerLobby = message.length > 2 ? Integer.valueOf(message[2]) : maximumTeamPerLobby;
 			
 			if (numberOfLobby == null || numberOfLobby == 0 || minimumTeamPerLobby == null || minimumTeamPerLobby == 0) {
 				throw new NumberFormatException();
@@ -187,7 +187,8 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 			}
 			teamStringBuilder(builder, team, placement, event);
 		});
-		
+
+        messages.forEach(m -> sendMessageWait(event, m));
 		builder.append("\n");
 	}
 	
