@@ -7,6 +7,10 @@ import java.util.function.Supplier;
 
 import org.json.JSONObject;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
+
+import zzc.discord.evabot.exception.UserIdNotLinkedException;
+
 /**
  * 
  * @author Lesys
@@ -25,6 +29,11 @@ public class ERPlayer implements Serializable {
 	protected String discordName;
 	
 	protected String displayName = "";
+	
+	/**
+	 * The userId provided by the API to prevent it from making one every request
+	 */
+	protected String userId;
 	
 	/**
 	 * The MMR of the player, the most uptodate
@@ -192,6 +201,18 @@ public class ERPlayer implements Serializable {
 		this.displayName = displayName;
 		Bot.serializePlayers();
 	}
+		
+	public String getUserId() {
+		// Retrieves the userId if null
+		if (this.userId == null) {
+			this.userId = GetPlayerStats.getUserId(this.getDakName());
+		}
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 	
 	/**
 	 * Setter of MMR
@@ -228,7 +249,7 @@ public class ERPlayer implements Serializable {
 	public void updateMmr() {
 		LocalDateTime date = LocalDateTime.now();
 		//System.out.println("Date: " + date + "Last: " + this.lastUpdateTime + " -1: " + date.minusHours(1) + "; Comparaison: " + date.minusHours(1).isAfter(this.lastUpdateTime));
-		if (this.lastUpdateTime == null || date.minusHours(1).isAfter(this.lastUpdateTime)) {
+		if (this.lastUpdateTime == null || date.minusSeconds(1).isAfter(this.lastUpdateTime)) {
 			this.updateMmrForce();
 		}
 	}
@@ -238,7 +259,21 @@ public class ERPlayer implements Serializable {
 	 */
 	public void updateMmrForce() {
 		this.lastUpdateTime = LocalDateTime.now();
-		JSONObject userRank = GetPlayerStats.getPlayerStats(this.getDakName());
+		JSONObject userRank = null;
+		
+		if (this.getUserId() != null) {
+			try {
+				userRank = GetPlayerStats.getPlayerStatsByUserId(this.getUserId());
+			} catch (UserIdNotLinkedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// If the userRank couldn't be retrieved with the userId
+		if (userRank == null) {
+			userRank = GetPlayerStats.getPlayerStats(this);
+		}
+		
 		if (userRank != null) {
 			this.setMmr(userRank.getInt("mmr"));
 			this.rank = userRank.getInt("rank");

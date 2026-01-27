@@ -1,12 +1,19 @@
 package zzc.discord.evabot;
 
+import java.io.Serializable;
+
 /**
  * 
  * @author Lesys
  *
  * Class representing a team mate from different games to make stats 
  */
-public class TeamMate implements Comparable<TeamMate> {
+public class TeamMate implements Comparable<TeamMate>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4224847350206598235L;
+
 	/**
 	 * Nickname of this team mate
 	 */

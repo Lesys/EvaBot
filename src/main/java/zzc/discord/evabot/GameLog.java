@@ -47,7 +47,7 @@ public class GameLog implements Serializable {
 	/**
 	 * The team mates of the player for the game
 	 */
-	protected List<String> teammates;
+	protected List<TeamMate> teammates;
 
 	protected List<String> teammateCharacters;
 	
@@ -89,7 +89,7 @@ public class GameLog implements Serializable {
 		this.teamKill = o.getInt("teamKill");
 		this.mmrGainInGame = o.getInt("mmrGainInGame");
 		this.characterPlayed = GetPlayerStats.characters.get(o.getInt("characterNum"));
-		this.teammates = new ArrayList<String>();
+		this.teammates = new ArrayList<TeamMate>();
 	}
 	
 	/**
@@ -144,7 +144,7 @@ public class GameLog implements Serializable {
 	 * Getter of teammates
 	 * @return		The List of the team mates name
 	 */
-	public List<String> getTeammates() {
+	public List<TeamMate> getTeammates() {
 		return this.teammates;
 	}
 	
@@ -187,12 +187,12 @@ public class GameLog implements Serializable {
 	public void setCharacterPlayed(String characterPlayed) {
 		this.characterPlayed = characterPlayed;
 	}
-	
+
 	/**
 	 * Adds a team mate name to the list for this game
 	 * @param teammates		The name of the team mate to add
 	 */
-	public void addTeammantes(String teammates) {
+	public void addTeammates(TeamMate teammates) {
 		this.teammates.add(teammates);
 	}
 }

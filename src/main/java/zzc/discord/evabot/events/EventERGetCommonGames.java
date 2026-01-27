@@ -38,7 +38,7 @@ public class EventERGetCommonGames extends EventER {
 			
 			//final String finalPlayerName = playerName;
 			//ERPlayer player = ERPlayer.getERPlayer(playerName1);
-			List<GameLog> commonGames = GetPlayerStats.commonGames(playerName1, playerName2);
+			List<GameLog> commonGames = GetPlayerStats.commonGames(playerName1, playerName2); 
 			StringBuffer buffer = new StringBuffer();
 
 			int totalGames = commonGames.size();
@@ -46,7 +46,7 @@ public class EventERGetCommonGames extends EventER {
 			if (commonGames.size() > 0) {
 				buffer.append("You have played a total of **" + totalGames + "** games with " + playerName2 + " for an average kills of " + commonGames.stream().mapToDouble(gl -> gl.getTeamKill()).average().orElse(0) + " and an average placement of **" + commonGames.stream().mapToDouble(gl -> gl.getPlacement()).average().orElse(0) + "** (__" + commonGames.stream().map(gl -> gl.getPlacement()).filter(p -> p == 1).count() + " wins__).\n");
 				buffer.append("Last game played was on " + commonGames.get(0).getDateTimeString() + " (GameID: " + commonGames.get(0).getGameId() + ") and finished " + commonGames.get(0).getPlacement() + ".\n");
-				buffer.append("Last 10 games:"); commonGames.stream().limit(10).forEach(gl -> buffer.append(" __" + gl.getGameId() + "__"));
+				buffer.append("Last 10 games:"); commonGames.stream().limit(10).forEach(gl -> buffer.append(" __" + gl.getGameId() + "__, top " + gl.getPlacement() + " for " + gl.getMmrGainInGame() + " RP"));
 			} else {
 				buffer.append("You haven't played with " + playerName2 + " this ranked season.");
 			}

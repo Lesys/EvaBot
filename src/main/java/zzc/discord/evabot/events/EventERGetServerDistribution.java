@@ -16,6 +16,8 @@ import zzc.discord.evabot.GetPlayerStats;
  * Class of EventER when the user wants to get the rank of a player alongside with its server distribution.
  */
 public class EventERGetServerDistribution extends EventER {
+	protected static int PERCENTAGE_GAME_ON_SERVER = 95; 
+	
 	/**
 	 * Constructor of EventERGetRank
 	 */
@@ -51,10 +53,10 @@ public class EventERGetServerDistribution extends EventER {
 			int totalGames = servs.keySet().stream().map(key -> servs.get(key)).reduce(0, (a, b) -> a + b);
 			
 			if (servs.get(mostPlayedServ.toString()) != null) {
-				if (servs.get(mostPlayedServ.toString()) >= (int)Math.ceil(totalGames * 80 / 100)) {
-					buffer.append(mostPlayedServ.toString() + " is your most played server with more than 80% games (" + servs.get(mostPlayedServ.toString()) + "/" + totalGames + ").");
+				if (servs.get(mostPlayedServ.toString()) >= (int)Math.ceil(totalGames * EventERGetServerDistribution.PERCENTAGE_GAME_ON_SERVER / 100)) {
+					buffer.append(mostPlayedServ.toString() + " is your most played server with more than " + EventERGetServerDistribution.PERCENTAGE_GAME_ON_SERVER + "% games (" + servs.get(mostPlayedServ.toString()) + "/" + totalGames + ").");
 				} else {
-					buffer.append("You don't have a minimum of 80% games in a dedicated server. You would need " + ((totalGames - servs.get(mostPlayedServ.toString())) * 4 - servs.get(mostPlayedServ.toString())) + " more games on " + mostPlayedServ.toString() + " to be eligible on that server (current percentage: " + (servs.get(mostPlayedServ.toString()) * 100 / totalGames) + "%).");
+					buffer.append("You don't have a minimum of " + EventERGetServerDistribution.PERCENTAGE_GAME_ON_SERVER + "% games in a dedicated server. You would need " + ((totalGames - servs.get(mostPlayedServ.toString())) * (EventERGetServerDistribution.PERCENTAGE_GAME_ON_SERVER / (100 - EventERGetServerDistribution.PERCENTAGE_GAME_ON_SERVER)) - servs.get(mostPlayedServ.toString())) + " more games on " + mostPlayedServ.toString() + " to be eligible on that server (current percentage: " + (servs.get(mostPlayedServ.toString()) * 100 / totalGames) + "%).");
 				}
 			} else {
 				buffer.append("You haven't yet to play a game on this ranked season.");
