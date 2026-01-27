@@ -272,13 +272,13 @@ public class GetPlayerStats {
 			return new ArrayList<GameLog>();
 		}
 	}
-	
+
 	/**
 	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it 
 	 * @param name		The player name we want the games from 
 	 * @throws UnirestException
 	 */
-	public static void retrieveGames(String name) throws UnirestException {
+	public static void retrieveNicknames(String name) throws UnirestException {
 		try {
 			GetPlayerStats.getSeason();
 			GetPlayerStats.getCharacters();
@@ -291,7 +291,65 @@ public class GetPlayerStats {
 			
 			JSONObject obj = jsonResponse.getBody().getObject();
 			
-			String userNum = obj.getJSONObject("user").get("userNum").toString();
+			String userId = obj.getJSONObject("user").get("userId").toString();
+	
+			Bot.deserializeGameLog();
+			ERPlayer player = ERPlayer.getERPlayer(name);
+			player.setUserId(userId);
+			LocalDateTime date = player.getLastGame() != null ? player.getLastGame().getDateTime() : null;
+			
+			long next = 0;
+			HttpResponse<JsonNode> gamesResponse;
+			List<GameLog> gameList = new ArrayList<GameLog>();
+			//System.err.println("Last game id: " + player.getLastGame().getGameId());
+			System.err.println("Date: " + date);
+			do {
+				gamesResponse
+				  = apiRequest("https://open-api.bser.io/v1/user/games/uid/" + userId + (next != 0 ? "?next=" + next : ""));
+				try {
+					System.out.println("Status: " + gamesResponse.getStatus());
+					//System.out.println("Body: " + gamesResponse.getBody());
+					//System.out.println("Number of games: " + gamesResponse.getBody().getObject().getJSONArray("userGames").length());
+					
+					next = gamesResponse.getBody().getObject().getLong("next");
+				} catch (JSONException e) {
+					next = 0;
+				} catch (NullPointerException e) {
+					next = 0;					
+				}
+				
+				if (gamesResponse != null) {
+					Iterator<Object> iter = gamesResponse.getBody().getObject().getJSONArray("userGames").iterator();
+					
+					while (iter.hasNext()) {
+						JSONObject o = (JSONObject)iter.next();
+						if (o.getInt("matchingMode") == 3) {
+							GameLog g = new GameLog(o);
+							if (!player.getHistoryPlayerName().stream().anyMatch(g.getNickname()::equalsIgnoreCase)) {
+								player.addHistoryPlayerName(g.getNickname());
+							}
+						}
+					}
+				}
+			} while (gameList.stream().noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)) && next != 0);
+			
+			Bot.games.addAll(0, gameList);
+	
+			Bot.serializePlayers();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	/**
+	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it 
+	 * @param name		The player name we want the games from 
+	 * @throws UnirestException
+	 */
+	public static void retrieveGames(String name) throws UnirestException {
+		try {
+			GetPlayerStats.getCharacters();
 
 			Bot.deserializeGameLog();
 			ERPlayer player = ERPlayer.getERPlayer(name);

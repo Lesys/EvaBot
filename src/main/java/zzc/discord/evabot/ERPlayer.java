@@ -49,6 +49,8 @@ public class ERPlayer implements Serializable {
 	 */
 	protected String dak;
 	
+	protected List<String> historyPlayerName;
+	
 	/**
 	 * The last time the MMR was updated
 	 */
@@ -122,6 +124,8 @@ public class ERPlayer implements Serializable {
 		this.rank = 0;
 		this.lastUpdateTime = null;
 		
+		this.historyPlayerName = new ArrayList<String>();
+		
 		Bot.allPlayers.add(this);
 		
 		Bot.serializePlayers();
@@ -178,14 +182,37 @@ public class ERPlayer implements Serializable {
 		} else
 			return null;
 	}
-	
+
 	/**
 	 * Getter of games
 	 * @return	The list of all the games registered of this player
 	 */
 	public List<GameLog> getAllGames() {
+		List<GameLog> gameLogList = new ArrayList<>();
 		Bot.deserializeGameLog();
-		return Bot.games.stream().filter(gl -> gl.nickname.equalsIgnoreCase(this.getDakName())).toList();
+		if (this.historyPlayerName != null) {
+			gameLogList.addAll(Bot.games.stream().filter(gl -> this.historyPlayerName.stream().anyMatch(gl.nickname::equalsIgnoreCase) || gl.nickname.equalsIgnoreCase(this.getDakName())).toList());
+		}
+		
+		return gameLogList;
+	}
+	
+	/**
+	 * Getter of games
+	 * @return	The list of all the games registered of this player
+	 */
+	public List<GameLog> retrieveAndGetAllGames() {
+		List<GameLog> gameLogList = new ArrayList<>();
+		try {
+			GetPlayerStats.retrieveGames(discordName);
+			Bot.deserializeGameLog();
+			gameLogList.addAll(Bot.games.stream().filter(gl -> this.historyPlayerName.stream().anyMatch(gl.nickname::equalsIgnoreCase) || gl.nickname.equalsIgnoreCase(this.getDakName())).toList());
+		} catch (UnirestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return gameLogList;
 	}
 	
 	/**
@@ -212,6 +239,18 @@ public class ERPlayer implements Serializable {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public void addHistoryPlayerName(String name) {
+		this.historyPlayerName.add(name);
+	}
+	
+	public void addAllHistoryPlayerName(List<String> names) {
+		this.historyPlayerName.addAll(names);
+	}
+	
+	public List<String> getHistoryPlayerName() {
+		return this.historyPlayerName;
 	}
 	
 	/**

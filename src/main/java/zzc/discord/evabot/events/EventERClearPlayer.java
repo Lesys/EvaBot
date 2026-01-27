@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.ERPlayer;
+import zzc.discord.evabot.util.UtilEmpty;
 
 /**
  * 
@@ -38,7 +39,8 @@ public class EventERClearPlayer extends EventER {
 			//final String finalPlayerName = playerName;
 			ERPlayer player = ERPlayer.getERPlayer(playerName);
 			
-			if (Bot.games.removeIf(gl -> gl.getNickname().equalsIgnoreCase(player.getDakName()))) {
+			if (Bot.games.removeIf(gl -> (!UtilEmpty.isEmptyOrNull(player.getHistoryPlayerName()) && player.getHistoryPlayerName().contains(gl.getNickname()))
+					|| gl.getNickname().equalsIgnoreCase(player.getDakName()))) {
 				Bot.serializeGameLog();
 				event.getChannel().sendMessage("The player " + player.getDakName() + " has been correctly cleared from the players. Current games in log: " + Bot.games.stream().filter(gl -> gl.getNickname().equalsIgnoreCase(player.getDakName())).count()).queue();
 			} else {
