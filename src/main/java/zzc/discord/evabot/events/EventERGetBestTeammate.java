@@ -14,6 +14,7 @@ import zzc.discord.evabot.ERPlayer;
 import zzc.discord.evabot.GameLog;
 import zzc.discord.evabot.GetPlayerStats;
 import zzc.discord.evabot.TeamMate;
+import zzc.discord.evabot.util.UtilEmpty;
 
 /**
  * 
@@ -29,6 +30,18 @@ public class EventERGetBestTeammate extends EventER {
 	 */
 	public EventERGetBestTeammate() {
 		this.commandName += "getBestTeammate";
+
+		this.options.putAll(Map.of("win", EventERGetBestTeammate::getMostWins,
+			"TK", EventERGetBestTeammate::getMostTk,
+			"placement", EventERGetBestTeammate::getBestPlacement,
+			"game", EventERGetBestTeammate::getGames,
+			"RP", EventERGetBestTeammate::getAverageRp));
+
+		this.stringReturn.putAll(Map.of("win", EventERGetBestTeammate::getStringWins,
+			"TK", EventERGetBestTeammate::getStringTk,
+			"placement", EventERGetBestTeammate::getStringPlacement,
+			"game", EventERGetBestTeammate::getStringGames,
+			"RP", EventERGetBestTeammate::getStringRp));
 	}
 	
 	/**
@@ -37,15 +50,6 @@ public class EventERGetBestTeammate extends EventER {
 	@Override
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
-		this.options.putAll(Map.of("win", EventERGetBestTeammate::getMostWins,
-			"TK", EventERGetBestTeammate::getMostTk,
-			"placement", EventERGetBestTeammate::getBestPlacement,
-			"games", EventERGetBestTeammate::getGames));
-
-		this.stringReturn.putAll(Map.of("win", EventERGetBestTeammate::getStringWins,
-			"TK", EventERGetBestTeammate::getStringTk,
-			"placement", EventERGetBestTeammate::getStringPlacement,
-			"games", EventERGetBestTeammate::getStringGames));
 		
 		String[] message = this.getMessageArray(event);
 		
@@ -63,7 +67,7 @@ public class EventERGetBestTeammate extends EventER {
 				}
 				ERPlayer player = ERPlayer.getERPlayer(playerName);
 				List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
-
+				filteredList.stream().map(gl -> gl.getTeammates()).forEach(list -> list.forEach(tm -> System.out.println(tm.getNickname())));
 				List<TeamMate> bestTeammate = new ArrayList<TeamMate>();
 				List<TeamMate> result = new ArrayList<TeamMate>();
 
@@ -71,9 +75,11 @@ public class EventERGetBestTeammate extends EventER {
 				StringBuffer buffer = new StringBuffer();
 				
 				//bestTeammate.stream().sorted(Comparator.comparing(TeamMate::averageTK));
+				//bestTeammate.stream().map(tm -> tm.getTotalGames()).reduce(0, Integer::sum)
+				String playerNameDisplay = UtilEmpty.isEmptyOrNull(player.getHistoryPlayerName()) ? player.getDakName() : "(" + String.join(" / ", player.getHistoryPlayerName()) + ")";
 				
 				if (filteredList.size() > 0) {
-					buffer.append("Here are the 10 players with which " + player.getDakName() + " had the most success with " + option + "s:\n");
+					buffer.append("Here are the 10 players with which " + playerNameDisplay + " had the most " + option + "s with :\n");
 					result.stream().limit(10).forEach(tm -> buffer.append(this.stringReturn.get(option).apply(tm)));
 				} else {
 					buffer.append("You haven't yet to play this ranked season or the player \"" + playerName + "\" doesn't exist.");
@@ -95,31 +101,38 @@ public class EventERGetBestTeammate extends EventER {
 	}
 	
 	protected static List<TeamMate> getMostWins(List<TeamMate> bestTeammate, List<GameLog> filteredList) {
-		filteredList.stream().filter(gl -> gl.getPlacement() == 1).forEach(gl -> gl.getTeammates().forEach(name -> {TeamMate teammate = null; teammate = bestTeammate.stream().filter(tm -> tm.getNickname().equals(name)).findFirst().orElse(null); if (teammate == null) {teammate = new TeamMate(name); bestTeammate.add(teammate);} teammate.addTotalWins(1);}));
-		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().contains(tm.getNickname())).count()).intValue()));
+		filteredList.stream().filter(gl -> gl.getPlacement() == 1).forEach(gl -> gl.getTeammates().forEach(teammate -> {final String pName = teammate.getNickname(); final TeamMate tmTemp = bestTeammate.stream().filter(tm -> tm.getNickname().equalsIgnoreCase(pName)).findFirst().orElseGet(() -> {bestTeammate.add(teammate); return teammate;}); tmTemp.addTotalWins(1);}));
+		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(tm.getNickname()))).count()).intValue()));
 
 		return bestTeammate.stream().sorted(Comparator.reverseOrder()).toList();
 	}
 
 	protected static List<TeamMate> getMostTk(List<TeamMate> bestTeammate, List<GameLog> filteredList) {
-		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(name -> {TeamMate teammate = null; teammate = bestTeammate.stream().filter(tm -> tm.getNickname().equals(name)).findFirst().orElse(null); if (teammate == null) {teammate = new TeamMate(name); bestTeammate.add(teammate);} teammate.addTeamKill(gl.getTeamKill());}));
-		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().contains(tm.getNickname())).count()).intValue()));
+		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(teammate -> {final String pName = teammate.getNickname(); final TeamMate tmTemp = bestTeammate.stream().filter(tm -> tm.getNickname().equalsIgnoreCase(pName)).findFirst().orElseGet(() -> {bestTeammate.add(teammate); return teammate;}); tmTemp.addTeamKill(gl.getTeamKill());}));
+		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(tm.getNickname()))).count()).intValue()));
 		
 		return bestTeammate.stream().sorted(Comparator.comparing(TeamMate::averageTK).reversed()).toList();
 	}
 	
 	protected static List<TeamMate> getBestPlacement(List<TeamMate> bestTeammate, List<GameLog> filteredList) {
-		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(name -> {TeamMate teammate = null; teammate = bestTeammate.stream().filter(tm -> tm.getNickname().equals(name)).findFirst().orElse(null); if (teammate == null) {teammate = new TeamMate(name); bestTeammate.add(teammate);} teammate.addPlacement(gl.getPlacement());}));
-		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().contains(tm.getNickname())).count()).intValue()));
+		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(teammate -> {final String pName = teammate.getNickname(); final TeamMate tmTemp = bestTeammate.stream().filter(tm -> tm.getNickname().equalsIgnoreCase(pName)).findFirst().orElseGet(() -> {bestTeammate.add(teammate); return teammate;}); tmTemp.addPlacement(gl.getPlacement());}));
+		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(tm.getNickname()))).count()).intValue()));
 		
 		return bestTeammate.stream().filter(tm -> tm.getTotalGames() > 1).sorted(Comparator.comparing(TeamMate::averagePlacement)).toList();		
 	}
 	
 	protected static List<TeamMate> getGames(List<TeamMate> bestTeammate, List<GameLog> filteredList) {
-		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(name -> {TeamMate teammate = null; teammate = bestTeammate.stream().filter(tm -> tm.getNickname().equals(name)).findFirst().orElse(null); if (teammate == null) {teammate = new TeamMate(name); bestTeammate.add(teammate);} teammate.addMmrGainInGame(gl.getMmrGainInGame()); teammate.addPlacement(gl.getPlacement());}));
-		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().contains(tm.getNickname())).count()).intValue()));
+		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(teammate -> {final String pName = teammate.getNickname(); final TeamMate tmTemp = bestTeammate.stream().filter(tm -> tm.getNickname().equalsIgnoreCase(pName)).findFirst().orElseGet(() -> {bestTeammate.add(teammate); return teammate;}); tmTemp.addMmrGainInGame(gl.getMmrGainInGame()); tmTemp.addPlacement(gl.getPlacement());}));
+		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(tm.getNickname()))).count()).intValue()));
 		
 		return bestTeammate.stream().filter(tm -> tm.getTotalGames() > 1).sorted(Comparator.comparing(TeamMate::getTotalGames).thenComparing(TeamMate::getMmrGainInGame).reversed()).toList();		
+	}
+	
+	protected static List<TeamMate> getAverageRp(List<TeamMate> bestTeammate, List<GameLog> filteredList) {
+		filteredList.stream().forEach(gl -> gl.getTeammates().forEach(teammate -> {final String pName = teammate.getNickname(); final TeamMate tmTemp = bestTeammate.stream().filter(tm -> tm.getNickname().equalsIgnoreCase(pName)).findFirst().orElseGet(() -> {bestTeammate.add(teammate); return teammate;}); tmTemp.addMmrGainInGame(gl.getMmrGainInGame()); tmTemp.addPlacement(gl.getPlacement());}));
+		bestTeammate.forEach(tm -> tm.addTotalGames(Long.valueOf(filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(tm.getNickname()))).count()).intValue()));
+		
+		return bestTeammate.stream().filter(tm -> tm.getTotalGames() > 1).sorted(Comparator.comparing(TeamMate::averageRpGains).reversed()).toList();		
 	}
 	
 	protected static String getStringWins(TeamMate tm) {
@@ -136,5 +149,9 @@ public class EventERGetBestTeammate extends EventER {
 	
 	protected static String getStringGames(TeamMate tm) {
 		return tm.getNickname() + " - " + tm.getTotalGames() + " games (" + tm.averageRpGains() + " average RP gain / " + tm.averagePlacement() + " average placement)\n";
+	}
+	
+	protected static String getStringRp(TeamMate tm) {
+		return tm.getNickname() + " - " + tm.averageRpGains() + " average RP (" + tm.averagePlacement() + " average placement / " + tm.getTotalGames() + " games)\n";
 	}
 }
