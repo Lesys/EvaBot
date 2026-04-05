@@ -66,7 +66,7 @@ public class EventERGetBestTeammate extends EventER {
 					e.printStackTrace();
 				}
 				ERPlayer player = ERPlayer.getERPlayer(playerName);
-				List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
+				List<GameLog> filteredList = player.getAllRankedGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.getSeason())).toList();
 				filteredList.stream().map(gl -> gl.getTeammates()).forEach(list -> list.forEach(tm -> System.out.println(tm.getNickname())));
 				List<TeamMate> bestTeammate = new ArrayList<TeamMate>();
 				List<TeamMate> result = new ArrayList<TeamMate>();

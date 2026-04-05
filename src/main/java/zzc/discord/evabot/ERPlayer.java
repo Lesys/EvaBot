@@ -182,6 +182,59 @@ public class ERPlayer implements Serializable {
 		} else
 			return null;
 	}
+	
+	/**
+	 * Retrieves all the games of the player done in Lone Wolf mode
+	 * @return		List of all the games of the player done in Lone Wolf mode
+	 */
+	public List<GameLog> getAllLoneWolfGames() {
+		return this.getAllGames(MatchingMode.LONE_WOLF);
+	}
+
+	/**
+	 * Retrieves all the games of the player done in Normal mode
+	 * @return		List of all the games of the player done in Normal mode
+	 */
+	public List<GameLog> getAllNormalGames() {
+		return this.getAllGames(MatchingMode.NORMAL);
+	}
+
+	/**
+	 * Retrieves all the games of the player done in Ranked mode
+	 * @return		List of all the games of the player done in Ranked mode
+	 */
+	public List<GameLog> getAllRankedGames() {
+		return this.getAllGames(MatchingMode.RANKED);
+	}
+
+	/**
+	 * Retrieves all the games of the player done in Cobalt mode
+	 * @return		List of all the games of the player done in Cobalt mode
+	 */
+	public List<GameLog> getAllCobaltGames() {
+		return this.getAllGames(MatchingMode.COBALT);
+	}
+
+	/**
+	 * Retrieves all the games of the player done in Union mode
+	 * @return		List of all the games of the player done in Union mode
+	 */
+	public List<GameLog> getAllUnionGames() {
+		return this.getAllGames(MatchingMode.UNION);
+	}
+	
+	/**
+	 * Will return only the games corresponding to the matching mode in parameter if there is one, else will return all the games of the player
+	 * @param matchingMode	The matching mode to match in the GameLog
+	 * @return		The games corresponding to the matching mode in parameter if there is one, else all the games of the player
+	 */
+	public List<GameLog> getAllGames(MatchingMode matchingMode) {
+		if (matchingMode != null) {
+			return this.getAllGames().stream().filter(gl -> gl.getMatchingMode().equals(matchingMode)).toList();
+		} else {
+			return this.getAllGames();
+		}
+	}
 
 	/**
 	 * Getter of games

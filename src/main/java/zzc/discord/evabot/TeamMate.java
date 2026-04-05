@@ -51,7 +51,7 @@ public class TeamMate implements Comparable<TeamMate>, Serializable {
 	public TeamMate(String nickname) {
 		this.nickname = nickname;
 		this.totalWins = 0;
-		this.totalGames = 0;;
+		this.totalGames = 0;
 		this.placement = 0;
 		this.teamKill = 0;
 		this.mmrGainInGame = 0;

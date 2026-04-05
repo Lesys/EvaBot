@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.GameLog;
 import zzc.discord.evabot.GetPlayerStats;
+import zzc.discord.evabot.MatchingMode;
 
 /**
  * 
@@ -38,7 +39,7 @@ public class EventERGetCommonGames extends EventER {
 			
 			//final String finalPlayerName = playerName;
 			//ERPlayer player = ERPlayer.getERPlayer(playerName1);
-			List<GameLog> commonGames = GetPlayerStats.commonGames(playerName1, playerName2); 
+			List<GameLog> commonGames = GetPlayerStats.commonGames(playerName1, playerName2, MatchingMode.RANKED); 
 			StringBuffer buffer = new StringBuffer();
 
 			int totalGames = commonGames.size();

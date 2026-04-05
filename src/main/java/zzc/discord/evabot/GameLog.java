@@ -71,7 +71,17 @@ public class GameLog implements Serializable {
 	/**
 	 * The MMR gained by the player (does not take entry cost in the total)
 	 */
-	protected int mmrGainInGame;
+	protected Integer mmrGainInGame;
+	
+	/**
+	 * The matchingMode of the GameLog
+	 * 1 ? (9 on API PDF) == lone wolf
+	 * 2 == normal
+	 * 3 == ranked
+	 * 6 (4 on API PDF) == cobalt
+	 * 8 == union
+	 */
+	protected MatchingMode matchingMode;
 	
 	/**
 	 * Constructor of a GameLog
@@ -88,6 +98,7 @@ public class GameLog implements Serializable {
 		this.teamNumber = o.getInt("teamNumber");
 		this.teamKill = o.getInt("teamKill");
 		this.mmrGainInGame = o.getInt("mmrGainInGame");
+		this.matchingMode = MatchingMode.getMatchingModeByValue(o.getInt("matchingMode"));
 		this.characterPlayed = GetPlayerStats.characters.get(o.getInt("characterNum"));
 		this.teammates = new ArrayList<TeamMate>();
 	}
@@ -184,6 +195,10 @@ public class GameLog implements Serializable {
 		return this.mmrGainInGame;
 	}
 	
+	public MatchingMode getMatchingMode() {
+		return matchingMode;
+	}
+
 	public void setCharacterPlayed(String characterPlayed) {
 		this.characterPlayed = characterPlayed;
 	}

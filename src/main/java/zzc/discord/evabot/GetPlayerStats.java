@@ -1,6 +1,5 @@
 package zzc.discord.evabot;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -21,7 +20,8 @@ import zzc.discord.evabot.util.UtilDate;
 import zzc.discord.evabot.util.UtilEmpty;
 
 /**
- * Static class to get MMR of players via the Eternal Return API
+ * Static class to get a lot of things (rank, games, history nickname...) of players via the Eternal Return API
+ * 
  * @author Lesys
  *
  */
@@ -30,32 +30,37 @@ public class GetPlayerStats {
 	/**
 	 * String for the current season, starts empty and is filled at the first use of the "https://open-api.bser.io/v2/data/Season" APi request
 	 */
-	public static String season = "";
+	private static String season = "";
 	
 	/**
 	 * Date when the season has been retrieved, in case the application is running for multiple days
 	 */
 	private static Date dateSeasonRetrived = null;
 	
+	public static String getSeason() {
+		return GetPlayerStats.season;
+	}
+	
 	/**
 	 * Gets the current season (previous season if current is preseason) and put it in the static variable.
 	 * Lone Wolf's seasonId seems to be set to 0
 	 */
-	protected static void getSeason() {		
-	    try {
-	    	// If season not initialized yet or has been initialized the day before
-	    	if (GetPlayerStats.season.equalsIgnoreCase("") || !UtilDate.isSameDate(dateSeasonRetrived, new Date(), false)) {
-	    		System.err.println("Getting season: ");
-				HttpResponse<JsonNode> seasonResponse
-				  = apiRequest("https://open-api.bser.io/v2/data/Season");
-		
+	public static void retrieveSeason() {
+		try {
+			// If season not initialized yet or has been initialized the day before
+			if (GetPlayerStats.season.equalsIgnoreCase("") || !UtilDate.isSameDate(dateSeasonRetrived, new Date(), false)) {
+				System.err.println("Getting season: ");
+				HttpResponse<JsonNode> seasonResponse = apiRequest("https://open-api.bser.io/v2/data/Season");
+				
 				System.out.println("Status: " + seasonResponse.getStatus());
 				System.out.println("Body: " + seasonResponse.getBody());
-		
+				
 				Map<String, Boolean> seasons = new HashMap<String, Boolean>();
-		
-				seasonResponse.getBody().getObject().getJSONArray("data").forEach(s -> seasons.put(((JSONObject)s).get("seasonID").toString(), ((JSONObject)s).getInt("isCurrent") == 0 ? false : true));
-		//		seasonResponse.getBody().getObject().getJSONArray("data").getJSONObject(seasonResponse.getBody().getObject().getJSONArray("data").length()).get("seasonID");
+				
+				seasonResponse.getBody().getObject().getJSONArray("data")
+						.forEach(s -> seasons.put(((JSONObject) s).get("seasonID").toString(),
+								((JSONObject) s).getInt("isCurrent") == 0 ? false : true));
+				// seasonResponse.getBody().getObject().getJSONArray("data").getJSONObject(seasonResponse.getBody().getObject().getJSONArray("data").length()).get("seasonID");
 				GetPlayerStats.season = seasons.keySet().stream().filter(key -> seasons.get(key)).findFirst().orElse("");
 				
 				// Even seasons are preseasons starting from Early Access Season 2, and we don't want those
@@ -64,7 +69,7 @@ public class GetPlayerStats {
 				}
 				
 				GetPlayerStats.dateSeasonRetrived = new Date();
-	    	}
+			}
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,19 +79,20 @@ public class GetPlayerStats {
 			e.printStackTrace();
 		}
 	}
-
-	protected static void getCharacters() {		
-	    try {
-	    	// If season not initialized yet
-	    	if (GetPlayerStats.characters.size() <= 0) {
+	
+	public static void retrieveCharacters() {
+		try {
+			// If season not initialized yet
+			if (GetPlayerStats.characters.size() <= 0) {
 				HttpResponse<JsonNode> characters;
-					characters = apiRequest("https://open-api.bser.io/v2/data/Character");
-
+				characters = apiRequest("https://open-api.bser.io/v2/data/Character");
+				
 				System.out.println("Status: " + characters.getStatus());
 				System.out.println("Body characters: " + characters.getBody());
-		
-				characters.getBody().getObject().getJSONArray("data").forEach(c -> GetPlayerStats.characters.put(((JSONObject)c).getInt("code"), ((JSONObject)c).get("name").toString()));
-	    	}
+				
+				characters.getBody().getObject().getJSONArray("data").forEach(c -> GetPlayerStats.characters
+						.put(((JSONObject) c).getInt("code"), ((JSONObject) c).get("name").toString()));
+			}
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,9 +104,9 @@ public class GetPlayerStats {
 	}
 	
 	public static String getUserId(String name) {
-
-    	GetPlayerStats.getSeason();
-    	System.err.println("IGN retrieving MMR: " + name);
+		
+		GetPlayerStats.retrieveSeason();
+		System.err.println("IGN retrieving MMR: " + name);
 		HttpResponse<JsonNode> jsonResponse;
 		try {
 			jsonResponse = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
@@ -115,17 +121,18 @@ public class GetPlayerStats {
 			
 			return userId;
 		} catch (UnirestException | JSONException e) {
-	    	System.err.println("Problem retrieving from API for user " + name);
+			System.err.println("Problem retrieving from API for user " + name);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Gets the MMR of the player for the most recent season via the ER API
-	 * @param name		Name of the player account
-	 * @return			The MMR of the player
+	 * 
+	 * @param name Name of the player account
+	 * @return The MMR of the player
 	 */
 //	public static JSONObject getPlayerStats(String name) {
 //	    try {
@@ -153,23 +160,22 @@ public class GetPlayerStats {
 //	    
 //	    return null;
 //	}
-
-
+	
 	/**
 	 * Gets the MMR of the player for the most recent season via the ER API
-	 * @param player	The player account
-	 * @return			The MMR of the player
+	 * 
+	 * @param player The player account
+	 * @return The MMR of the player
 	 */
 	public static JSONObject getPlayerStats(ERPlayer player) {
-	    try {
+		try {
 			String userId = player.getUserId();
-
-			HttpResponse<JsonNode> rankResponse
-			  = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
-
+			
+			HttpResponse<JsonNode> rankResponse = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
+			
 			System.out.println("Status: " + rankResponse.getStatus());
 			System.out.println("Body: " + rankResponse.getBody());
-
+			
 			return rankResponse.getBody().getObject().getJSONObject("userRank");
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
@@ -179,26 +185,26 @@ public class GetPlayerStats {
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
-	    
-	    return null;
+		
+		return null;
 	}
-
+	
 	/**
 	 * Gets the MMR of the player for the most recent season via the ER API
-	 * @param userId	The userId linking to the player account
-	 * @return			The MMR of the player
-	 * @throws UserIdNotLinkedException 	If the userId is not reaching for a user, it means the player must have changed it's name
+	 * 
+	 * @param userId The userId linking to the player account
+	 * @return The MMR of the player
+	 * @throws UserIdNotLinkedException If the userId is not reaching for a user, it means the player must have changed it's name
 	 */
 	public static JSONObject getPlayerStatsByUserId(String userId) throws UserIdNotLinkedException {
-    	if (userId == null) {
+		if (userId == null) {
 			throw new UserIdNotLinkedException();
-    	}
-    	
-	    try {
-	    	GetPlayerStats.getSeason();
-			HttpResponse<JsonNode> rankResponse
-			  = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
-
+		}
+		
+		try {
+			GetPlayerStats.retrieveSeason();
+			HttpResponse<JsonNode> rankResponse = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
+			
 			System.out.println("Status: " + rankResponse.getStatus());
 			System.out.println("Body: " + rankResponse.getBody());
 			
@@ -219,27 +225,32 @@ public class GetPlayerStats {
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
-	    
-	    return null;
+		
+		return null;
 	}
 	
 	/**
 	 * Gets the server distribution for a player on the latest season
-	 * @param name	Name of the player account we want to check
-	 * @return		A Map object with the servers name on keys and the amount of game on each server on entries
+	 * 
+	 * @param name Name of the player account we want to check
+	 * @return A Map object with the servers name on keys and the amount of game on each server on entries
 	 */
 	public static Map<String, Integer> serverDistribution(String name) {
 		try {
 			GetPlayerStats.retrieveGames(name);
 			ERPlayer player = ERPlayer.getERPlayer(name);
-			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
+			List<GameLog> filteredList = player.getAllRankedGames().stream()
+					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) || gl.getSeasonId() == 0).toList();
 			
 			Map<String, Integer> servers = new HashMap<String, Integer>();
 			filteredList.stream().map(gl -> gl.getServer()).distinct().forEach(server -> servers.put(server, 0));
-			servers.keySet().forEach(server -> servers.put(server, (int)filteredList.stream().filter(gl -> server.equalsIgnoreCase(gl.getServer())).count()));
+			servers.keySet().forEach(server -> servers.put(server,
+					(int) filteredList.stream().filter(gl -> server.equalsIgnoreCase(gl.getServer())).count()));
 			
-			System.out.println("Number of games: " + servers.keySet().stream().map(key -> servers.get(key)).reduce(0, (a, b) -> a + b));
-			servers.keySet().forEach(server -> System.out.println(server + " server: " + servers.get(server) + " games"));
+			System.out.println("Number of games: "
+					+ servers.keySet().stream().map(key -> servers.get(key)).reduce(0, (a, b) -> a + b));
+			servers.keySet()
+					.forEach(server -> System.out.println(server + " server: " + servers.get(server) + " games"));
 			
 			return servers;
 		} catch (UnirestException e) {
@@ -247,44 +258,49 @@ public class GetPlayerStats {
 			return new HashMap<String, Integer>();
 		}
 	}
-
+	
 	/**
 	 * Gets all the games 2 players played together in the current season
-	 * @param name1		The player name we want the games from
-	 * @param name2		The 2nd player name with which the 1st player played
-	 * @return			List of all the games both players played together
+	 * 
+	 * @param name1 The player name we want the games from
+	 * @param name2 The 2nd player name with which the 1st player played
+	 * @return List of all the games both players played together
 	 */
-	public static List<GameLog> commonGames(String name1, String name2) {
+	public static List<GameLog> commonGames(String name1, String name2, MatchingMode matchingMode) {
 		try {
 			GetPlayerStats.retrieveGames(name1);
 			ERPlayer player = ERPlayer.getERPlayer(name1);
-			List<GameLog> filteredList = player.getAllGames().stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
-			List<GameLog> commonGames = filteredList.stream().filter(gl -> gl.getTeammates().stream().anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(name2))).toList();
-	
+			List<GameLog> filteredList = player.getAllGames(matchingMode).stream()
+					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) || gl.getSeasonId() == 0).toList();
+			List<GameLog> commonGames = filteredList.stream().filter(gl -> gl.getTeammates().stream()
+					.anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(name2))).toList();
+			
 			System.out.println("Number of games: " + commonGames.size());
 			
-	//((JSONObject)gamesResponse.getBody().getObject().getJSONArray("userGames").get(0)).getLong("gameId")
-	
-			//?nickname==name1 ==> get teamNumber nicknames, nickname contains name2, get gameRank
+			// ((JSONObject)gamesResponse.getBody().getObject().getJSONArray("userGames").get(0)).getLong("gameId")
+			
+			// ?nickname==name1 ==> get teamNumber nicknames, nickname contains name2, get
+			// gameRank
 			return commonGames;
 		} catch (UnirestException e) {
 			e.printStackTrace();
 			return new ArrayList<GameLog>();
 		}
 	}
-
+	
 	/**
-	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it 
-	 * @param name		The player name we want the games from 
+	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it
+	 * 
+	 * @param name The player name we want the games from
 	 * @throws UnirestException
 	 */
 	public static void retrieveNicknames(String name) throws UnirestException {
 		try {
-			GetPlayerStats.getSeason();
-			GetPlayerStats.getCharacters();
+			GetPlayerStats.retrieveSeason();
+			GetPlayerStats.retrieveCharacters();
 			
 			HttpResponse<JsonNode> jsonResponse;
-				jsonResponse = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
+			jsonResponse = apiRequest("https://open-api.bser.io/v1/user/nickname?query=" + name);
 			
 			System.out.println("Status: " + jsonResponse.getStatus());
 			System.out.println("Body: " + jsonResponse.getBody());
@@ -292,7 +308,7 @@ public class GetPlayerStats {
 			JSONObject obj = jsonResponse.getBody().getObject();
 			
 			String userId = obj.getJSONObject("user").get("userId").toString();
-	
+			
 			Bot.deserializeGameLog();
 			ERPlayer player = ERPlayer.getERPlayer(name);
 			player.setUserId(userId);
@@ -301,28 +317,28 @@ public class GetPlayerStats {
 			long next = 0;
 			HttpResponse<JsonNode> gamesResponse;
 			List<GameLog> gameList = new ArrayList<GameLog>();
-			//System.err.println("Last game id: " + player.getLastGame().getGameId());
+			// System.err.println("Last game id: " + player.getLastGame().getGameId());
 			System.err.println("Date: " + date);
 			do {
-				gamesResponse
-				  = apiRequest("https://open-api.bser.io/v1/user/games/uid/" + userId + (next != 0 ? "?next=" + next : ""));
+				gamesResponse = apiRequest("https://open-api.bser.io/v1/user/games/uid/" + userId + (next != 0 ? "?next=" + next : ""));
 				try {
 					System.out.println("Status: " + gamesResponse.getStatus());
-					//System.out.println("Body: " + gamesResponse.getBody());
-					//System.out.println("Number of games: " + gamesResponse.getBody().getObject().getJSONArray("userGames").length());
+					// System.out.println("Body: " + gamesResponse.getBody());
+					// System.out.println("Number of games: " +
+					// gamesResponse.getBody().getObject().getJSONArray("userGames").length());
 					
 					next = gamesResponse.getBody().getObject().getLong("next");
 				} catch (JSONException e) {
 					next = 0;
 				} catch (NullPointerException e) {
-					next = 0;					
+					next = 0;
 				}
 				
 				if (gamesResponse != null) {
 					Iterator<Object> iter = gamesResponse.getBody().getObject().getJSONArray("userGames").iterator();
 					
 					while (iter.hasNext()) {
-						JSONObject o = (JSONObject)iter.next();
+						JSONObject o = (JSONObject) iter.next();
 						if (o.getInt("matchingMode") == 3) {
 							GameLog g = new GameLog(o);
 							if (!player.getHistoryPlayerName().stream().anyMatch(g.getNickname()::equalsIgnoreCase)) {
@@ -331,45 +347,55 @@ public class GetPlayerStats {
 						}
 					}
 				}
-			} while (gameList.stream().noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)) && next != 0);
+			} while (gameList.stream().noneMatch(
+					gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) && gl.getSeasonId() != 0) && next != 0);
 			
 			Bot.games.addAll(0, gameList);
-	
+			
 			Bot.serializePlayers();
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
-
 	
 	/**
-	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it 
-	 * @param name		The player name we want the games from 
+	 * Gets all the games of the player name with the ER API, retrieves the informations of the game (teammates...) and serializes it
+	 * 
+	 * @param name The player name we want the games from
 	 * @throws UnirestException
 	 */
 	public static void retrieveGames(String name) throws UnirestException {
 		try {
-			GetPlayerStats.getCharacters();
-
+			GetPlayerStats.retrieveCharacters();
+			
+			// Retrieve the UID
 			Bot.deserializeGameLog();
 			ERPlayer player = ERPlayer.getERPlayer(name);
+			
+			if (player == null) {
+				System.err.println("[retrieveGames] Player " + name + " not found by API call.");
+				return;
+			}
+			
 			String userId = player.getUserId();
-
+			
 			LocalDateTime date = player.getLastGame() != null ? player.getLastGame().getDateTime() : null;
 			
 			long next = 0;
 			HttpResponse<JsonNode> gamesResponse;
 			List<GameLog> gameList = new ArrayList<GameLog>();
 			boolean keepGoing = true;
-			//System.err.println("Last game id: " + player.getLastGame().getGameId());
+			// System.err.println("Last game id: " + player.getLastGame().getGameId());
 			System.err.println("Date: " + date);
+			
+			// Loop around all the games not yet retrieved
 			do {
-				gamesResponse
-				  = apiRequest("https://open-api.bser.io/v1/user/games/uid/" + userId + (next != 0 ? "?next=" + next : ""));
-	
+				gamesResponse = apiRequest("https://open-api.bser.io/v1/user/games/uid/" + userId + (next != 0 ? "?next=" + next : ""));
+				
 				System.out.println("Status: " + gamesResponse.getStatus());
-				//System.out.println("Body: " + gamesResponse.getBody());
-				//System.out.println("Number of games: " + gamesResponse.getBody().getObject().getJSONArray("userGames").length());
+				// System.out.println("Body: " + gamesResponse.getBody());
+				// System.out.println("Number of games: " +
+				// gamesResponse.getBody().getObject().getJSONArray("userGames").length());
 				try {
 					next = gamesResponse.getBody().getObject().getLong("next");
 				} catch (JSONException e) {
@@ -377,61 +403,86 @@ public class GetPlayerStats {
 				}
 				Iterator<Object> iter = gamesResponse.getBody().getObject().getJSONArray("userGames").iterator();
 				
+				// Add every game that is not yet in the list based on the date
 				while (keepGoing && iter.hasNext()) {
-					JSONObject o = (JSONObject)iter.next();
-					// 3 == ranked, 1 == lone wolf
-					if (o.getInt("matchingMode") == 3) {
-						if (date == null || date != null && GetPlayerStats.getLocalDateTime(o.getString("startDtm")).isAfter(date)) {
-							GameLog g = new GameLog(o);
-							if (!player.getHistoryPlayerName().stream().anyMatch(g.getNickname()::equalsIgnoreCase)) {
-								player.addHistoryPlayerName(g.getNickname());
-							}
-							gameList.add(g);
+					JSONObject o = (JSONObject) iter.next();
+					if (date == null || date != null
+							&& GetPlayerStats.getLocalDateTime(o.getString("startDtm")).isAfter(date)) {
+						GameLog g = new GameLog(o);
+						if (!player.getHistoryPlayerName().stream().anyMatch(g.getNickname()::equalsIgnoreCase)) {
+							player.addHistoryPlayerName(g.getNickname());
 						}
-						else
-							keepGoing = false;
-					}
+						gameList.add(g);
+					} else
+						keepGoing = false;
 				}
-			} while (keepGoing && gameList.stream().noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)) && next != 0);
+			} while (keepGoing
+					&& gameList.stream()
+							.noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) && gl.getSeasonId() != 0)
+					&& next != 0);
 			
 			Bot.games.addAll(0, gameList);
-
+			
 			Bot.serializeGameLog();
-			List<GameLog> playerGames = Bot.games.stream().filter(gl -> (!UtilEmpty.isEmptyOrNull(player.getHistoryPlayerName()) && player.getHistoryPlayerName().contains(gl.getNickname()))
-					|| gl.getNickname().equalsIgnoreCase(name)).toList();
-			List<GameLog> filteredList = playerGames.stream().filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season)).toList();
+			// Filters all the games for the player (and all the games under an old nickname as well)
+			List<GameLog> playerGames = Bot.games.stream()
+					.filter(gl -> (!UtilEmpty.isEmptyOrNull(player.getHistoryPlayerName())
+							&& player.getHistoryPlayerName().contains(gl.getNickname()))
+							|| gl.getNickname().equalsIgnoreCase(name))
+					.toList();
+			
+			// Filters to only keep current season's games
+			List<GameLog> filteredList = playerGames.stream()
+					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) || gl.getSeasonId() == 0).toList();
 			AtomicInteger counter = new AtomicInteger(1);
-			filteredList.stream().filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date) &&
-					(gl.getTeammates().size() <= 0 || gl.getMmrGainInGame() <= 0 || gl.getCharacterPlayed() == null || gl.getCharacterPlayed().isEmpty())
-					))).forEach(gl -> {
-				HttpResponse<JsonNode> game;
-				try {
-					game = apiRequest("https://open-api.bser.io/v1/games/" + gl.getGameId());
-					//System.out.println("Body: " + game.getBody());
-				} catch (UnirestException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					game = null;
-				}
-				if (game != null) {
-					if (gl.getCharacterPlayed() == null || gl.getCharacterPlayed().isEmpty()) {
-						JSONObject jsonObj = (JSONObject)StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getString("nickname").equalsIgnoreCase(gl.nickname)).findFirst().get();
-						gl.setCharacterPlayed(GetPlayerStats.characters.get(jsonObj.getInt("characterNum")));
-						System.err.println("Character name: " + GetPlayerStats.characters.get(jsonObj.getInt("characterNum")));
-					}
-					
-					StreamSupport.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false).filter(o -> ((JSONObject)o).getInt("teamNumber") == gl.getTeamnumber()).forEach(o -> {
-						if (!player.getHistoryPlayerName().contains(((JSONObject)o).getString("nickname")) && !gl.getTeammates().contains(((JSONObject)o).getString("nickname"))) {
-							TeamMate tm = new TeamMate(((JSONObject)o).getString("nickname"));
-							// userId (or userNum) no longer shown so we can't get that 
+			
+			// Retrieves each single game to get specific informations about it (character played, teammates ...)
+			filteredList.stream()
+					.filter(gl -> (date == null || (date != null && gl.getDateTime().isAfter(date)
+							&& (gl.getTeammates().size() <= 0 || gl.getMmrGainInGame() <= 0
+									|| gl.getCharacterPlayed() == null || gl.getCharacterPlayed().isEmpty()))))
+					.forEach(gl -> {
+						HttpResponse<JsonNode> game;
+						try {
+							game = apiRequest("https://open-api.bser.io/v1/games/" + gl.getGameId());
+							// System.out.println("Body: " + game.getBody());
+						} catch (UnirestException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							game = null;
+						}
+						if (game != null) {
+							if (gl.getCharacterPlayed() == null || gl.getCharacterPlayed().isEmpty()) {
+								JSONObject jsonObj = (JSONObject) StreamSupport
+										.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(),
+												false)
+										.filter(o -> ((JSONObject) o).getString("nickname")
+												.equalsIgnoreCase(gl.nickname))
+										.findFirst().get();
+								gl.setCharacterPlayed(GetPlayerStats.characters.get(jsonObj.getInt("characterNum")));
+								System.err.println("Character name: "
+										+ GetPlayerStats.characters.get(jsonObj.getInt("characterNum")));
+							}
+							
+							StreamSupport
+									.stream(game.getBody().getObject().getJSONArray("userGames").spliterator(), false)
+									.filter(o -> ((JSONObject) o).getInt("teamNumber") == gl.getTeamnumber())
+									.forEach(o -> {
+										if (!player.getHistoryPlayerName()
+												.contains(((JSONObject) o).getString("nickname"))
+												&& !gl.getTeammates()
+														.contains(((JSONObject) o).getString("nickname"))) {
+											TeamMate tm = new TeamMate(((JSONObject) o).getString("nickname"));
+											// userId (or userNum) no longer shown so we can't get that
 //							tm.setPlayerId(Long.toString(((JSONObject)o).getLong("userId")));
-							gl.addTeammates(tm);
+											gl.addTeammates(tm);
+										}
+									});
+							// System.err.println("Teammates: " + gl.getTeammates());
+							System.err.println("Status game " + counter.getAndIncrement() + " / " + filteredList.size()
+									+ ": " + game.getStatus());
 						}
 					});
-					//System.err.println("Teammates: " + gl.getTeammates());
-					System.err.println("Status game " + counter.getAndIncrement() + " / " + filteredList.size() + ": " + game.getStatus());
-				}
-			});
 			
 			Bot.serializeGameLog();
 			Bot.serializePlayers();
@@ -439,11 +490,15 @@ public class GetPlayerStats {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Retrieves a single game informations by it's gameId
+	 * @param gameId	The ID of the game to retrieve
+	 * @return			The JSON object with the game informations
+	 */
 	public static JSONObject retrieveGameInfo(String gameId) {
 		try {
-			HttpResponse<JsonNode> game
-			  = apiRequest("https://open-api.bser.io/v1/games/" + gameId);
+			HttpResponse<JsonNode> game = apiRequest("https://open-api.bser.io/v1/games/" + gameId);
 			
 			return game.getBody().getObject();
 		} catch (UnirestException e) {
@@ -451,11 +506,12 @@ public class GetPlayerStats {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * API request with a delay of 1 second because APIKey can't provide more than 1 request per second
-	 * @param url	The URL of the API request
-	 * @return		The JSON of the API response
+	 * 
+	 * @param url The URL of the API request
+	 * @return The JSON of the API response
 	 * @throws UnirestException
 	 */
 	public static HttpResponse<JsonNode> apiRequest(String url) throws UnirestException {
@@ -466,9 +522,8 @@ public class GetPlayerStats {
 			try {
 				resp = CompletableFuture.supplyAsync(() -> {
 					try {
-						return Unirest.get(url)
-								  .header("accept", "application/json").header("x-api-key", Token.erApiKey)
-								  .asJson();
+						return Unirest.get(url).header("accept", "application/json").header("x-api-key", Token.erApiKey)
+								.asJson();
 					} catch (UnirestException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -477,9 +532,9 @@ public class GetPlayerStats {
 				}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS)).get();
 			} catch (IllegalArgumentException | ExecutionException e) {
 				System.err.println(e.getMessage());
-			} catch (InterruptedException  e1) {
+			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
-	//			e1.printStackTrace();
+				// e1.printStackTrace();
 				// In case it got interrupted, the request will be done one more time
 				System.err.println("Missed 2 heartbeats, will redo the command for " + url);
 				redo = true;
@@ -491,8 +546,9 @@ public class GetPlayerStats {
 	
 	/**
 	 * Changes the format of date retrieved from ER API to a LocalDateTime Object
-	 * @param dateString	The String with the date formatted to ER API format
-	 * @return				The LocalDateTime Object initialized to the dateString time
+	 * 
+	 * @param dateString The String with the date formatted to ER API format
+	 * @return The LocalDateTime Object initialized to the dateString time
 	 */
 	public static LocalDateTime getLocalDateTime(String dateString) {
 		return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
