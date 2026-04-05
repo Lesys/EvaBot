@@ -79,7 +79,7 @@ public class EventERGetBestTeammate extends EventER {
 				String playerNameDisplay = UtilEmpty.isEmptyOrNull(player.getHistoryPlayerName()) ? player.getDakName() : "(" + String.join(" / ", player.getHistoryPlayerName()) + ")";
 				
 				if (filteredList.size() > 0) {
-					buffer.append("Here are the 10 players with which " + playerNameDisplay + " had the most " + option + "s with :\n");
+					buffer.append("Here are the 10 players which " + playerNameDisplay + " had the most " + option + "s with :\n");
 					result.stream().limit(10).forEach(tm -> buffer.append(this.stringReturn.get(option).apply(tm)));
 				} else {
 					buffer.append("You haven't yet to play this ranked season or the player \"" + playerName + "\" doesn't exist.");

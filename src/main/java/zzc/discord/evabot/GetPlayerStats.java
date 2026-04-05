@@ -38,6 +38,7 @@ public class GetPlayerStats {
 	private static Date dateSeasonRetrived = null;
 	
 	public static String getSeason() {
+		GetPlayerStats.retrieveSeason();
 		return GetPlayerStats.season;
 	}
 	
@@ -139,7 +140,7 @@ public class GetPlayerStats {
 //			String userId = GetPlayerStats.getUserId(name);
 //
 //			HttpResponse<JsonNode> rankResponse
-//			  = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
+//			  = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.getSeason() + "/3");
 //
 //			System.out.println("Status: " + rankResponse.getStatus());
 //			System.out.println("Body: " + rankResponse.getBody());
@@ -171,7 +172,7 @@ public class GetPlayerStats {
 		try {
 			String userId = player.getUserId();
 			
-			HttpResponse<JsonNode> rankResponse = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
+			HttpResponse<JsonNode> rankResponse = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.getSeason() + "/3");
 			
 			System.out.println("Status: " + rankResponse.getStatus());
 			System.out.println("Body: " + rankResponse.getBody());
@@ -202,8 +203,7 @@ public class GetPlayerStats {
 		}
 		
 		try {
-			GetPlayerStats.retrieveSeason();
-			HttpResponse<JsonNode> rankResponse = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.season + "/3");
+			HttpResponse<JsonNode> rankResponse = apiRequest("https://open-api.bser.io/v1/rank/uid/" + userId + "/" + GetPlayerStats.getSeason() + "/3");
 			
 			System.out.println("Status: " + rankResponse.getStatus());
 			System.out.println("Body: " + rankResponse.getBody());
@@ -240,7 +240,7 @@ public class GetPlayerStats {
 			GetPlayerStats.retrieveGames(name);
 			ERPlayer player = ERPlayer.getERPlayer(name);
 			List<GameLog> filteredList = player.getAllRankedGames().stream()
-					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) || gl.getSeasonId() == 0).toList();
+					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.getSeason()) || gl.getSeasonId() == 0).toList();
 			
 			Map<String, Integer> servers = new HashMap<String, Integer>();
 			filteredList.stream().map(gl -> gl.getServer()).distinct().forEach(server -> servers.put(server, 0));
@@ -271,7 +271,7 @@ public class GetPlayerStats {
 			GetPlayerStats.retrieveGames(name1);
 			ERPlayer player = ERPlayer.getERPlayer(name1);
 			List<GameLog> filteredList = player.getAllGames(matchingMode).stream()
-					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) || gl.getSeasonId() == 0).toList();
+					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.getSeason()) || gl.getSeasonId() == 0).toList();
 			List<GameLog> commonGames = filteredList.stream().filter(gl -> gl.getTeammates().stream()
 					.anyMatch(teammate -> teammate.getNickname().equalsIgnoreCase(name2))).toList();
 			
@@ -348,7 +348,7 @@ public class GetPlayerStats {
 					}
 				}
 			} while (gameList.stream().noneMatch(
-					gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) && gl.getSeasonId() != 0) && next != 0);
+					gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.getSeason()) && gl.getSeasonId() != 0) && next != 0);
 			
 			Bot.games.addAll(0, gameList);
 			
@@ -418,7 +418,7 @@ public class GetPlayerStats {
 				}
 			} while (keepGoing
 					&& gameList.stream()
-							.noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) && gl.getSeasonId() != 0)
+							.noneMatch(gl -> !String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.getSeason()) && gl.getSeasonId() != 0)
 					&& next != 0);
 			
 			Bot.games.addAll(0, gameList);
@@ -433,7 +433,7 @@ public class GetPlayerStats {
 			
 			// Filters to only keep current season's games
 			List<GameLog> filteredList = playerGames.stream()
-					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.season) || gl.getSeasonId() == 0).toList();
+					.filter(gl -> String.valueOf(gl.getSeasonId()).equalsIgnoreCase(GetPlayerStats.getSeason()) || gl.getSeasonId() == 0).toList();
 			AtomicInteger counter = new AtomicInteger(1);
 			
 			// Retrieves each single game to get specific informations about it (character played, teammates ...)
