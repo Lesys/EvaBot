@@ -21,7 +21,7 @@ import zzc.discord.evabot.Team;
  * Class manager for all the other EventER classes. It chooses which event has to be triggered and checks permissions of changes.
  */
 public class EventERManager extends ListenerAdapter {
-	protected List<String> keywords = Arrays.asList("scrim", "tournament");
+	protected List<String> keywords = Arrays.asList("scrim", "tournament", "union");
 	
 	/**
 	 * The static variable with every EventER we want to be active
@@ -45,6 +45,7 @@ public class EventERManager extends ListenerAdapter {
 			new EventERGetRank(),
 			new EventERGetServerDistribution(),
 			new EventERChangeCaptain(),
+			new EventERGetUnionStats(),
 			new EventERHelpCommand(),
 			new EventERPutToSub(),
 			new EventERTeamRegistration(),
