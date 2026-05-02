@@ -2,11 +2,12 @@ package zzc.discord.evabot.events;
 
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zzc.discord.evabot.Bot;
-import zzc.discord.evabot.ERPlayer;
+import zzc.discord.evabot.dto.ERPlayerDTO;
+import zzc.discord.evabot.service.ERPlayerService;
 
 /**
  * 
@@ -14,12 +15,17 @@ import zzc.discord.evabot.ERPlayer;
  *
  * Class of EventER that changes the displayed name of a registered ERPlayer
  */
+@Service
 public class EventERChangeDisplayName extends EventER {
+	private final transient ERPlayerService erPlayerService;
 	/**
 	 * Constructor of EventERChangeDisplayName
 	 */
-	public EventERChangeDisplayName() {
+	@Autowired
+	public EventERChangeDisplayName(ERPlayerService erPlayerService) {
 		this.commandName += "changePlayerDisplayName";
+		
+		this.erPlayerService = erPlayerService;
 	}
 	
 	/**
@@ -27,10 +33,6 @@ public class EventERChangeDisplayName extends EventER {
 	 */
 	@Override
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
-		Bot.deserializeScrims();
-
-		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
-		
 		String[] message = this.getMessageArray(event);
 		
 		if (message.length >= 2) {
@@ -40,13 +42,15 @@ public class EventERChangeDisplayName extends EventER {
 				newDisplayName += message[i];
 			String discordName = event.getMessage().getMentions().getMembers().size() == 1 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : message[0];
 			
-			ERPlayer player = ERPlayer.getERPlayerByDiscordName(discordName);
+			ERPlayerDTO player = this.erPlayerService.getDtoByDiscordName(discordName);
 			
 			if (player != null) {
 				if (EventERManager.hasPermission(event, player)) {
 					player.setDisplayName(newDisplayName);
 					
-					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+					this.erPlayerService.save(player);
+
+			        this.commandIsSuccessful();
 				} else {
 					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
 				}
@@ -56,12 +60,10 @@ public class EventERChangeDisplayName extends EventER {
 		} else {			
 			event.getChannel().sendMessage("Please enter the discord name of the player followed by the dak link (or at least their in game name).").queue();
 		}
-
-		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
 	}
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {CurrentPlayerDiscordName} {NewPlayerDiscordName} - Changes the name of a player registered.\n";
+		return super.helpCommand() + " {PlayerDiscordName} {NewDisplayName} - Changes the displayed name of a player registered.\n";
 	}
 }

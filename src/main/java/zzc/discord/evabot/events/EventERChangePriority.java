@@ -1,17 +1,17 @@
 package zzc.discord.evabot.events;
 
-
-import java.util.Arrays;
-
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zzc.discord.evabot.Bot;
-import zzc.discord.evabot.MessageLog;
-import zzc.discord.evabot.Priority;
-import zzc.discord.evabot.Team;
+import zzc.discord.evabot.dto.MessageLogDTO;
+import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.dto.TeamDTO;
+import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.TeamService;
 import zzc.discord.evabot.util.UtilEmpty;
+import zzc.discord.evabot.util.enumeration.Priority;
 
 /**
  * 
@@ -19,12 +19,20 @@ import zzc.discord.evabot.util.UtilEmpty;
  *
  * Class of EventER that changes the priority of the registered Team
  */
+@Service
 public class EventERChangePriority extends EventER {
+	private final transient ScrimService scrimService;
+
+	private final transient TeamService teamService;
 	/**
-	 * Constructor of EventERChangeCaptain
+	 * Constructor of EventERChangePriority
 	 */
-	public EventERChangePriority() {
+	@Autowired
+	public EventERChangePriority(ScrimService scrimService, TeamService teamService) {
 		this.commandName += "changePriority";
+		
+		this.scrimService = scrimService;
+		this.teamService = teamService;
 	}
 	
 	/**
@@ -32,10 +40,6 @@ public class EventERChangePriority extends EventER {
 	 */
 	@Override
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
-		Bot.deserializeScrims();
-
-		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
-		
 		String[] message = this.getMessageArray(event);
 
 		String teamName = "";
@@ -44,19 +48,26 @@ public class EventERChangePriority extends EventER {
 
 		String newPriority = message[message.length - 1];
 
-		Team team = Bot.getTeam(event, teamName);
+		TeamDTO team = this.teamService.getByEventAndTeamName(event, teamName);
+		
 		if (team != null) {
-			if (!UtilEmpty.isEmptyOrNull(newPriority)) {			
-				System.err.println("New priority for " + team.getName() + ": " + newPriority);
-				
-				if (team.getPriority() == null || !Priority.equals(team.getPriority(), newPriority)) {
-					if (EventERManager.hasPermission(event, teamName)) {
-						team.setPriority(Priority.getPriorityByName(newPriority));
-	
-						Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
-						Bot.serializeScrims();
+			Priority priority = Priority.getPriorityByName(newPriority);
+			
+			if (!UtilEmpty.isEmptyOrNull(newPriority) && priority != null) {			
+				if (team.getPriority() == null || !Priority.equals(team.getPriority(), newPriority)) {					
+					// Only administrator or said entities can change priority
+					if (EventERManager.hasPermission(event)) {
+						System.out.println("[EventERChangePriority] New priority for " + team.getName() + ": " + priority);
 						
-						event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+						team.setPriority(priority);
+
+						ScrimDTO scrim = this.scrimService.getByEvent(event);
+						
+						scrim.getMessageLogList().add(new MessageLogDTO(event.getMessage()));
+						
+						this.scrimService.save(scrim);
+
+				        this.commandIsSuccessful();
 					} else {
 						event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only the captain of the team can use it.").queue();
 					}
@@ -69,12 +80,10 @@ public class EventERChangePriority extends EventER {
 		} else {
 			event.getChannel().sendMessage(teamName + " hasn't been registered in this scrim.").queue();
 		}
-
-		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queue();
 	}
 
 	@Override
 	public String helpCommand() {
-		return super.helpCommand() + " {TeamName} {NewPriority} - Puts the new priority (" + Priority.valuesToString() + ") for of the registered team.\n";
+		return super.helpCommand() + " {TeamName} {NewPriority} - Puts the new priority (" + Priority.valuesToString() + ") for the registered team.\n";
 	}
 }

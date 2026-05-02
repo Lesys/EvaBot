@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS er_player (
+	id INT NOT NULL AUTO_INCREMENT,
+	creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	modification_time TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	
+	discord_name VARCHAR(255) NULL,
+	display_name VARCHAR(255) NULL,
+	user_id VARCHAR(255) NULL,
+	mmr INT NULL,
+	global_rank INT NULL,
+	dak VARCHAR(255) NOT NULL,
+	last_update_time DATE NULL,
+	
+	PRIMARY KEY(id)
+);

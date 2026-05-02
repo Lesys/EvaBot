@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS scrim (
+	id INT NOT NULL AUTO_INCREMENT,
+	creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	modification_time TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	
+	discord_server_name VARCHAR(255) NOT NULL,
+	channel_name VARCHAR(255) NOT NULL,
+	channel_id VARCHAR(255) NOT NULL,
+	
+	PRIMARY KEY(id),
+	CONSTRAINT UC_Scrim_channel_id UNIQUE(channel_id)
+);

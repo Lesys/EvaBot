@@ -1,18 +1,15 @@
 package zzc.discord.evabot.events;
 
-
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
 
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zzc.discord.evabot.Bot;
-import zzc.discord.evabot.ERPlayer;
-import zzc.discord.evabot.MessageLog;
-import zzc.discord.evabot.Team;
+import zzc.discord.evabot.dto.ERPlayerDTO;
+import zzc.discord.evabot.dto.MessageLogDTO;
+import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.dto.TeamDTO;
+import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.TeamService;
 
 /**
  * 
@@ -20,12 +17,19 @@ import zzc.discord.evabot.Team;
  *
  * Class of EventER that removes an ERPlayer from a team
  */
+@Service
 public class EventERRemovePlayer extends EventER {
+	protected final transient TeamService teamService;
+
+	protected final transient ScrimService scrimService;
 	/**
 	 * Constructor of EventGuildMessageRemovePlayer
 	 */
-	public EventERRemovePlayer() {
+	public EventERRemovePlayer(TeamService teamService, ScrimService scrimService) {
 		this.commandName += "removePlayer";
+
+		this.teamService = teamService;
+		this.scrimService = scrimService;
 	}
 	
 	/**
@@ -33,8 +37,6 @@ public class EventERRemovePlayer extends EventER {
 	 */
 	@Override
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
-		Bot.deserializeScrims();
-		
 		String[] message = this.getMessageArray(event);	
 
 		String teamName = "";
@@ -43,7 +45,8 @@ public class EventERRemovePlayer extends EventER {
 		
 		String playerName = message[message.length - 1];
 
-		Team team = Bot.getTeam(event, teamName);
+		TeamDTO team = this.teamService.getByEventAndTeamName(event, teamName);
+		
 		if (team != null) {
 			String discordName = playerName;
 			if (discordName.startsWith("<@")) { // Check if the name is a Discord tag
@@ -53,17 +56,20 @@ public class EventERRemovePlayer extends EventER {
 			}
 			
 			final String finalPlayerName = discordName;
-			ERPlayer playerFromDiscordName = ERPlayer.getERPlayerByDiscordName(discordName);
-			
-			//ERPlayer player = ERPlayer.getERPlayer((team.getSub() != null ? Stream.concat(team.getPlayerNames().stream(), Arrays.asList(team.getSub()).stream()) : team.getPlayerNames().stream()).filter(p -> p.equalsIgnoreCase(finalPlayerName)).findFirst().orElse(null));
-			
+			ERPlayerDTO playerFromDiscordName = team.getPlayerByDiscordName(discordName);
+						
 			if (playerFromDiscordName != null) {
 				if (EventERManager.hasPermission(event, teamName)) {
 					if (team.removePlayer(playerFromDiscordName)) {
-						Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
-						Bot.serializeScrims();
+						this.teamService.save(team);
 						
-						event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+						ScrimDTO scrim = this.scrimService.getByEvent(event);
+
+						scrim.getMessageLogList().add(new MessageLogDTO(event.getMessage()));
+
+						this.scrimService.save(scrim);
+
+				        this.commandIsSuccessful();
 					} else {
 						event.getChannel().sendMessage(finalPlayerName + " is not part of the " + teamName + " team registered in this scrim.").queue();
 					}

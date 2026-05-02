@@ -2,12 +2,16 @@ package zzc.discord.evabot.events;
 
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zzc.discord.evabot.Bot;
-import zzc.discord.evabot.ERPlayer;
-import zzc.discord.evabot.MessageLog;
+import zzc.discord.evabot.dto.ERPlayerDTO;
+import zzc.discord.evabot.dto.MessageLogDTO;
+import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.service.ERPlayerService;
+import zzc.discord.evabot.service.ScrimService;
 
 /**
  * 
@@ -15,12 +19,20 @@ import zzc.discord.evabot.MessageLog;
  *
  * Class of EventER that changes the name of a registered ERPlayer
  */
+@Service
 public class EventERChangePlayerName extends EventER {
+	private final transient ERPlayerService erPlayerService;
+
+	private final transient ScrimService scrimService;
 	/**
 	 * Constructor of EventERChangePlayerName
 	 */
-	public EventERChangePlayerName() {
+	@Autowired
+	public EventERChangePlayerName(ERPlayerService erPlayerService, ScrimService scrimService) {
 		this.commandName += "changePlayerName";
+
+		this.erPlayerService = erPlayerService;
+		this.scrimService = scrimService;
 	}
 	
 	/**
@@ -28,9 +40,6 @@ public class EventERChangePlayerName extends EventER {
 	 */
 	@Override
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
-		Bot.deserializePlayers();
-		Bot.deserializeScrims();
-
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		
 		String[] message = this.getMessageArray(event);
@@ -40,26 +49,25 @@ public class EventERChangePlayerName extends EventER {
 			
 			final String finalPlayerName = discordName;
 			String newPlayerDiscordName = event.getMessage().getMentions().getMembers().size() == 2 ? event.getMessage().getMentions().getMembers().get(1).getUser().getName() : message[message.length - 1];
-			ERPlayer player = ERPlayer.getERPlayerByDiscordName(discordName);
+			ERPlayerDTO player = this.erPlayerService.getDtoByDiscordName(discordName);
 			
 			if (player != null) {
-				if (!ERPlayer.alreadyRegistered(newPlayerDiscordName, event.getGuild().getName(), event.getChannel().getName())) {
+				ScrimDTO scrim = this.scrimService.getByEvent(event);
+				
+				if (!scrim.alreadyRegistered(newPlayerDiscordName)) {
 					if (EventERManager.hasPermission(event, player)) {
 						player.setDiscordName(newPlayerDiscordName);
+
+						this.erPlayerService.save(player);
 						
-						Bot.scrims.stream().flatMap(scrim -> scrim.getTeams().stream()).filter(team -> team.getPlayerNames().stream().anyMatch(p -> p.equalsIgnoreCase(discordName)) || (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName)))
-							.forEach(team -> {
-								if (team.getSub() != null && team.getSub().equalsIgnoreCase(discordName))
-									team.setSub(player);
-								else {
-									team.removePlayer(discordName);
-									team.addPlayer(player);
-								}
-							});
-						Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
-						Bot.serializeScrims();
+						// Retrieve the scrim with the updated player
+						scrim = this.scrimService.getByEvent(event);
 						
-						event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+						scrim.getMessageLogList().add(new MessageLogDTO(event.getMessage()));
+
+						this.scrimService.save(scrim);
+
+				        this.commandIsSuccessful();
 					} else {
 						event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
 					}

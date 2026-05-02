@@ -1,53 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>zzc.discord.evabot</groupId>
-  <artifactId>EvaBot</artifactId>
-  <version>0.2.0</version>
-  <name>EvaBot</name>
-  <description>Discord bot to help Eternal Return scrims registering players</description>
-  
-  <repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.0.5</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>zzc.discord.evabot</groupId>
+	<artifactId>Evabot</artifactId>
+	<version>0.2.0</version>
+	<name>EvaBot</name>
+	<description>Discord bot to help Eternal Return scrims registering players</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>25</java.version>
+	</properties>
+	<dependencies>
+		<!-- JDA Discord API -->
+	  	<dependency>
+		  	<groupId>net.dv8tion</groupId>
+			<artifactId>JDA</artifactId>
+			<version>5.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-h2console</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
+		</dependency>
 
-  <dependencies>
-  	<dependency>
-	  	<groupId>net.dv8tion</groupId>
-		<artifactId>JDA</artifactId>
-		<version>5.1.0</version>
-	</dependency>
-	<dependency>
-     <groupId>com.mashape.unirest</groupId>
-     <artifactId>unirest-java</artifactId>
-     <version>1.4.9</version>
-	</dependency>
-  </dependencies>
-  <properties>
-  	<maven.compiler.source>22</maven.compiler.source>
-  	<maven.compiler.target>22</maven.compiler.target>
-  </properties>
-  
-  <build>
-    <plugins>
-      <plugin>
-      <!-- Build an executable JAR -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.4.1</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>zzc.discord.evabot.Bot</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.flywaydb</groupId>
+		    <artifactId>flyway-mysql</artifactId>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+		<!--
+	      	<plugin>
+				
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>zzc.discord.evabot.Bot</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>-->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

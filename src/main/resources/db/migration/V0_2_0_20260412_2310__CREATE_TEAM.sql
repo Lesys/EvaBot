@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS team (
+	id INT NOT NULL AUTO_INCREMENT,
+	creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	modification_time TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	
+	name VARCHAR(255) NOT NULL,
+	priority INT NOT NULL,
+	
+	captain_id INT NULL DEFAULT -1,
+	sub_id INT NULL,
+	scrim_id INT NOT NULL,
+	
+	PRIMARY KEY(id),
+	CONSTRAINT FK_Team_ERPlayer_captain FOREIGN KEY (captain_id) REFERENCES er_player(id),
+	CONSTRAINT FK_Team_ERPlayer_sub FOREIGN KEY (sub_id) REFERENCES er_player(id),
+	CONSTRAINT FK_Team_Scrim FOREIGN KEY (scrim_id) REFERENCES scrim(id)
+);

@@ -2,13 +2,17 @@ package zzc.discord.evabot.events;
 
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import zzc.discord.evabot.Bot;
-import zzc.discord.evabot.ERPlayer;
-import zzc.discord.evabot.MessageLog;
-import zzc.discord.evabot.Team;
+import zzc.discord.evabot.dto.ERPlayerDTO;
+import zzc.discord.evabot.dto.MessageLogDTO;
+import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.dto.TeamDTO;
+import zzc.discord.evabot.service.ERPlayerService;
+import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.TeamService;
 
 /**
  * 
@@ -16,12 +20,23 @@ import zzc.discord.evabot.Team;
  *
  * Class of EventER that changes the DAK of a registered ERPlayer
  */
+@Service
 public class EventERChangeDak extends EventER {
+	private final transient ERPlayerService erPlayerService;
+
+	private final transient TeamService teamService;
+
+	private final transient ScrimService scrimService;
 	/**
 	 * Constructor of EventERChangeDak
 	 */
-	public EventERChangeDak() {
+	@Autowired
+	public EventERChangeDak(ERPlayerService erPlayerService, TeamService teamService, ScrimService scrimService) {
 		this.commandName += "changePlayerDak";
+
+		this.erPlayerService = erPlayerService;
+		this.scrimService = scrimService;
+		this.teamService = teamService;
 	}
 	
 	/**
@@ -29,10 +44,6 @@ public class EventERChangeDak extends EventER {
 	 */
 	@Override
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
-		Bot.deserializeScrims();
-
-		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
-		
 		String[] message = this.getMessageArray(event);
 
 		if (message.length == 2) {
@@ -42,30 +53,43 @@ public class EventERChangeDak extends EventER {
 			
 			String newDak = message[message.length - 1];
 			
-			ERPlayer player = discordName == null ? ERPlayer.getERPlayer(oldDak) : ERPlayer.getERPlayerByDiscordName(discordName);
-			
-			Bot.getScrim(event);
-			Team team = Bot.getScrim(event).getTeams().stream().filter(t -> t.getPlayerNames().stream().anyMatch(pn -> pn.equalsIgnoreCase(player.getDiscordName())) ||
-					(t.getSub() != null && t.getSub().equalsIgnoreCase(player.getDiscordName()))).findFirst().orElse(null); // Retrieve team to check if the player is on a team and the captain is the one doing the request
-			
-			if (player != null) {
-				if (EventERManager.hasPermission(event, player) || EventERManager.hasPermission(event, team)) {
-					player.setDak(newDak);
+			ERPlayerDTO player = discordName == null ? this.erPlayerService.getDtoByDak(oldDak) : this.erPlayerService.getDtoByDiscordName(discordName);
 
-					Bot.getScrim(event).addLogs(new MessageLog(event.getMessage()));
-					
-					event.getMessage().addReaction(Emoji.fromUnicode("U+2705")).queue();
+			ScrimDTO scrim = this.scrimService.getByChannelId(event.getChannel().getId());
+			
+			if (scrim != null) {
+				TeamDTO team = this.teamService.getByPlayerAndScrim(player, scrim);
+				
+				if (player != null) {
+					if (EventERManager.hasPermission(event, player) || EventERManager.hasPermission(event, team)) {
+						System.out.println("[EventERChangeDak] dak change start");
+						
+						player.setDak(newDak);
+						
+						this.erPlayerService.save(player);
+						
+						// Updates the scrim in case the player has not been updated in there
+						scrim = this.scrimService.getByChannelId(event.getChannel().getId());
+						
+						scrim.getMessageLogList().add(new MessageLogDTO(event.getMessage()));
+						
+						this.scrimService.save(scrim);
+
+				        this.commandIsSuccessful();
+						
+						System.out.println("[EventERChangeDak] dak change end");
+					} else {
+						event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
+					}
 				} else {
-					event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only " + player.getDiscordName() + " can use it.").queue();
+					event.getChannel().sendMessage(discordName == null ? oldDak : discordName + " hasn't been registered in this Team.").queue();
 				}
 			} else {
-				event.getChannel().sendMessage(discordName == null ? oldDak : discordName + " hasn't been registered in this Team.").queue();
+				event.getChannel().sendMessage(event.getChannel().getName() + " hasn't been registered as a Scrim yet.").queue();
 			}
 		} else {			
 			event.getChannel().sendMessage("Please enter the discord name of the player followed by the dak link (or at least their in game name).").queue();
 		}
-
-		this.removeReaction(event, "U+1F504");
 	}
 
 	@Override
