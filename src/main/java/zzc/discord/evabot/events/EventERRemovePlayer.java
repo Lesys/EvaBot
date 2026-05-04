@@ -3,6 +3,7 @@ package zzc.discord.evabot.events;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
 import zzc.discord.evabot.dto.MessageLogDTO;
@@ -36,6 +37,7 @@ public class EventERRemovePlayer extends EventER {
 	 * Check if the Team name exists in the registered teams, and removes the ERPlayer if it exists in the Team
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		String[] message = this.getMessageArray(event);	
 

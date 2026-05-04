@@ -80,10 +80,4 @@ public class ERPlayerService extends AbstractService<ERPlayer, ERPlayerDTO> {
 	public List<ERPlayerDTO> getAll() {
 		return this.getFormatter().entityToDto(UtilConvert.toList(this.getRepository().findAll()));
 	}
-
-
-	public static String getNameWithoutSpecialChar(Supplier<String> getString) {
-		if (getString == null || getString.get() == null) return null;
-		return getString.get().replaceAll("[*_]", "");
-	}	
 }

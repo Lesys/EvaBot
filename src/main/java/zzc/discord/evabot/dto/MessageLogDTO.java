@@ -83,6 +83,14 @@ public class MessageLogDTO extends AbstractDTO {
 	 * =============== PUBLIC METHODS ===============
 	 * ==============================================
 	 */
+
 	
+	/**
+	 * Adds something to the message content
+	 * @param string	The String to add to the message
+	 */
+	public void addToMessage(String string) {
+		this.message += string;
+	}
 	
 }

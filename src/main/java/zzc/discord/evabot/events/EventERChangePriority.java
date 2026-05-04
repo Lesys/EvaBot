@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.MessageLogDTO;
 import zzc.discord.evabot.dto.ScrimDTO;
@@ -39,6 +40,7 @@ public class EventERChangePriority extends EventER {
 	 * Check if the	messages contains a mention, and put this User as a captain of the Team if it exists
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		String[] message = this.getMessageArray(event);
 

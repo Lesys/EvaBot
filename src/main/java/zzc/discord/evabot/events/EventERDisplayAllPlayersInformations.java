@@ -5,10 +5,12 @@ import java.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
 import zzc.discord.evabot.dto.HistoryNameDTO;
 import zzc.discord.evabot.service.ERPlayerService;
+import zzc.discord.evabot.util.UtilERPlayer;
 import zzc.discord.evabot.util.UtilEmpty;
 
 /**
@@ -33,6 +35,7 @@ public class EventERDisplayAllPlayersInformations extends EventER {
 	 * Gets all the players in the database and displays their registered information
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		final List<String> messages = new ArrayList<String>();
 		
@@ -49,7 +52,7 @@ public class EventERDisplayAllPlayersInformations extends EventER {
 					messages.add(builder.toString());
 					builder.delete(0, builder.length());
 				}
-				builder.append("Player discord name: " + ERPlayerService.getNameWithoutSpecialChar(player::getDiscordName) + " / DAK name: " + player.getDakName() + "\n");
+				builder.append("Player discord name: " + UtilERPlayer.getNameWithoutSpecialChar(player::getDiscordName) + " / DAK name: " + player.getDakName() + "\n");
 				if (!UtilEmpty.isEmptyOrNull(player.getHistoryPlayerNameList())) {
 					builder.append("\t Nickname historic: ").append(String.join(" / ", player.getHistoryPlayerNameList().stream().map(HistoryNameDTO::getNickname).toList())).append("\n");
 				}

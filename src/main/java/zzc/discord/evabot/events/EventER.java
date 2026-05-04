@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -57,6 +58,7 @@ public abstract class EventER {
 	 * The execution body of the Event to do when the command is called
 	 * @param event		The event received when the user sent a message
 	 */
+	@Transactional
 	public abstract void executeCommand(@NotNull MessageReceivedEvent event);
 	
 	public void preExecuteCommand(@NotNull MessageReceivedEvent event) {}

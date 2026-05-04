@@ -53,6 +53,9 @@ public class ERPlayerDTO extends AbstractDTO {
 		this.captainTeams = new ArrayList<>();
 		this.subTeams = new ArrayList<>();
 		this.teamList = new ArrayList<>();		
+		
+		this.mmr = 0;
+		this.globalRank = 0;
 	}
 
 	public Date getCreationTime() {

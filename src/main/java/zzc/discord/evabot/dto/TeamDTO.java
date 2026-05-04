@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Objects;
 
 import zzc.discord.evabot.util.Constant;
+import zzc.discord.evabot.util.UtilEmpty;
 import zzc.discord.evabot.util.enumeration.Priority;
 
-public class TeamDTO extends AbstractDTO {
+public class TeamDTO extends AbstractDTO implements Comparable<TeamDTO> {
 	protected Date creationTime;
 
 	protected Date modificationTime;
@@ -192,6 +193,38 @@ public class TeamDTO extends AbstractDTO {
 	
 	public ERPlayerDTO getPlayerByDakName(String dakName) {
 		return this.getFullPlayerList().stream().filter(player -> player.getDakName().equalsIgnoreCase(dakName)).findFirst().orElse(null);
+	}
+
+	/**
+	 * Method to get the average MMR of the Team, based on the MMR of each players (without sub) in this Team
+	 * @return	The average MMR of this Team
+	 */
+	public Double getAverage() {
+		if (UtilEmpty.isEmptyOrNull(this.getPlayerList())) return 0.0;
+		return Math.floor((this.getPlayerList().stream().map(p -> p.getMmr()).reduce(0, (x, y) -> x + y).doubleValue() / this.getPlayerList().size()) * 100) / 100;
+
+	}
+
+	/**
+	 * Makes this Team comparable to another Team, based on the priority and then MMR average
+	 */
+	@Override
+	public int compareTo(TeamDTO o) {
+		return this.getPriority().equals(o.getPriority()) ? -this.getAverage().compareTo(o.getAverage()) : this.getPriority().compareTo(o.getPriority());
+	}
+	
+	/**
+	 * Overrides the .equals method so that a Team equals another Team if their name is the same
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (o != null && o.getClass().isAssignableFrom(TeamDTO.class)) {
+			TeamDTO t = (TeamDTO)o;
+			
+			return this.getName().equalsIgnoreCase(t.getName());
+		}
+		
+		return false;
 	}
 	
 }

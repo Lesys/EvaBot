@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
@@ -42,6 +43,7 @@ public class EventERAddPlayer extends EventER {
 	 * Check if the Team name exists in the registered teams, and adds the ERPlayer to the Team
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		List<String> names = event.getMessage().getContentRaw().lines().toList();
 		List<User> members = new ArrayList<User>();

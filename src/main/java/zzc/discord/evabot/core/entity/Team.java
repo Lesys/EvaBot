@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
+//import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -164,8 +164,7 @@ public class Team extends AbstractEntity implements Comparable<Team> {
 	 */
 	@Override
 	public int compareTo(Team o) {
-		return this.getPriority().equals(o.getPriority()) ?
-				-this.getAverage().compareTo(o.getAverage()) : this.getPriority().compareTo(o.getPriority());
+		return this.getPriority().equals(o.getPriority()) ? -this.getAverage().compareTo(o.getAverage()) : this.getPriority().compareTo(o.getPriority());
 	}
 	
 	/**

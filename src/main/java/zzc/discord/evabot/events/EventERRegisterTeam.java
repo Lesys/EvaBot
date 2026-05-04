@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
@@ -46,6 +47,7 @@ public class EventERRegisterTeam extends EventER {
 	 * players
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		String channelName = event.getChannel().getName();
 		String discordServerName = event.getGuild().getName();

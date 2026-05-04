@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
@@ -39,6 +40,7 @@ public class EventERChangePlayerName extends EventER {
 	 * Check if the Player name exists in the registered teams, and changes the ERPlayer name if it exists in a Team
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		event.getMessage().addReaction(Emoji.fromUnicode("U+1F504")).queue();
 		

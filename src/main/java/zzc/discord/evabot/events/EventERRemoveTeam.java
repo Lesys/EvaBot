@@ -4,6 +4,7 @@ package zzc.discord.evabot.events;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.MessageLogDTO;
 import zzc.discord.evabot.dto.ScrimDTO;
@@ -40,6 +41,7 @@ public class EventERRemoveTeam extends EventER {
 	 * Check if the team exists in the scrim registration and removes it
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		String teamName = this.getMessage(event);
 

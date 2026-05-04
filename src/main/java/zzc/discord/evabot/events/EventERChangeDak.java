@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
 import zzc.discord.evabot.dto.MessageLogDTO;
@@ -43,6 +44,7 @@ public class EventERChangeDak extends EventER {
 	 * Check if the Player name exists in the registered teams, and changes the ERPlayer DAK if it exists in a Team
 	 */
 	@Override
+	@Transactional
 	public void executeCommand(@NotNull MessageReceivedEvent event) {
 		String[] message = this.getMessageArray(event);
 

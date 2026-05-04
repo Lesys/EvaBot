@@ -43,6 +43,14 @@ public class EventERManager extends ListenerAdapter {
 	
 	private final transient EventERDisplayAllPlayersInformations eventERDisplayAllPlayersInformations;
 	
+	private final transient EventERExportScrim eventERExportScrim;
+	
+	private final transient EventERExportScrimSnake eventERExportScrimSnake;
+	
+	private final transient EventERGetSelectedTeams eventERGetSelectedTeams;
+	
+	private final transient EventERGetSelectedTeamsSnake eventERGetSelectedTeamsSnake;
+	
 	private final transient EventERRegisterTeam eventERRegisterTeam;
 	
 	private final transient EventERRegisterTeamPriorityHigh eventERRegisterTeamPriorityHigh;
@@ -50,6 +58,8 @@ public class EventERManager extends ListenerAdapter {
 	private final transient EventERRegisterTeamPriorityLow eventERRegisterTeamPriorityLow;
 	
 	private final transient EventERRemovePlayer eventERRemovePlayer;
+	
+	private final transient EventERRemoveScrim eventERRemoveScrim;
 	
 	private final transient EventERRemoveTeam eventERRemoveTeam;
 	
@@ -62,8 +72,9 @@ public class EventERManager extends ListenerAdapter {
 	public EventERManager(ScrimService scrimService,
 			EventERAddPlayer eventERAddPlayer, EventERChangeDak eventERChangeDak, EventERChangeDisplayName eventERChangeDisplayName, EventERChangePlayerName eventERChangePlayerName,
 			EventERChangePriority eventERChangePriority, EventERDisplayAllPlayersInformations eventERDisplayAllPlayersInformations,
+			EventERExportScrim eventERExportScrim, EventERExportScrimSnake eventERExportScrimSnake, EventERGetSelectedTeams eventERGetSelectedTeams, EventERGetSelectedTeamsSnake eventERGetSelectedTeamsSnake,
 			EventERRegisterTeam eventERRegisterTeam, EventERRegisterTeamPriorityHigh eventERRegisterTeamPriorityHigh, EventERRegisterTeamPriorityLow eventERRegisterTeamPriorityLow,
-			EventERRemovePlayer eventERRemovePlayer, EventERRemoveTeam eventERRemoveTeam) {
+			EventERRemovePlayer eventERRemovePlayer, EventERRemoveScrim eventERRemoveScrim, EventERRemoveTeam eventERRemoveTeam) {
 		
 		this.scrimService = scrimService;
 		
@@ -73,11 +84,16 @@ public class EventERManager extends ListenerAdapter {
 		this.eventERChangePlayerName = eventERChangePlayerName;
 		this.eventERChangePriority = eventERChangePriority;
 		this.eventERDisplayAllPlayersInformations = eventERDisplayAllPlayersInformations;
+		this.eventERExportScrim = eventERExportScrim;
+		this.eventERExportScrimSnake = eventERExportScrimSnake;
+		this.eventERGetSelectedTeams = eventERGetSelectedTeams;
+		this.eventERGetSelectedTeamsSnake = eventERGetSelectedTeamsSnake;
 		this.eventERRegisterTeam = eventERRegisterTeam;		
 		this.eventERRegisterTeamPriorityHigh = eventERRegisterTeamPriorityHigh;
 		this.eventERRegisterTeamPriorityLow = eventERRegisterTeamPriorityLow;
 		this.eventERRemovePlayer = eventERRemovePlayer;
 		this.eventERRemoveTeam = eventERRemoveTeam;
+		this.eventERRemoveScrim = eventERRemoveScrim;
 
 		this.commands = Arrays.asList(
 			this.eventERAddPlayer,
@@ -88,8 +104,8 @@ public class EventERManager extends ListenerAdapter {
 			this.eventERChangePriority,
 //			this.eventERClearPlayer,
 			this.eventERDisplayAllPlayersInformations,
-//			this.eventERExportScrim,
-//			this.eventERExportScrimSnake,
+			this.eventERExportScrim,
+			this.eventERExportScrimSnake,
 //			this.eventERGetCommonGames,
 //			this.eventERGetBestCharacter,
 //			this.eventERGetBestTeammate,
@@ -106,10 +122,10 @@ public class EventERManager extends ListenerAdapter {
 			this.eventERRegisterTeamPriorityLow,
 //			this.eventERGetRegisteredTeams,
 //			this.eventERGetRegisteredTeamsForceUpdate,
-//			this.eventERGetSelectedTeams,
-//			this.eventERGetSelectedTeamsSnake,
+			this.eventERGetSelectedTeams,
+			this.eventERGetSelectedTeamsSnake,
 			this.eventERRemovePlayer,
-//			this.eventERRemoveScrim,
+			this.eventERRemoveScrim,
 			this.eventERRemoveTeam
 		);
 	}
