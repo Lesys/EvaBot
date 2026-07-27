@@ -3,6 +3,7 @@ package zzc.discord.evabot.core.entity;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +21,7 @@ public abstract class AbstractEntity {
 	@Column(name = "creation_time")
 	protected Date creationTime;
 
+    @UpdateTimestamp
 	@Column(name = "modification_time")
 	protected Date modificationTime;
 

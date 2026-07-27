@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS er_player (
 	mmr INT NULL,
 	global_rank INT NULL,
 	dak VARCHAR(255) NOT NULL,
-	last_update_time DATE NULL,
+	last_update_time TIMESTAMP NULL,
 	
 	PRIMARY KEY(id)
 );

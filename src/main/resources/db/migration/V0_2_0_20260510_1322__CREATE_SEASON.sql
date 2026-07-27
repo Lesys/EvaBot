@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS season (
+	id INT NOT NULL AUTO_INCREMENT,
+	creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	modification_time TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	
+	active_season_id INT NOT NULL,
+	real_season_id INT NOT NULL,
+	last_day_update DATE NULL,
+	
+	PRIMARY KEY(id)
+);

@@ -1,7 +1,6 @@
 package zzc.discord.evabot.dto;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,10 +9,6 @@ import zzc.discord.evabot.util.UtilEmpty;
 import zzc.discord.evabot.util.enumeration.Priority;
 
 public class TeamDTO extends AbstractDTO implements Comparable<TeamDTO> {
-	protected Date creationTime;
-
-	protected Date modificationTime;
-	
 	protected ERPlayerDTO captain;
 	
 	protected ERPlayerDTO sub;
@@ -47,22 +42,6 @@ public class TeamDTO extends AbstractDTO implements Comparable<TeamDTO> {
 	public TeamDTO(String name) {
 		this();
 		this.name = name;
-	}	
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
-
-	public Date getModificationTime() {
-		return modificationTime;
-	}
-
-	public void setModificationTime(Date modificationTime) {
-		this.modificationTime = modificationTime;
 	}
 
 	public ERPlayerDTO getCaptain() {

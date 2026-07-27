@@ -33,6 +33,10 @@ public class EventERManager extends ListenerAdapter {
 	
 	private final transient EventERAddPlayer eventERAddPlayer;
 	
+	private final transient EventERAddSpectator eventERAddSpectator;
+	
+	private final transient EventERChangeCaptain eventERChangeCaptain;
+	
 	private final transient EventERChangeDak eventERChangeDak;
 	
 	private final transient EventERChangeDisplayName eventERChangeDisplayName;
@@ -47,15 +51,23 @@ public class EventERManager extends ListenerAdapter {
 	
 	private final transient EventERExportScrimSnake eventERExportScrimSnake;
 	
+	private final transient EventERGetLogs eventERGetLogs;
+	
 	private final transient EventERGetSelectedTeams eventERGetSelectedTeams;
 	
 	private final transient EventERGetSelectedTeamsSnake eventERGetSelectedTeamsSnake;
+	
+	private final transient EventERHelpCommand eventERHelpCommand;
 	
 	private final transient EventERRegisterTeam eventERRegisterTeam;
 	
 	private final transient EventERRegisterTeamPriorityHigh eventERRegisterTeamPriorityHigh;
 	
 	private final transient EventERRegisterTeamPriorityLow eventERRegisterTeamPriorityLow;
+	
+	private final transient EventERGetRegisteredTeams eventERGetRegisteredTeams;
+	
+	private final transient EventERGetRegisteredTeamsForceUpdate eventERGetRegisteredTeamsForceUpdate;
 	
 	private final transient EventERRemovePlayer eventERRemovePlayer;
 	
@@ -64,21 +76,28 @@ public class EventERManager extends ListenerAdapter {
 	private final transient EventERRemoveTeam eventERRemoveTeam;
 	
 	/**
-	 * The static variable with every EventER we want to be active
+	 * The variable with every EventER we want to be active
 	 */
 	public List<EventER> commands;
+	
+	private static EventERManager initializedManager;
 
 	@Autowired
 	public EventERManager(ScrimService scrimService,
-			EventERAddPlayer eventERAddPlayer, EventERChangeDak eventERChangeDak, EventERChangeDisplayName eventERChangeDisplayName, EventERChangePlayerName eventERChangePlayerName,
-			EventERChangePriority eventERChangePriority, EventERDisplayAllPlayersInformations eventERDisplayAllPlayersInformations,
-			EventERExportScrim eventERExportScrim, EventERExportScrimSnake eventERExportScrimSnake, EventERGetSelectedTeams eventERGetSelectedTeams, EventERGetSelectedTeamsSnake eventERGetSelectedTeamsSnake,
+			EventERAddPlayer eventERAddPlayer, EventERAddSpectator eventERAddSpectator, EventERChangeCaptain eventERChangeCaptain, 
+			EventERChangeDak eventERChangeDak, EventERChangeDisplayName eventERChangeDisplayName, EventERChangePlayerName eventERChangePlayerName, EventERChangePriority eventERChangePriority,
+			EventERDisplayAllPlayersInformations eventERDisplayAllPlayersInformations, EventERExportScrim eventERExportScrim, EventERExportScrimSnake eventERExportScrimSnake,
+			EventERGetLogs eventERGetLogs, EventERGetSelectedTeams eventERGetSelectedTeams, EventERGetSelectedTeamsSnake eventERGetSelectedTeamsSnake,
+			EventERHelpCommand eventERHelpCommand,
 			EventERRegisterTeam eventERRegisterTeam, EventERRegisterTeamPriorityHigh eventERRegisterTeamPriorityHigh, EventERRegisterTeamPriorityLow eventERRegisterTeamPriorityLow,
+			EventERGetRegisteredTeams eventERGetRegisteredTeams, EventERGetRegisteredTeamsForceUpdate eventERGetRegisteredTeamsForceUpdate,
 			EventERRemovePlayer eventERRemovePlayer, EventERRemoveScrim eventERRemoveScrim, EventERRemoveTeam eventERRemoveTeam) {
 		
 		this.scrimService = scrimService;
-		
+
 		this.eventERAddPlayer = eventERAddPlayer;
+		this.eventERAddSpectator = eventERAddSpectator;
+		this.eventERChangeCaptain = eventERChangeCaptain;
 		this.eventERChangeDak = eventERChangeDak;
 		this.eventERChangeDisplayName = eventERChangeDisplayName;
 		this.eventERChangePlayerName = eventERChangePlayerName;
@@ -86,18 +105,23 @@ public class EventERManager extends ListenerAdapter {
 		this.eventERDisplayAllPlayersInformations = eventERDisplayAllPlayersInformations;
 		this.eventERExportScrim = eventERExportScrim;
 		this.eventERExportScrimSnake = eventERExportScrimSnake;
+		this.eventERGetLogs = eventERGetLogs;
 		this.eventERGetSelectedTeams = eventERGetSelectedTeams;
 		this.eventERGetSelectedTeamsSnake = eventERGetSelectedTeamsSnake;
+		this.eventERHelpCommand = eventERHelpCommand;
 		this.eventERRegisterTeam = eventERRegisterTeam;		
 		this.eventERRegisterTeamPriorityHigh = eventERRegisterTeamPriorityHigh;
 		this.eventERRegisterTeamPriorityLow = eventERRegisterTeamPriorityLow;
+		this.eventERGetRegisteredTeams = eventERGetRegisteredTeams;
+		this.eventERGetRegisteredTeamsForceUpdate = eventERGetRegisteredTeamsForceUpdate;
 		this.eventERRemovePlayer = eventERRemovePlayer;
 		this.eventERRemoveTeam = eventERRemoveTeam;
 		this.eventERRemoveScrim = eventERRemoveScrim;
 
 		this.commands = Arrays.asList(
 			this.eventERAddPlayer,
-//			this.eventERAddSpectator,
+			this.eventERAddSpectator,
+			this.eventERChangeCaptain,
 			this.eventERChangeDak,
 			this.eventERChangeDisplayName,
 			this.eventERChangePlayerName,
@@ -110,24 +134,25 @@ public class EventERManager extends ListenerAdapter {
 //			this.eventERGetBestCharacter,
 //			this.eventERGetBestTeammate,
 //			this.eventERGetNicknameHistory,
-//			this.eventERGetLogs,
+			this.eventERGetLogs,
 //			this.eventERGetRank,
 //			this.eventERGetServerDistribution,
-//			this.eventERChangeCaptain,
 //			this.eventERGetUnionStats,
-//			this.eventERHelpCommand,
+			this.eventERHelpCommand,
 //			this.eventERPutToSub,
 			this.eventERRegisterTeam,
 			this.eventERRegisterTeamPriorityHigh,
 			this.eventERRegisterTeamPriorityLow,
-//			this.eventERGetRegisteredTeams,
-//			this.eventERGetRegisteredTeamsForceUpdate,
+			this.eventERGetRegisteredTeams,
+			this.eventERGetRegisteredTeamsForceUpdate,
 			this.eventERGetSelectedTeams,
 			this.eventERGetSelectedTeamsSnake,
 			this.eventERRemovePlayer,
 			this.eventERRemoveScrim,
 			this.eventERRemoveTeam
 		);
+		
+		initializedManager = this;
 	}
 	
 	@Override
@@ -235,5 +260,9 @@ public class EventERManager extends ListenerAdapter {
 	 */
 	public static boolean hasPermission(MessageReceivedEvent event) {
 		return event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR);
+	}
+	
+	public static List<EventER> getCommandsList() {
+		return initializedManager.commands;
 	}
 }

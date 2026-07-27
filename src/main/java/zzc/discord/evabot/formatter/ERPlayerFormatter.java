@@ -93,6 +93,7 @@ public class ERPlayerFormatter implements AbstractFormatter<ERPlayer, ERPlayerDT
 		if (dto != null) {
 			entity.setDiscordName(dto.getDiscordName());
 			entity.setDisplayName(dto.getDisplayName());
+			entity.setUserId(dto.getUserId());
 			entity.setMmr(dto.getMmr());
 			entity.setGlobalRank(dto.getGlobalRank());
 			entity.setDak(dto.getDak());
@@ -141,6 +142,7 @@ public class ERPlayerFormatter implements AbstractFormatter<ERPlayer, ERPlayerDT
 		if (entity != null) {
 			dto.setDiscordName(entity.getDiscordName());
 			dto.setDisplayName(entity.getDisplayName());
+			dto.setUserId(entity.getUserId());
 			dto.setMmr(entity.getMmr());
 			dto.setGlobalRank(entity.getGlobalRank());
 			dto.setDak(entity.getDak());

@@ -15,13 +15,13 @@ public abstract class AbstractService<ENTITY extends AbstractEntity, DTO extends
 	
 	@Transactional
 	public ENTITY getById(Integer id) {
-		System.out.println("[" + this.getClass().getName() + "] getById " + id);
+		System.out.println("[" + this.getClass().getSimpleName() + "] getById " + id);
 		return this.getRepository().findById(id).orElse(null);
 	}
 	
 	@Transactional
 	public DTO getDtoById(Integer id) {
-		System.out.println("[" + this.getClass().getName() + "] getDtoById " + id);
+		System.out.println("[" + this.getClass().getSimpleName() + "] getDtoById " + id);
 		return this.getFormatter().entityToDto(this.getById(id));
 	}
 	
@@ -31,7 +31,7 @@ public abstract class AbstractService<ENTITY extends AbstractEntity, DTO extends
 		
 		if (entity != null) {
 			System.out.println("[" + this.getClass().getSimpleName() + "] save");
-			entity = this.getRepository().save(entity);
+			entity = this.getRepository().saveAndFlush(entity);
 		}
 		return entity;
 	}	

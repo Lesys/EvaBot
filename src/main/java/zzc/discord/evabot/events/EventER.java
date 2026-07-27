@@ -6,8 +6,10 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import jakarta.transaction.Transactional;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import zzc.discord.evabot.dto.ERPlayerDTO;
 
 /**
  * 
@@ -119,5 +121,64 @@ public abstract class EventER {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Returns the string corresponding to the mention of the member
+	 * 
+	 * @param event		The event sent to be able to mention people
+	 * @param player 	The player to mention
+	 * @return The mention (or a String if member is null)
+	 */
+	protected static String getMention(MessageReceivedEvent event, ERPlayerDTO player) {
+		if (event == null || player == null) return "";
+		
+		String mention = "";
+		try {
+			Member m = event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null);
+			if (m != null) {
+				mention = m.getAsMention();
+			} else {
+				mention = player.getDiscordName().replaceAll("[*_]", "");
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println(e.getMessage());
+			mention = player.getDiscordName().replaceAll("[*_]", "");
+		}
+		return mention;
+	}
+	
+	protected static Member getMemberFromGuild(MessageReceivedEvent event, ERPlayerDTO player) {
+		if (event == null || player == null) return null;
+		
+		Member m = null;
+		try {
+			m = event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null);
+			if (m == null) {
+				m = null;
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println("getMemberFromGuild for player " + player.getDiscordName() + ": " + e.getMessage());
+			m = null;
+		}
+		
+		return m;
+	}
+	
+	protected static Member getMemberFromGuild(MessageReceivedEvent event, String playerName) {
+		if (event == null || playerName == null) return null;
+		
+		Member m = null;
+		try {
+			m = event.getGuild().getMembersByName(playerName, true).stream().findFirst().orElse(null);
+			if (m == null) {
+				m = null;
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println("getMemberFromGuild for name " + playerName + ": " + e.getMessage());
+			m = null;
+		}
+		
+		return m;
 	}
 }

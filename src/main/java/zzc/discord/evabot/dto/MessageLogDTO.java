@@ -4,11 +4,7 @@ import java.util.Date;
 
 import net.dv8tion.jda.api.entities.Message;
 
-public class MessageLogDTO extends AbstractDTO {
-	protected Date creationTime;
-
-	protected Date modificationTime;
-
+public class MessageLogDTO extends AbstractDTO implements Comparable<MessageLogDTO> {
 	/**
 	 * The content of the message
 	 */
@@ -35,22 +31,6 @@ public class MessageLogDTO extends AbstractDTO {
 		this.message = m.getContentRaw();
 		this.authorName = m.getAuthor().getName();
 		this.creationTime = new Date();
-	}
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
-
-	public Date getModificationTime() {
-		return modificationTime;
-	}
-
-	public void setModificationTime(Date modificationTime) {
-		this.modificationTime = modificationTime;
 	}
 
 	public String getMessage() {
@@ -91,6 +71,11 @@ public class MessageLogDTO extends AbstractDTO {
 	 */
 	public void addToMessage(String string) {
 		this.message += string;
+	}
+
+	@Override
+	public int compareTo(MessageLogDTO o) {
+		return this.creationTime.compareTo(o.creationTime);
 	}
 	
 }

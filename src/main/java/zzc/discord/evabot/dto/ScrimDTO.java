@@ -1,14 +1,11 @@
 package zzc.discord.evabot.dto;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class ScrimDTO extends AbstractDTO {
-	protected Date creationTime;
+import net.dv8tion.jda.api.entities.Message;
 
-	protected Date modificationTime;
-	
+public class ScrimDTO extends AbstractDTO {
 	/**
 	 * The Discord server name aka. guild name
 	 */
@@ -42,22 +39,6 @@ public class ScrimDTO extends AbstractDTO {
 		this();
 		this.discordServerName = discordServerName;
 		this.channelName = channelName;
-	}
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
-
-	public Date getModificationTime() {
-		return modificationTime;
-	}
-
-	public void setModificationTime(Date modificationTime) {
-		this.modificationTime = modificationTime;
 	}
 
 	public String getDiscordServerName() {
@@ -125,5 +106,24 @@ public class ScrimDTO extends AbstractDTO {
 	 */
 	public boolean alreadyRegistered(String name) {
 		return this.getTeamList().stream().anyMatch(team -> team.getPlayerList().stream().anyMatch(pName -> pName.getDakName().equalsIgnoreCase(name)) || (team.getSub() != null && team.getSub().getDakName().equalsIgnoreCase(name)));
+	}
+
+	/**
+	 * Check if a spectator is already spectating in this scrim
+	 * @param name			The spectator name
+	 * @return				true if the spectator already is spectating this scrim, false if not
+	 */
+	public boolean alreadySpectating(String name) {
+		return this.getSpectatorList().stream().anyMatch(spectator -> spectator.getName().equalsIgnoreCase(name));
+	}
+	
+	public void addMessage(Message message) {
+		this.getMessageLogList().add(new MessageLogDTO(message));		
+	}
+	
+	public void addSpectators(String spectatorName) {
+		if (!this.alreadySpectating(spectatorName)) {
+			this.getSpectatorList().add(new SpectatorDTO(spectatorName));
+		}
 	}
 }

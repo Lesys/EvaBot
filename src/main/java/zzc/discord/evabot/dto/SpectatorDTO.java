@@ -1,12 +1,6 @@
 package zzc.discord.evabot.dto;
 
-import java.util.Date;
-
 public class SpectatorDTO extends AbstractDTO {
-	protected Date creationTime;
-
-	protected Date modificationTime;
-	
 	/**
 	 * The spectator name
 	 */
@@ -17,21 +11,9 @@ public class SpectatorDTO extends AbstractDTO {
 	public SpectatorDTO() {
 		
 	}
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
-
-	public Date getModificationTime() {
-		return modificationTime;
-	}
-
-	public void setModificationTime(Date modificationTime) {
-		this.modificationTime = modificationTime;
+	
+	public SpectatorDTO(String name) {
+		this.name = name;
 	}
 
 	public String getName() {

@@ -6,9 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class ERPlayerDTO extends AbstractDTO {
-	protected Date creationTime;
-
-	protected Date modificationTime;
 	/**
 	 * The discord name of the player
 	 */
@@ -34,7 +31,7 @@ public class ERPlayerDTO extends AbstractDTO {
 	/**
 	 * The last time the MMR was updated
 	 */
-	protected LocalDateTime lastUpdateTime;
+	protected Date lastUpdateTime;
 	/**
 	 * The DAK link of the player. The account name may differ from the player name
 	 */
@@ -56,22 +53,6 @@ public class ERPlayerDTO extends AbstractDTO {
 		
 		this.mmr = 0;
 		this.globalRank = 0;
-	}
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
-
-	public Date getModificationTime() {
-		return modificationTime;
-	}
-
-	public void setModificationTime(Date modificationTime) {
-		this.modificationTime = modificationTime;
 	}
 
 	public String getDiscordName() {
@@ -114,11 +95,11 @@ public class ERPlayerDTO extends AbstractDTO {
 		this.globalRank = globalRank;
 	}
 
-	public LocalDateTime getLastUpdateTime() {
+	public Date getLastUpdateTime() {
 		return lastUpdateTime;
 	}
 
-	public void setLastUpdateTime(LocalDateTime lastUpdateTime) {
+	public void setLastUpdateTime(Date lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
 

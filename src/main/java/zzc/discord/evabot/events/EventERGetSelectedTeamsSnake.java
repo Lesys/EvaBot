@@ -91,6 +91,8 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 						
 						this.postExecuteCommand(event);
 				        sendMessageWait(event, builder.toString());
+						
+						this.commandIsSuccessful();
 					} else {
 						event.getChannel().sendMessage("There are not enough teams to make at least 1 lobby.").queue();								
 					}
@@ -103,8 +105,6 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 		} catch (NumberFormatException e) {
 			event.getChannel().sendMessage("The parameters for lobbies or teams is null or less than 0. Please use the command correctly.").queue();
 		}
-		
-		event.getMessage().removeReaction(Emoji.fromUnicode("U+1F504")).queueAfter(2, TimeUnit.SECONDS);
 	}
 	
 	@Override
@@ -223,7 +223,7 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 				String underline = UtilERPlayer.hasSameDiscordName(team.getCaptain(), player) ? "__" : "";
 				
 				builder.append(underline);
-				builder.append(EventERGetSelectedTeamsSnake.getMention(event, player));
+				builder.append(getMention(event, player));
 				builder.append(underline);
 				builder.append(" (").append(UtilERPlayer.getNameWithoutSpecialChar(player::getDakName)).append(" - ").append(player.getMmr()).append(")");
 
@@ -234,58 +234,5 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 					builder.append("; ");
 				}
 		});
-	}
-	
-	/**
-	 * Returns the string corresponding to the mention of the member
-	 * 
-	 * @param event		The event sent to be able to mention people
-	 * @param player 	The player to mention
-	 * @return The mention (or a String if member is null)
-	 */
-	protected static String getMention(MessageReceivedEvent event, ERPlayerDTO player) {
-		String mention = "";
-		try {
-			Member m = event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null);
-			if (m != null) {
-				mention = m.getAsMention();
-			} else {
-				mention = player.getDiscordName().replaceAll("[*_]", "");
-			}
-		} catch (IllegalArgumentException e) {
-			System.err.println(e.getMessage());
-			mention = player.getDiscordName().replaceAll("[*_]", "");
-		}
-		return mention;
-	}
-	
-	protected static Member getMemberFromGuild(MessageReceivedEvent event, ERPlayerDTO player) {
-		Member m = null;
-		try {
-			m = event.getGuild().getMembersByName(player.getDiscordName(), true).stream().findFirst().orElse(null);
-			if (m == null) {
-				m = null;
-			}
-		} catch (IllegalArgumentException e) {
-			System.err.println("getMemberFromGuild for player " + player.getDiscordName() + ": " + e.getMessage());
-			m = null;
-		}
-		
-		return m;
-	}
-	
-	protected static Member getMemberFromGuild(MessageReceivedEvent event, String playerName) {
-		Member m = null;
-		try {
-			m = event.getGuild().getMembersByName(playerName, true).stream().findFirst().orElse(null);
-			if (m == null) {
-				m = null;
-			}
-		} catch (IllegalArgumentException e) {
-			System.err.println("getMemberFromGuild for name " + playerName + ": " + e.getMessage());
-			m = null;
-		}
-		
-		return m;
 	}
 }

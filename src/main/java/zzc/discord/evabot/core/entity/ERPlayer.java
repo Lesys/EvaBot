@@ -1,6 +1,7 @@
 package zzc.discord.evabot.core.entity;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class ERPlayer extends AbstractEntity {
 	 * The last time the MMR was updated
 	 */
 	@Column(name = "last_update_time")
-	protected LocalDateTime lastUpdateTime;
+	protected Date lastUpdateTime;
 	/**
 	 * The DAK link of the player. The account name may differ from the player name
 	 */
@@ -123,11 +124,11 @@ public class ERPlayer extends AbstractEntity {
 		this.globalRank = globalRank;
 	}
 
-	public LocalDateTime getLastUpdateTime() {
+	public Date getLastUpdateTime() {
 		return lastUpdateTime;
 	}
 
-	public void setLastUpdateTime(LocalDateTime lastUpdateTime) {
+	public void setLastUpdateTime(Date lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
 

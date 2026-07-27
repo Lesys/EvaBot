@@ -17,6 +17,10 @@ public enum MatchingMode {
 		this.value = value;
 	}
 	
+	public int getValue() {
+		return this.value;
+	}
+	
 	public static MatchingMode getMatchingModeByValue(Integer value) {
 		MatchingMode result = null;
 		if (value != null) {		
