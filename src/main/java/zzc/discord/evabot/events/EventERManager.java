@@ -16,8 +16,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import zzc.discord.evabot.Bot;
 import zzc.discord.evabot.dto.ERPlayerDTO;
 import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.dto.ServerDTO;
 import zzc.discord.evabot.dto.TeamDTO;
 import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.ServerService;
 
 /**
  * 
@@ -30,6 +32,8 @@ public class EventERManager extends ListenerAdapter {
 	protected List<String> keywords = Arrays.asList("scrim", "tournament", "union");
 	
 	private final transient ScrimService scrimService;
+	
+	private final transient EventERAddHelperRole eventERAddHelperRole;
 	
 	private final transient EventERAddPlayer eventERAddPlayer;
 	
@@ -84,7 +88,7 @@ public class EventERManager extends ListenerAdapter {
 
 	@Autowired
 	public EventERManager(ScrimService scrimService,
-			EventERAddPlayer eventERAddPlayer, EventERAddSpectator eventERAddSpectator, EventERChangeCaptain eventERChangeCaptain, 
+			EventERAddHelperRole eventERAddHelperRole, EventERAddPlayer eventERAddPlayer, EventERAddSpectator eventERAddSpectator, EventERChangeCaptain eventERChangeCaptain, 
 			EventERChangeDak eventERChangeDak, EventERChangeDisplayName eventERChangeDisplayName, EventERChangePlayerName eventERChangePlayerName, EventERChangePriority eventERChangePriority,
 			EventERDisplayAllPlayersInformations eventERDisplayAllPlayersInformations, EventERExportScrim eventERExportScrim, EventERExportScrimSnake eventERExportScrimSnake,
 			EventERGetLogs eventERGetLogs, EventERGetSelectedTeams eventERGetSelectedTeams, EventERGetSelectedTeamsSnake eventERGetSelectedTeamsSnake,
@@ -95,6 +99,7 @@ public class EventERManager extends ListenerAdapter {
 		
 		this.scrimService = scrimService;
 
+		this.eventERAddHelperRole = eventERAddHelperRole;
 		this.eventERAddPlayer = eventERAddPlayer;
 		this.eventERAddSpectator = eventERAddSpectator;
 		this.eventERChangeCaptain = eventERChangeCaptain;
@@ -119,6 +124,7 @@ public class EventERManager extends ListenerAdapter {
 		this.eventERRemoveScrim = eventERRemoveScrim;
 
 		this.commands = Arrays.asList(
+			this.eventERAddHelperRole,
 			this.eventERAddPlayer,
 			this.eventERAddSpectator,
 			this.eventERChangeCaptain,
@@ -221,45 +227,59 @@ public class EventERManager extends ListenerAdapter {
 	 * Check if the sender of the event has the permissions to change something about the Team registered
 	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
 	 * @param teamName	The name of the Team on which the changes will occur
-	 * @return			true if the Author of the event has the rights (either the captain of an Administrator), false if not
+	 * @return			true if the Author of the event has the rights (either the captain of an Administrator/Helper), false if not
 	 */
-	public static boolean hasPermission(@NotNull MessageReceivedEvent event, String teamName) {
+	public static boolean hasPermissionOnTeam(@NotNull MessageReceivedEvent event, String teamName) {
 		ScrimDTO scrim = Bot.app.getBean(ScrimService.class).getByEvent(event);
 		
 		if (scrim == null) return false;
 		
-		return EventERManager.hasPermission(event, scrim.getTeam(teamName));
+		return EventERManager.hasPermissionOnTeam(event, scrim.getTeam(teamName));
 	}
 
 	/**
 	 * Check if the sender of the event has the permissions to change something about the Team registered
 	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
 	 * @param team		The Team on which the changes will occur
-	 * @return			true if the Author of the event has the rights (either the captain or an Administrator), false if not
+	 * @return			true if the Author of the event has the rights (either the captain or an Administrator/Helper), false if not
 	 */
-	public static boolean hasPermission(@NotNull MessageReceivedEvent event, TeamDTO team) {
+	public static boolean hasPermissionOnTeam(@NotNull MessageReceivedEvent event, TeamDTO team) {
 		return (team != null && team.getCaptain() != null && event.getAuthor().getName().equalsIgnoreCase(team.getCaptain().getDiscordName()))
-			|| (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR));
+			|| hasPermissionAdminOrHelper(event);
 	}
 
 	/**
 	 * Check if the sender of the event has the permissions to change something about a ERPlayer registered
 	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
 	 * @param player	The ERPlayer on which the changes will occur
-	 * @return			true if the Author of the event has the rights (either the player himself or an Administrator), false if not
+	 * @return			true if the Author of the event has the rights (either the player himself or an Administrator/Helper), false if not
 	 */
-	public static boolean hasPermission(@NotNull MessageReceivedEvent event, ERPlayerDTO player) {
+	public static boolean hasPermissionOnPlayer(@NotNull MessageReceivedEvent event, ERPlayerDTO player) {
 		return (player != null && player.getDiscordName().equalsIgnoreCase(event.getAuthor().getName()))
-			|| (event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR));
+			|| hasPermissionAdminOrHelper(event);
 	}
 
 	/**
 	 * Check if the sender of the event has the permissions to change something about the command
 	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
+	 * @return			true if the Author of the event has the rights (== Administrator or HelperRole of the server), false if not
+	 */
+	public static boolean hasPermissionAdminOrHelper(MessageReceivedEvent event) {
+		ServerDTO server = Bot.app.getBean(ServerService.class).getByEvent(event);
+		
+		boolean hasHelperRole = ServerService.hasRoleInHelperList(event, server);
+		
+		return hasHelperRole || hasPermissionAdminOnly(event);
+	}
+
+
+	/**
+	 * Check if the sender of the event is an admin
+	 * @param event		The event sent (to get the Author and the channel name (== scrim name))
 	 * @return			true if the Author of the event has the rights (== Administrator), false if not
 	 */
-	public static boolean hasPermission(MessageReceivedEvent event) {
-		return event.getGuild().getMemberById(event.getMessage().getAuthor().getId()).getPermissions().contains(Permission.ADMINISTRATOR);
+	public static boolean hasPermissionAdminOnly(MessageReceivedEvent event) {
+		return event.getMessage().getMember().getPermissions().contains(Permission.ADMINISTRATOR);
 	}
 	
 	public static List<EventER> getCommandsList() {

@@ -58,7 +58,7 @@ public class EventERChangePriority extends EventER {
 			if (!UtilEmpty.isEmptyOrNull(newPriority) && priority != null) {			
 				if (team.getPriority() == null || !Priority.equals(team.getPriority(), newPriority)) {					
 					// Only administrator or said entities can change priority
-					if (EventERManager.hasPermission(event)) {
+					if (EventERManager.hasPermissionAdminOrHelper(event)) {
 						System.out.println("[EventERChangePriority] New priority for " + team.getName() + ": " + priority);
 						
 						team.setPriority(priority);

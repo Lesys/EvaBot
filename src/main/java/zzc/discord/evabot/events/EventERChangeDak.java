@@ -63,7 +63,7 @@ public class EventERChangeDak extends EventER {
 				TeamDTO team = this.teamService.getByPlayerAndScrim(player, scrim);
 				
 				if (player != null) {
-					if (EventERManager.hasPermission(event, player) || EventERManager.hasPermission(event, team)) {
+					if (EventERManager.hasPermissionOnPlayer(event, player) || EventERManager.hasPermissionOnTeam(event, team)) {
 						System.out.println("[EventERChangeDak] dak change start");
 						
 						player.setDak(newDak);

@@ -61,7 +61,7 @@ public class EventERChangeCaptain extends EventER {
 			
 			if (player != null) {
 				if (team.getCaptain() == null || !team.getCaptain().getDiscordName().equalsIgnoreCase(newCaptain)) {
-					if (EventERManager.hasPermission(event, teamName)) {
+					if (EventERManager.hasPermissionOnTeam(event, teamName)) {
 						System.out.println("[EventERChangeCaptain] captain change start");
 						
 						team.setCaptain(player);

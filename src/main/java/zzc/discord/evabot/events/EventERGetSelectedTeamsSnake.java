@@ -73,7 +73,7 @@ public class EventERGetSelectedTeamsSnake extends EventER {
 			ScrimDTO scrim = this.scrimService.getByEvent(event);
 	
 			if (scrim != null && !UtilEmpty.isEmptyOrNull(scrim.getTeamList())) {
-				if (EventERManager.hasPermission(event)) {				
+				if (EventERManager.hasPermissionAdminOrHelper(event)) {				
 					realNumberOfLobby = numberOfLobby;
 					realTeamPerLobby = maximumTeamPerLobby;
 					

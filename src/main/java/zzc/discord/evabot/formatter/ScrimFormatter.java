@@ -22,13 +22,16 @@ public class ScrimFormatter implements AbstractFormatter<Scrim, ScrimDTO> {
 	
 	private transient MessageLogFormatter messageLogFormatter;
 	
+	private transient ServerFormatter serverFormatter;
+	
 	@Autowired
 	public ScrimFormatter(ScrimRepository scrimRepository, TeamFormatter teamFormatter, SpectatorFormatter spectatorFormatter,
-			MessageLogFormatter messageLogFormatter) {
+			MessageLogFormatter messageLogFormatter, ServerFormatter serverFormatter) {
 		this.scrimRepository = scrimRepository;
 		this.teamFormatter = teamFormatter;
 		this.spectatorFormatter = spectatorFormatter;
 		this.messageLogFormatter = messageLogFormatter;
+		this.serverFormatter = serverFormatter;
 	}
 
 	@Override
@@ -95,14 +98,12 @@ public class ScrimFormatter implements AbstractFormatter<Scrim, ScrimDTO> {
 	public void hydrateEntityFromDto(Scrim entity, ScrimDTO dto) {
 		if (dto != null) {
 			entity.setChannelName(dto.getChannelName());
-			entity.setDiscordServerName(dto.getDiscordServerName());
+			entity.setServer(this.serverFormatter.dtoToEntity(dto.getServer()));
 			entity.setChannelId(dto.getChannelId());
 			
 			if (!UtilEmpty.isEmptyOrNull(dto.getTeamList())) {
 				entity.setTeams(this.teamFormatter.dtoToEntity(dto.getTeamList()));
 				entity.getTeams().forEach(team -> team.setScrim(entity));
-//				entity.setHistoryPlayerNameList(this.historyNameFormatter.dtoToEntity(dto.getHistoryPlayerNameList()));
-//				entity.getHistoryPlayerNameList().forEach(hpn -> hpn.setPlayer(entity));
 			} else {
 				entity.setTeams(new ArrayList<>());			
 			}
@@ -120,12 +121,6 @@ public class ScrimFormatter implements AbstractFormatter<Scrim, ScrimDTO> {
 			} else {
 				entity.setMessageLogs(new ArrayList<>());				
 			}
-			
-//			if (entity.getHistoryPlayerNameList().stream()
-//					.map(HistoryName::get)
-//					.filter(name -> name.equalsIgnoreCase(dto.getDakName())) != null) {
-//				entity.getHistoryPlayerNameList().add(entity.getDakName());
-//			}
 		}
 	}
 
@@ -133,7 +128,7 @@ public class ScrimFormatter implements AbstractFormatter<Scrim, ScrimDTO> {
 	public void hydrateDtoFromEntity(Scrim entity, ScrimDTO dto) {
 		if (entity != null) {
 			dto.setChannelName(entity.getChannelName());
-			dto.setDiscordServerName(entity.getDiscordServerName());
+			dto.setServer(this.serverFormatter.entityToDto(entity.getServer()));
 			dto.setChannelId(entity.getChannelId());
 			
 			dto.setTeamList(this.teamFormatter.entityToDto(entity.getTeams()));

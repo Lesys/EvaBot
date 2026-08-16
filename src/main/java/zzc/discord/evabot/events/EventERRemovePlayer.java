@@ -61,7 +61,7 @@ public class EventERRemovePlayer extends EventER {
 			ERPlayerDTO playerFromDiscordName = team.getPlayerByDiscordName(discordName);
 						
 			if (playerFromDiscordName != null) {
-				if (EventERManager.hasPermission(event, teamName)) {
+				if (EventERManager.hasPermissionOnTeam(event, teamName)) {
 					if (team.removePlayer(playerFromDiscordName)) {
 						this.teamService.save(team);
 						

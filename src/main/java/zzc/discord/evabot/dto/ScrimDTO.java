@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.entities.Message;
 
 public class ScrimDTO extends AbstractDTO {
 	/**
-	 * The Discord server name aka. guild name
+	 * The Discord server aka. guild
 	 */
-	private String discordServerName;
+	private ServerDTO server;
 	
 	/**
 	 * Name of the Discord channel where the registration are done
@@ -35,18 +35,18 @@ public class ScrimDTO extends AbstractDTO {
 	 * @param discordServerName		Name of the Discord server where the channel is
 	 * @param channelName			Name of the channel where the commands occur
 	 */
-	public ScrimDTO(String discordServerName, String channelName) {
+	public ScrimDTO(ServerDTO server, String channelName) {
 		this();
-		this.discordServerName = discordServerName;
+		this.server = server;
 		this.channelName = channelName;
 	}
-
-	public String getDiscordServerName() {
-		return discordServerName;
+	
+	public ServerDTO getServer() {
+		return server;
 	}
 
-	public void setDiscordServerName(String discordServerName) {
-		this.discordServerName = discordServerName;
+	public void setServer(ServerDTO server) {
+		this.server = server;
 	}
 
 	public String getChannelName() {

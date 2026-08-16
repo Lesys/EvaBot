@@ -57,7 +57,7 @@ public class EventERAddPlayer extends EventER {
 				TeamDTO team = scrim.getTeam(teamName);
 		
 				if (team != null) {
-					if (EventERManager.hasPermission(event, team)) {
+					if (EventERManager.hasPermissionOnTeam(event, team)) {
 						List<String> playerNames = new ArrayList<String>();
 						
 						for (int i = 1; i < names.size(); i++)

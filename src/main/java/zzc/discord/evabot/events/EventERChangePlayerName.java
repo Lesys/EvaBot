@@ -57,7 +57,7 @@ public class EventERChangePlayerName extends EventER {
 				ScrimDTO scrim = this.scrimService.getByEvent(event);
 				
 				if (!scrim.alreadyRegistered(newPlayerDiscordName)) {
-					if (EventERManager.hasPermission(event, player)) {
+					if (EventERManager.hasPermissionOnPlayer(event, player)) {
 						player.setDiscordName(newPlayerDiscordName);
 
 						this.erPlayerService.save(player);

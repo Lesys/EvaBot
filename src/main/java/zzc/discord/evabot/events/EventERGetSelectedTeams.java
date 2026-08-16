@@ -68,7 +68,7 @@ public class EventERGetSelectedTeams extends EventER {
 		/*System.err.println("Members: ");
 		event.getGuild().getMembers().forEach(t-> System.err.println(t.getUser().getName()));*/
 		if (scrim != null && !UtilEmpty.isEmptyOrNull(scrim.getTeamList())) {
-			if (EventERManager.hasPermission(event)) {
+			if (EventERManager.hasPermissionAdminOrHelper(event)) {
 				List<TeamDTO> filtered = this.filterTeams(scrim);
 				
 				this.createAndSendMessage(filtered, roleName, builder, scrim, event);

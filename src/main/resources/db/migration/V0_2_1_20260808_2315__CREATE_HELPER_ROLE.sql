@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS helper_role (
+	id INT NOT NULL AUTO_INCREMENT,
+	creation_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	modification_time TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	
+	entity_id VARCHAR(255) NOT NULL,
+	name VARCHAR(255) NULL,
+	server_id INT NOT NULL,
+	
+	PRIMARY KEY(id),
+	CONSTRAINT UC_HelperRole_entity_id UNIQUE(entity_id),
+	CONSTRAINT FK_HelperRole_Server FOREIGN KEY (server_id) REFERENCES server(id)
+);

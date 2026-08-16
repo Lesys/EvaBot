@@ -2,10 +2,14 @@ package zzc.discord.evabot.core.entity;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -19,10 +23,12 @@ import jakarta.persistence.Table;
 @Table(name = "scrim")
 public class Scrim extends AbstractEntity {	
 	/**
-	 * The Discord server name aka. guild name
+	 * The Discord server aka. guild
 	 */
-	@Column(name = "discord_server_name")
-	private String discordServerName;
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "server_id")
+	protected Server server;
 	
 	/**
 	 * Name of the Discord channel where the registration are done
@@ -30,7 +36,9 @@ public class Scrim extends AbstractEntity {
 	@Column(name = "channel_name")
 	private String channelName;
 	
-	
+	/**
+	 * ID of the Discord channel where the registration are done
+	 */
 	@Column(name = "channel_id")
 	private String channelId;
 	
@@ -40,6 +48,9 @@ public class Scrim extends AbstractEntity {
 	@OneToMany(mappedBy = "scrim", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Team> teams;
 
+	/**
+	 * Spectators willing to spectate for this scrim
+	 */
 	@OneToMany(mappedBy = "scrim", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Spectator> spectators;
 
@@ -52,13 +63,13 @@ public class Scrim extends AbstractEntity {
 	public Scrim() {
 		
 	}
-	
-	public String getDiscordServerName() {
-		return discordServerName;
+
+	public Server getServer() {
+		return server;
 	}
 
-	public void setDiscordServerName(String discordServerName) {
-		this.discordServerName = discordServerName;
+	public void setServer(Server server) {
+		this.server = server;
 	}
 
 	public String getChannelName() {
@@ -108,7 +119,11 @@ public class Scrim extends AbstractEntity {
 	public void addTeam(Team team) {
 		this.teams.add(team);
 	}
-	
+
+	/**
+	 * Adds a Spectator to the list of spectating people for this Scrim
+	 * @param spectator		The Spectator to add
+	 */
 	public void addSpectators(Spectator spectator) {
 		this.spectators.add(spectator);
 	}
@@ -131,7 +146,8 @@ public class Scrim extends AbstractEntity {
 		if (o != null && o.getClass().isAssignableFrom(Scrim.class)) {
 			Scrim s = (Scrim)o;
 			
-			return this.getDiscordServerName().equalsIgnoreCase(s.getDiscordServerName()) && this.getChannelName().equalsIgnoreCase(s.getChannelName());
+			return this.getServer() != null && this.getServer().getServerId() != null && s.getServer() != null && this.getServer().getServerId().equalsIgnoreCase(s.getServer().getServerId())
+					&& this.getChannelName() != null && this.getChannelName().equalsIgnoreCase(s.getChannelName());
 		}
 		
 		return false;

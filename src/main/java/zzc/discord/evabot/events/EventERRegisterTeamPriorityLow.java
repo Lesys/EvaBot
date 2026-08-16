@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import zzc.discord.evabot.service.ERPlayerService;
 import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.ServerService;
 import zzc.discord.evabot.util.enumeration.Priority;
 
 /**
@@ -17,8 +18,8 @@ public class EventERRegisterTeamPriorityLow extends EventERRegisterTeamPriority 
 	/**
 	 * Constructor of EventERRegisterTeamPriorityLow
 	 */
-	public EventERRegisterTeamPriorityLow(ERPlayerService erPlayerService, ScrimService scrimService) {
-		super(erPlayerService, scrimService);
+	public EventERRegisterTeamPriorityLow(ERPlayerService erPlayerService, ScrimService scrimService, ServerService serverService) {
+		super(erPlayerService, scrimService, serverService);
 		
 		this.commandName = EventER.commandPrefix + "registerPriorityLow";
 		this.priority = Priority.LOW;

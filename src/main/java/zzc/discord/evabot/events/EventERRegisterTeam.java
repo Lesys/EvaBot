@@ -12,9 +12,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ERPlayerDTO;
 import zzc.discord.evabot.dto.MessageLogDTO;
 import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.dto.ServerDTO;
 import zzc.discord.evabot.dto.TeamDTO;
 import zzc.discord.evabot.service.ERPlayerService;
 import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.ServerService;
 import zzc.discord.evabot.util.UtilEmpty;
 
 /**
@@ -30,15 +32,18 @@ public class EventERRegisterTeam extends EventER {
 	protected final transient ERPlayerService erPlayerService;
 
 	protected final transient ScrimService scrimService;
+
+	protected final transient ServerService serverService;
 	/**
 	 * Constructor of EventERRegisterTeam
 	 */
 	@Autowired
-	public EventERRegisterTeam(ERPlayerService erPlayerService, ScrimService scrimService) {
+	public EventERRegisterTeam(ERPlayerService erPlayerService, ScrimService scrimService, ServerService serverService) {
 		this.commandName += "register";
 
 		this.erPlayerService = erPlayerService;
 		this.scrimService = scrimService;
+		this.serverService = serverService;
 	}
 	
 	/**
@@ -58,6 +63,14 @@ public class EventERRegisterTeam extends EventER {
 					"(?i)".concat((Arrays.asList("+", "*", "?", "^", "$", "(", ")", "[", "]", "{", "}", "|", "\\")
 							.contains(this.commandName.substring(0, 1)) ? "\\" : "") + this.commandName + " "))[1]
 					.trim();
+
+			ServerDTO server = this.serverService.getByEvent(event);
+			
+			if (server == null) {
+				server = new ServerDTO(event.getGuild().getName(), event.getGuild().getId());
+
+				server = this.serverService.getFormatter().entityToDto(this.serverService.save(server));
+			}
 
 			ScrimDTO scrim = this.scrimService.getByEvent(event);
 			final ScrimDTO scrimFinal = scrim != null ? scrim : new ScrimDTO();
@@ -134,7 +147,7 @@ public class EventERRegisterTeam extends EventER {
 					
 					if (scrimFinal.getId() == null) {
 						scrimFinal.setChannelId(event.getChannel().getId());
-						scrimFinal.setDiscordServerName(discordServerName);
+						scrimFinal.setServer(server);
 						scrimFinal.setChannelName(channelName);
 					}
 					

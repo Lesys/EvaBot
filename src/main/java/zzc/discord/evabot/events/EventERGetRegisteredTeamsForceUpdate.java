@@ -51,7 +51,7 @@ public class EventERGetRegisteredTeamsForceUpdate extends EventERGetRegisteredTe
 		
 		if (scrim != null) {
 			AtomicInteger placement = new AtomicInteger(1);
-			if (EventERManager.hasPermission(event)) {
+			if (EventERManager.hasPermissionAdminOrHelper(event)) {
 				this.updateMmrService.updateTeamsMmr(scrim, true);
 				
 				scrim.getTeamList().stream().sorted().forEach(team -> {

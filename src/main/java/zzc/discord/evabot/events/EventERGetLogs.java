@@ -54,7 +54,7 @@ public class EventERGetLogs extends EventER {
 		ScrimDTO scrim = this.scrimService.getByEvent(event);
 		
 		if (scrim != null) {
-			if (EventERManager.hasPermission(event)) {
+			if (EventERManager.hasPermissionAdminOrHelper(event)) {
 				List<MessageLogDTO> logs = scrim.getMessageLogList();
 				Collections.sort(logs);
 				Collections.reverse(logs);

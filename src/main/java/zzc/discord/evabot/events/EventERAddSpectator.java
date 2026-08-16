@@ -10,7 +10,9 @@ import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import zzc.discord.evabot.dto.ScrimDTO;
+import zzc.discord.evabot.dto.ServerDTO;
 import zzc.discord.evabot.service.ScrimService;
+import zzc.discord.evabot.service.ServerService;
 
 /**
  * 
@@ -21,13 +23,16 @@ import zzc.discord.evabot.service.ScrimService;
 @Service
 public class EventERAddSpectator extends EventER {
 	private final transient ScrimService scrimService;
+
+	private final transient ServerService serverService;
 	/**
 	 * Constructor of EventERAddSpectator
 	 */
-	public EventERAddSpectator(ScrimService scrimService) {
+	public EventERAddSpectator(ScrimService scrimService, ServerService serverService) {
 		this.commandName += "addSpectator";
 		
 		this.scrimService = scrimService;
+		this.serverService = serverService;
 	}
 	
 	/**
@@ -39,16 +44,24 @@ public class EventERAddSpectator extends EventER {
 		String[] message = this.getMessageArray(event);
 
 		String spectatorName = event.getMessage().getMentions().getMembers().size() == 1 ? event.getMessage().getMentions().getMembers().get(0).getUser().getName() : message[message.length - 1];
+		
+		ServerDTO server = this.serverService.getByEvent(event);
+		
+		if (server == null) {
+			server = new ServerDTO(event.getGuild().getName(), event.getGuild().getId());
+
+			server = this.serverService.getFormatter().entityToDto(this.serverService.save(server));
+		}
 
 		ScrimDTO scrim = this.scrimService.getByEvent(event);
 		
 		if (scrim == null) {
-			scrim = new ScrimDTO(event.getGuild().getName(), event.getChannel().getName());
+			scrim = new ScrimDTO(server, event.getChannel().getName());
 			scrim.setChannelId(event.getChannel().getId());
 		}
 		
 		if (!scrim.alreadySpectating(spectatorName)) {
-			if (EventERManager.hasPermission(event)) {
+			if (EventERManager.hasPermissionAdminOrHelper(event)) {
 				String spectator = "";
 				try {
 					User u = event.getMessage().getMentions().getUsers().getFirst();

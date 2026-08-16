@@ -47,7 +47,7 @@ public class EventERChangeDisplayName extends EventER {
 			ERPlayerDTO player = this.erPlayerService.getDtoByDiscordName(discordName);
 			
 			if (player != null) {
-				if (EventERManager.hasPermission(event, player)) {
+				if (EventERManager.hasPermissionOnPlayer(event, player)) {
 					player.setDisplayName(newDisplayName);
 					
 					this.erPlayerService.save(player);

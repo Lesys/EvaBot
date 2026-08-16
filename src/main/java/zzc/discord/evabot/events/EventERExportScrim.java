@@ -45,7 +45,7 @@ public class EventERExportScrim extends EventER {
 		ScrimDTO scrim = this.scrimService.getByEvent(event);
 
 		if (scrim != null) {
-			if (EventERManager.hasPermission(event)) {
+			if (EventERManager.hasPermissionAdminOrHelper(event)) {
 				List<TeamDTO> filtered = null;
 				if (!byMmr)
 					filtered = scrim.getTeamList().stream().toList();

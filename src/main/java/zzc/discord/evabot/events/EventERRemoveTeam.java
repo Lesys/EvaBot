@@ -51,7 +51,7 @@ public class EventERRemoveTeam extends EventER {
 			TeamDTO team = scrim.getTeam(teamName);
 			
 			if (team != null) {
-				if (EventERManager.hasPermission(event, team)) {
+				if (EventERManager.hasPermissionOnTeam(event, team)) {
 					if (scrim.getTeamList().remove(team)) {
 						
 						scrim.getMessageLogList().add(new MessageLogDTO(event.getMessage()));

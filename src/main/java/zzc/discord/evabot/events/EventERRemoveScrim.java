@@ -38,16 +38,16 @@ public class EventERRemoveScrim extends EventER {
 		ScrimDTO scrim = this.scrimService.getByEvent(event);
 		
 		if (scrim != null) {
-			if (EventERManager.hasPermission(event)) {
+			if (EventERManager.hasPermissionAdminOrHelper(event)) {
 				this.scrimService.delete(scrim);
 				
 				if (this.scrimService.getByEvent(event) == null) {
 
-					event.getChannel().sendMessage("The scrim " + scrim.getChannelName() + " for the server \"" + scrim.getDiscordServerName() + "\" has been deleted.").queue();
+					event.getChannel().sendMessage("The scrim " + scrim.getChannelName() + " for the server \"" + scrim.getServer() + "\" has been deleted.").queue();
 					
 					this.commandIsSuccessful();
 				} else {
-					event.getChannel().sendMessage(scrim.getChannelName() + " from the server \"" + scrim.getDiscordServerName() + "\" hasn't been removed from the scrim list.").queue();
+					event.getChannel().sendMessage(scrim.getChannelName() + " from the server \"" + scrim.getServer() + "\" hasn't been removed from the scrim list.").queue();
 				}
 			} else {
 				event.getChannel().sendMessage(event.getAuthor().getAsMention() + " does not have the rights to use this command. Only an Administrator of the server can use it.").queue();
